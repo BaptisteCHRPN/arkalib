@@ -1,0 +1,85 @@
+.pt-80 {
+    padding-top: 80px;
+}
+
+.img-logo {
+    width: 4rem;
+}
+
+.navbar-brand:hover, .btn-light:hover {
+    text-decoration: none;
+}
+
+.bg-primary {
+    background-color: rgba(31, 47, 80, 1) !important;
+}
+.navbar-toggler{
+    background-color: #fff !important;
+}
+
+nav a {
+    color: #fff !important;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+.btn-light {
+    color:rgba(31, 47, 80, 1) !important;
+    border: none;
+}
+.btn-primary {
+    background-color: rgba(52, 187, 252, 1) !important;
+    border: none;
+}
+.btn-primary:hover {
+    background-color: rgb(37, 144, 197) !important;
+    text-decoration: none;
+}
+
+.link-logo {
+    font-size: bold !important;
+}
+
+.wd-270 {
+    width: 270px;
+}
+
+.ml-270 {
+    margin-left: 270px;
+}
+
+.stroke-3 {
+    stroke-width: 1.5px;
+}
+.bg-lighgray {
+    background-color: rgba(239, 239, 239, 1);
+}
+
+.height-60 {
+    height: 60px;
+}
+
+.bg-withe {
+    background-color: #fff;
+}
+
+.hello-title {
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    color: rgba(31, 47, 80, 1) !important;
+}
+
+.profile-rounded {
+    background-color: rgba(217, 217, 217, 1);
+    height: 3.2rem;
+    width: 3.2rem;
+    border-radius: 50%;
+    font-size: 1.8rem;
+    text-align: center;
+}
+
+.dropdown-menu {
+    width: 220px;
+}
