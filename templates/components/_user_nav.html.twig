@@ -1,0 +1,69 @@
+<nav class="d-flex flex-nowrap">
+	<div class="d-flex flex-column flex-shrink-0 p-3 bg-primary vh-100 position-fixed wd-270">
+		<a class="navbar-brand  fs-2 fw-bold mb-3" href="{{ path('app_home') }}">
+			<img class="img-logo" src="{{ asset('img/logo.svg') }}" alt="Logo d'Arkalib">
+			ARKALIB
+		</a>
+
+		<ul class="nav nav-pills flex-column mb-auto">
+			<li class="nav-item">
+				<a href="{{ path('app_dashboard') }}" class="nav-link mx-auto" aria-current="page">
+					{{ ux_icon('streamline:dashboard-circle', {'class': 'text-light stroke-3 me-2'}) }}
+					Tableau de bord
+				</a>
+			</li>
+			<li>
+				<a href="#" class="nav-link">
+					{{ ux_icon('streamline:home-3-remix', {'class': 'text-light stroke-3 me-2'}) }}
+					Organisations
+				</a>
+			</li>
+			<li>
+				<a href="#" class="nav-link">
+					<i class="bi bi-cart-fill me-2"></i>
+					Orders
+				</a>
+			</li>
+			<li>
+				<a href="#" class="nav-link">
+					<i class="bi bi-box-seam me-2"></i>
+					Products
+				</a>
+			</li>
+			<li>
+				<a href="#" class="nav-link">
+					<i class="bi bi-people-fill me-2"></i>
+					Customers
+				</a>
+			</li>
+		</ul>
+	</div>
+</nav>
+
+<nav class="ml-270 height-60 bg-withe d-flex align-items-center">
+	<h2 class="hello-title ms-3">
+		Bonjour {{ app.user.firstname }} !
+	</h2>
+	<a href="#" class="profile-rounded text-light d-inline-flex align-items-center justify-content-center ms-auto me-4 text-decoration-none" data-bs-toggle="dropdown" aria-expanded="true">
+		{{ app.user.firstname|first }}{{ app.user.lastname|first }}
+	</a>
+		<ul class="dropdown-menu text-small shadow me-3">
+			<li>
+				<a class="dropdown-item text-dark" href="#">{{ ux_icon('gg:profile') }} Mon profil</a>
+			</li>
+			<li>
+				<a class="dropdown-item text-dark" href="#">{{ ux_icon('ic:baseline-support') }} Support</a>
+			</li>
+			<li>
+				<a class="dropdown-item text-dark" href="#">{{ ux_icon('mingcute:question-line') }} Guide</a>
+			</li>
+			<li><hr class="dropdown-divider"></li>
+			<li class="d-flex justify-content-center p-2">
+				<div class="">
+					<a class="btn btn-primary" href="{{ path('app_logout') }}">
+						{{ ux_icon('streamline:logout-1', {'class': 'stroke-3 me-2'}) }} Se deconnecter
+					</a>
+				</div>
+			</li>
+		</ul>
+</nav>

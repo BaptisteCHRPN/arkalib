@@ -12,13 +12,13 @@
     <link rel="stylesheet" href="{{ asset('css/footer.css') }}">
     {% block stylesheets %}{% endblock %}
 </head>
-<body>
+<body class="bg-lighgray">
     
         <header>
-            {% include "components/_default_nav.html.twig" %}
+            {% include "components/_user_nav.html.twig" %}
         </header>
 
-        <main class="pt-80">
+        <main class="ml-270">
         <h1>{% block h1 %}{% endblock %}</h1>
         {% block body %}{% endblock %}
         </main>
