@@ -29,21 +29,21 @@ class Organisation
     private ?string $description = null;
 
     /**
-     * @var Collection<int, User>
-     */
-    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'organisation')]
-    private Collection $user;
-
-    /**
      * @var Collection<int, Budget>
      */
     #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'organisation')]
     private Collection $budgets;
 
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'organisations')]
+    private Collection $users;
+
     public function __construct()
     {
-        $this->user = new ArrayCollection();
         $this->budgets = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -100,33 +100,6 @@ class Organisation
     }
 
     /**
-     * @return Collection<int, User>
-     */
-    public function getUser(): Collection
-    {
-        return $this->user;
-    }
-
-    public function addUser(User $user): static
-    {
-        if (!$this->user->contains($user)) {
-            $this->user->add($user);
-            $user->addOrganisation($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(User $user): static
-    {
-        if ($this->user->removeElement($user)) {
-            $user->removeOrganisation($this);
-        }
-
-        return $this;
-    }
-
-    /**
      * @return Collection<int, Budget>
      */
     public function getBudgets(): Collection
@@ -152,6 +125,30 @@ class Organisation
                 $budget->setOrganisation(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): static
+    {
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): static
+    {
+        $this->users->removeElement($user);
 
         return $this;
     }
