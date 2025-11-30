@@ -14,9 +14,11 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/admin/organisation')]
 final class OrganisationController extends AbstractController
 {
-    #[Route(name: 'app_organisation_index', methods: ['GET'])]
+    #[Route('', name: 'app_organisation_index', methods: ['GET'])]
     public function index(OrganisationRepository $organisationRepository): Response
     {
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         return $this->render('organisation/index.html.twig', [
             'organisations' => $organisationRepository->findAll(),
         ]);
@@ -25,6 +27,8 @@ final class OrganisationController extends AbstractController
     #[Route('/new', name: 'app_organisation_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $organisation = new Organisation();
         $form = $this->createForm(OrganisationType::class, $organisation);
         $form->handleRequest($request);
@@ -45,6 +49,8 @@ final class OrganisationController extends AbstractController
     #[Route('/{id}', name: 'app_organisation_show', methods: ['GET'])]
     public function show(Organisation $organisation): Response
     {
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         return $this->render('organisation/show.html.twig', [
             'organisation' => $organisation,
         ]);
@@ -53,6 +59,8 @@ final class OrganisationController extends AbstractController
     #[Route('/{id}/edit', name: 'app_organisation_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Organisation $organisation, EntityManagerInterface $entityManager): Response
     {
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         $form = $this->createForm(OrganisationType::class, $organisation);
         $form->handleRequest($request);
 
@@ -71,6 +79,8 @@ final class OrganisationController extends AbstractController
     #[Route('/{id}', name: 'app_organisation_delete', methods: ['POST'])]
     public function delete(Request $request, Organisation $organisation, EntityManagerInterface $entityManager): Response
     {
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
         if ($this->isCsrfTokenValid('delete'.$organisation->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($organisation);
             $entityManager->flush();
