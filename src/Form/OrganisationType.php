@@ -15,16 +15,16 @@ class OrganisationType extends AbstractType
     {
         $builder
             ->add('name')
-            ->add('created_at', null, [
-                'widget' => 'single_text',
-            ])
-            ->add('is_active')
+            // ->add('created_at', null, [
+            //     'widget' => 'single_text',
+            // ])
+            // ->add('is_active')
             ->add('description')
-            ->add('user', EntityType::class, [
-                'class' => User::class,
-                'choice_label' => 'id',
-                'multiple' => true,
-            ])
+            // ->add('users', EntityType::class, [
+            //     'class' => User::class,
+            //     'choice_label' => 'id',
+            //     'multiple' => true,
+            // ])
         ;
     }
 
