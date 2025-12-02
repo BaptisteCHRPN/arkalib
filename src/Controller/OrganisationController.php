@@ -7,6 +7,7 @@ use App\Form\OrganisationType;
 use App\Repository\OrganisationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -23,13 +24,19 @@ final class OrganisationController extends AbstractController
     }
 
     #[Route('/new', name: 'app_organisation_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, Security $security): Response
     {
         $organisation = new Organisation();
         $form = $this->createForm(OrganisationType::class, $organisation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // debut : ajout de l'utilisateur connecter à l'organisation
+             $user = $security->getUser();
+            if ($user) {
+                $organisation->addUser($user);
+            } // fin
+
             $entityManager->persist($organisation);
             $entityManager->flush();
 
@@ -51,12 +58,19 @@ final class OrganisationController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_organisation_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Organisation $organisation, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, Organisation $organisation, EntityManagerInterface $entityManager, Security $security): Response
     {
         $form = $this->createForm(OrganisationType::class, $organisation);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+             // debut : ajout de l'utilisateur connecter à l'organisation
+             $user = $security->getUser();
+            if ($user) {
+                $organisation->addUser($user);
+            } // fin
+
             $entityManager->flush();
 
             return $this->redirectToRoute('app_organisation_index', [], Response::HTTP_SEE_OTHER);
