@@ -20,10 +20,10 @@ class Organisation
     private ?string $name = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $created_at = null;
+    private \DateTimeImmutable $created_at;
 
     #[ORM\Column]
-    private ?bool $is_active = null;
+    private bool $is_active;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
@@ -44,6 +44,8 @@ class Organisation
     {
         $this->budgets = new ArrayCollection();
         $this->users = new ArrayCollection();
+        $this->created_at = new \DateTimeImmutable();
+        $this->is_active = true;
     }
 
     public function getId(): ?int
@@ -73,6 +75,12 @@ class Organisation
         $this->created_at = $created_at;
 
         return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function setCreatedAtAutomatically(): void
+    {
+        $this->created_at = new \DateTimeImmutable();
     }
 
     public function isActive(): ?bool
