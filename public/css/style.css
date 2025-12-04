@@ -83,3 +83,7 @@ nav a:hover {
 .dropdown-menu {
     width: 220px;
 }
+
+.title-blue {
+    color: rgba(31, 47, 80, 1) !important;
+}
