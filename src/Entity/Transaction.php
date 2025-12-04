@@ -40,6 +40,9 @@ class Transaction
     #[ORM\ManyToMany(targetEntity: BudgetLine::class, inversedBy: 'transactions')]
     private Collection $budget_line;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $reference = null;
+
     public function __construct()
     {
         $this->budget_line = new ArrayCollection();
@@ -142,6 +145,18 @@ class Transaction
     public function removeBudgetLine(BudgetLine $budgetLine): static
     {
         $this->budget_line->removeElement($budgetLine);
+
+        return $this;
+    }
+
+    public function getReference(): ?string
+    {
+        return $this->reference;
+    }
+
+    public function setReference(?string $reference): static
+    {
+        $this->reference = $reference;
 
         return $this;
     }

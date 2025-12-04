@@ -23,9 +23,9 @@
         {% block body %}{% endblock %}
         </main>
 
-        {% if not app.user %}
-            {% include "_home_footer.html.twig" %}
-        {% endif %}
+        
+        {% include "components/_home_footer.html.twig" %}
+        
         
         
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
