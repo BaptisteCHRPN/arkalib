@@ -1,34 +1,59 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Connexion{% endblock %}
+{% block title %}Connexion
+{% endblock %}
 
 {% block body %}
-<form method="post">
-    {% if error %}
-        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-    {% endif %}
+	<div class="login-container">
+		<div class="login-card">
+			<h1 class="login-title">Connexion</h1>
 
-    {% if app.user %}
-        <div class="mb-3">
-            You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
-        </div>
-    {% endif %}
+			{% if error %}
+				<div class="alert alert-danger text-center">
+					{{ error.messageKey|trans(error.messageData, 'security') }}
+				</div>
+			{% endif %}
 
-    <h1 class="h3 mb-3 font-weight-normal">Se connecter</h1>
-    <label for="inputEmail">Email</label>
-    <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control" autocomplete="email" required autofocus>
-    <label for="inputPassword">Password</label>
-    <input type="password" name="password" id="inputPassword" class="form-control" autocomplete="current-password" required>
-    <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+			{% if app.user %}
+				<div class="text-center mb-3">
+					You are logged in as
+					{{ app.user.userIdentifier }},
+					<a href="{{ path('app_logout') }}" class="login-link">Logout</a>
+				</div>
+			{% else %}
+				<form method="post">
+					<div class="mb-3">
+						<input type="email" value="{{ last_username }}" name="email" class="form-control login-input" placeholder="Adresse e-mail" autocomplete="email" required>
+					</div>
 
-    <div class="checkbox mb-3">
-        <label>
-            <input type="checkbox" name="_remember_me"> Remember me
-        </label>
-    </div>
+					<div class="mb-3">
+						<input type="password" name="password" class="form-control login-input" placeholder="Mot de passe" autocomplete="current-password" required>
+					</div>
 
-    <button class="btn btn-lg btn-primary" type="submit">
-        Sign in
-    </button>
-</form>
+					<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+					<div class="checkbox mb-3">
+						<label>
+							<input type="checkbox" name="_remember_me">
+							Remember me
+						</label>
+					</div>
+					<button class="w-100 btn btn-primary login-button" type="submit">
+						Connexion
+					</button>
+
+					<div class="text-center mb-3">
+						<a href="#" class="login-link">Mot de passe oublié ?</a>
+					</div>
+
+					<hr>
+
+					<div class="text-center">
+						<p class="mb-0">Pas encore de compte ?
+							<a href="{{ path('app_register') }}" class="login-link">S'inscrire</a>
+						</p>
+					</div>
+				</form>
+			{% endif %}
+		</div>
+	</div>
 {% endblock %}
