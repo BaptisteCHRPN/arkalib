@@ -16,6 +16,16 @@ class OrganisationRepository extends ServiceEntityRepository
         parent::__construct($registry, Organisation::class);
     }
 
+    public function findByUser(int $userId) : array
+    {
+        return $this->createQueryBuilder('o')
+            ->join('o.user', 'u')
+            ->where('u.id = :userId')
+            ->setParameter('usreId', $userId)
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Organisation[] Returns an array of Organisation objects
     //     */
