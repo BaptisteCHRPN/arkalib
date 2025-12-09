@@ -3,21 +3,53 @@
 {% block title %}Register{% endblock %}
 
 {% block body %}
-    {% for flash_error in app.flashes('verify_email_error') %}
-        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-    {% endfor %}
+<div class="login-container">
+    <div class="login-card">
+        <h1 class="login-title">Inscription</h1>
 
-    <h1>Register</h1>
+        {% for flash_error in app.flashes('verify_email_error') %}
+            <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+        {% endfor %}
 
-    {{ form_errors(registrationForm) }}
+        {{ form_errors(registrationForm) }}
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+        {{ form_start(registrationForm) }}
+            {# Champ email (sans label, avec placeholder) #}
+            {{ form_widget(registrationForm.email, {
+                'attr': {
+                    'class': 'form-control login-input',
+                    'placeholder': 'Adresse e-mail'
+                }
+            }) }}
 
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+            {# Champ mot de passe (sans label, avec placeholder) #}
+            {{ form_widget(registrationForm.plainPassword.first, {
+                'attr': {
+                    'class': 'form-control login-input',
+                    'placeholder': 'Mot de passe'
+                }
+            }) }}
+            {{ form_widget(registrationForm.plainPassword.second, {
+                'attr': {
+                    'class': 'form-control login-input',
+                    'placeholder': 'Confirmer le mot de passe'
+                }
+            }) }}
+
+            {# Case à cocher pour les conditions #}
+            <div class="form-check">
+                {{ form_widget(registrationForm.agreeTerms, {
+                    'attr': {
+                        'class': 'form-check-input'
+                    }
+                }) }}
+                <label class="form-check-label" for="{{ registrationForm.agreeTerms.vars.id }}">
+                <a href="{{ path('app_cgu') }}">Conditions d'utilisation</a>
+                </label>
+            </div>
+
+            <button type="submit" class="w-100 btn btn-primary login-button">S'inscrire</button>
+        {{ form_end(registrationForm) }}
+    </div>
+</div>
 {% endblock %}

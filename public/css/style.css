@@ -6,14 +6,16 @@
     width: 4rem;
 }
 
-.navbar-brand:hover, .btn-light:hover {
+.navbar-brand:hover,
+.btn-light:hover {
     text-decoration: none;
 }
 
 .bg-primary {
     background-color: rgba(31, 47, 80, 1) !important;
 }
-.navbar-toggler{
+
+.navbar-toggler {
     background-color: #fff !important;
 }
 
@@ -26,13 +28,15 @@ nav a:hover {
 }
 
 .btn-light {
-    color:rgba(31, 47, 80, 1) !important;
+    color: rgba(31, 47, 80, 1) !important;
     border: none;
 }
+
 .btn-primary {
     background-color: rgba(52, 187, 252, 1) !important;
     border: none;
 }
+
 .btn-primary:hover {
     background-color: rgb(37, 144, 197) !important;
     text-decoration: none;
@@ -53,6 +57,7 @@ nav a:hover {
 .stroke-3 {
     stroke-width: 1.5px;
 }
+
 .bg-lighgray {
     background-color: rgba(239, 239, 239, 1);
 }
@@ -86,4 +91,53 @@ nav a:hover {
 
 .title-blue {
     color: rgba(31, 47, 80, 1) !important;
+}
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+.login-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-input {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    padding: 0.5rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.login-button {
+    border-radius: 5px;
+    background-color: #007bff;
+    border: none;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.login-link {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.login-link:hover {
+    text-decoration: underline;
 }
