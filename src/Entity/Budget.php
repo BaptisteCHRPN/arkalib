@@ -29,7 +29,7 @@ class Budget
     private ?bool $is_active = null;
 
     #[ORM\ManyToOne(inversedBy: 'budgets')]
-    private ?Organisation $organisation = null;
+    private ?Organization $organization = null;
 
     /**
      * @var Collection<int, BudgetLine>
@@ -95,14 +95,14 @@ class Budget
         return $this;
     }
 
-    public function getOrganisation(): ?Organisation
+    public function getOrganization(): ?Organization
     {
-        return $this->organisation;
+        return $this->organization;
     }
 
-    public function setOrganisation(?Organisation $organisation): static
+    public function setOrganization(?Organization $organization): static
     {
-        $this->organisation = $organisation;
+        $this->organization = $organization;
 
         return $this;
     }
