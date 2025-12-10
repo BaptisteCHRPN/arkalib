@@ -13,16 +13,11 @@ final class MemberOrganizationController extends AbstractController
     #[Route('/member/organization', name: 'app_member_organization')]
     public function index(OrganizationRepository $organizationRepository): Response
     {
-        // $user = $this->getUser();
+        $user = $this->getUser(); // Récupère l'utilisateur connecté
+        $organizations = $organizationRepository->findOrganizationsByUser($user);
 
-        // if (!$user) {
-        //     return $this->redirectToRoute('app_login');
-        // }
-
-        // $userId = $user->getId();
-
-        // $organizations = $organizationRepository->findByUser($userId);
-
-        return $this->render('member_organization/index.html.twig');
+        return $this->render('member_organization/index.html.twig', [
+            'organizations' => $organizations,
+        ]);
     }
 }

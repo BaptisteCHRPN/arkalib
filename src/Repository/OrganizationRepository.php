@@ -2,9 +2,10 @@
 
 namespace App\Repository;
 
+use App\Entity\User;
 use App\Entity\Organization;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
 /**
  * @extends ServiceEntityRepository<Organization>
@@ -16,12 +17,15 @@ class OrganizationRepository extends ServiceEntityRepository
         parent::__construct($registry, Organization::class);
     }
 
-    public function findByUser(int $userId) : array
+   public function findOrganizationsByUser(User $user): array
     {
+        // This query fetch all active organizations related in connecteed user 
         return $this->createQueryBuilder('o')
-            ->join('o.user', 'u')
+            ->innerJoin('o.users', 'u') 
             ->where('u.id = :userId')
-            ->setParameter('usreId', $userId)
+            ->andWhere('o.is_active = :isActive')
+            ->setParameter('userId', $user->getId())
+            ->setParameter('isActive', true)
             ->getQuery()
             ->getResult();
     }
