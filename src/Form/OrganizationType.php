@@ -2,14 +2,14 @@
 
 namespace App\Form;
 
-use App\Entity\Organisation;
+use App\Entity\Organization;
 use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class OrganisationType extends AbstractType
+class OrganizationType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -31,7 +31,7 @@ class OrganisationType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Organisation::class,
+            'data_class' => Organization::class,
         ]);
     }
 }

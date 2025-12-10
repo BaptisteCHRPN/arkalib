@@ -2,18 +2,18 @@
 
 namespace App\Repository;
 
-use App\Entity\Organisation;
+use App\Entity\Organization;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Organisation>
+ * @extends ServiceEntityRepository<Organization>
  */
-class OrganisationRepository extends ServiceEntityRepository
+class OrganizationRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Organisation::class);
+        parent::__construct($registry, Organization::class);
     }
 
     public function findByUser(int $userId) : array
@@ -27,7 +27,7 @@ class OrganisationRepository extends ServiceEntityRepository
     }
 
     //    /**
-    //     * @return Organisation[] Returns an array of Organisation objects
+    //     * @return organization[] Returns an array of organization objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -41,7 +41,7 @@ class OrganisationRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Organisation
+    //    public function findOneBySomeField($value): ?organization
     //    {
     //        return $this->createQueryBuilder('o')
     //            ->andWhere('o.exampleField = :val')

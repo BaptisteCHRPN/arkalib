@@ -45,14 +45,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $lastname = null;
 
     /**
-     * @var Collection<int, Organisation>
+     * @var Collection<int, Organization>
      */
-    #[ORM\ManyToMany(targetEntity: Organisation::class, mappedBy: 'users')]
-    private Collection $organisations;
+    #[ORM\ManyToMany(targetEntity: Organization::class, mappedBy: 'users')]
+    private Collection $organizations;
 
     public function __construct()
     {
-        $this->organisations = new ArrayCollection();
+        $this->organizations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -173,10 +173,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Organisation>
+     * @return Collection<int, Organization>
      */
-    public function getOrganisations(): Collection
+    public function getorganizations(): Collection
     {
-        return $this->organisations;
+        return $this->organizations;
     }
 }

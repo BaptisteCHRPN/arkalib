@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\Organisation;
+use App\Entity\Organization;
 use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;

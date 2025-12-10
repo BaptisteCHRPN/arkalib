@@ -2,14 +2,14 @@
 
 namespace App\Entity;
 
-use App\Repository\OrganisationRepository;
+use App\Repository\OrganizationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: OrganisationRepository::class)]
-class Organisation
+#[ORM\Entity(repositoryClass: OrganizationRepository::class)]
+class Organization
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -31,13 +31,13 @@ class Organisation
     /**
      * @var Collection<int, Budget>
      */
-    #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'organisation')]
+    #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'organization')]
     private Collection $budgets;
 
     /**
      * @var Collection<int, User>
      */
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'organisations')]
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'organizations')]
     private Collection $users;
 
     public function __construct()
@@ -119,7 +119,7 @@ class Organisation
     {
         if (!$this->budgets->contains($budget)) {
             $this->budgets->add($budget);
-            $budget->setOrganisation($this);
+            $budget->setOrganization($this);
         }
 
         return $this;
@@ -129,8 +129,8 @@ class Organisation
     {
         if ($this->budgets->removeElement($budget)) {
             // set the owning side to null (unless already changed)
-            if ($budget->getOrganisation() === $this) {
-                $budget->setOrganisation(null);
+            if ($budget->getOrganization() === $this) {
+                $budget->setOrganization(null);
             }
         }
 

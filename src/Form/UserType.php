@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\Organisation;
+use App\Entity\Organization;
 use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -20,8 +20,8 @@ class UserType extends AbstractType
             ->add('isVerified')
             ->add('firstname')
             ->add('lastname')
-            ->add('organisations', EntityType::class, [
-                'class' => Organisation::class,
+            ->add('organizations', EntityType::class, [
+                'class' => Organization::class,
                 'choice_label' => 'id',
                 'multiple' => true,
             ])
