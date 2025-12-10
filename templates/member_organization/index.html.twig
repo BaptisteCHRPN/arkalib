@@ -1,7 +1,21 @@
 {% extends 'user_base.html.twig' %}
 
-{% block title %}Hello MemberorganizationController!{% endblock %}
+{% block title %}Vos organisations{% endblock %}
 
 {% block body %}
+<h1>Pour quelle association allez vous travailler aujourd'hui ?</h1>
 
+    
+{% for organization in organizations %}
+<div class="card" style="width: 18rem;">
+  <div class="card-body">
+    <h5 class="card-title">{{ organization.name }}</h5>
+    <p class="card-text">{{ organization.description }}</p>
+    <a href="{{ path('app_organization_show', {'id': organization.id}) }}" class="btn btn-primary">Ouvrir</a>
+  </div>
+</div>
+{% else %}
+    <p colspan="6">Aucune organisation trouvée.</p>
+{% endfor %}
+    <a class="btn btn-primary" href="{{ path('app_organization_new') }}">Créer une nouvelle organisation</a>
 {% endblock %}
