@@ -97,6 +97,10 @@ final class OrganizationController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         if ($this->isCsrfTokenValid('delete'.$organization->getId(), $request->getPayload()->getString('_token'))) {
+            foreach ($organization->getUsers() as $user) {
+            $organization->removeUser($user);
+        }
+            // dd("Nombre d'utilisateurs après suppression : " . $organization->getUsers()->count());
             $entityManager->remove($organization);
             $entityManager->flush();
         }
