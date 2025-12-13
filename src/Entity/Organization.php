@@ -38,6 +38,7 @@ class Organization
      * @var Collection<int, User>
      */
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'organizations')]
+    #[ORM\JoinTable(name: 'organization_user')]
     private Collection $users;
 
     public function __construct()
@@ -157,6 +158,7 @@ class Organization
     public function removeUser(User $user): static
     {
         $this->users->removeElement($user);
+        $user->removeOrganization($this);
 
         return $this;
     }

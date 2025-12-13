@@ -179,4 +179,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->organizations;
     }
+
+    public function removeOrganization(Organization $organization): self
+{
+    $this->organizations->removeElement($organization);
+    return $this;
+}
 }
