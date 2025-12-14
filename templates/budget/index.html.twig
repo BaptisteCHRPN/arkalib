@@ -1,0 +1,41 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Budget index{% endblock %}
+
+{% block body %}
+    <h1>Budget index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Start_date</th>
+                <th>End_date</th>
+                <th>Is_active</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for budget in budgets %}
+            <tr>
+                <td>{{ budget.id }}</td>
+                <td>{{ budget.name }}</td>
+                <td>{{ budget.startDate ? budget.startDate|date('Y-m-d') : '' }}</td>
+                <td>{{ budget.endDate ? budget.endDate|date('Y-m-d') : '' }}</td>
+                <td>{{ budget.isActive ? 'Yes' : 'No' }}</td>
+                <td>
+                    <a href="{{ path('app_budget_show', {'id': budget.id}) }}">show</a>
+                    <a href="{{ path('app_budget_edit', {'id': budget.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="6">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_budget_new') }}">Create new</a>
+{% endblock %}

@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\BudgetLine;
+use App\Entity\Organization;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,6 +15,19 @@ class BudgetLineRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, BudgetLine::class);
+    }
+
+    public function findBudgetByOrganisation(Organization $organization): array
+    {
+        // This query fetch all active budget related in current organisation 
+        return $this->createQueryBuilder('b')
+            ->innerJoin('b.organizations', 'o') 
+            ->where('o.id = :organizationId')
+            ->andWhere('b.is_active = :isActive')
+            ->setParameter('organizationId', $organization->getId())
+            ->setParameter('isActive', true)
+            ->getQuery()
+            ->getResult();
     }
 
     //    /**
