@@ -17,7 +17,7 @@
                         </span>
                         <h5 class="card-title mb-3">{{ organization.name|capitalize }}</h5>
                         <p class="card-text mb-3">{{ organization.description }}</p>
-                        <a href="{{ path('app_organization_show', {'id': organization.id}) }}" class="btn btn-primary">Ouvrir</a>
+                        <a href="{{ path('app_organization_budgets', {'id': organization.id}) }}" class="btn btn-primary">Ouvrir</a>
                     </div>
                 </div>
             </div>

@@ -18,7 +18,7 @@ final class MemberOrganizationController extends AbstractController
     #[Route('/member/organization', name: 'app_member_organization')]
     public function index(OrganizationRepository $organizationRepository): Response
     {
-        $user = $this->getUser(); // Récupère l'utilisateur connecté
+        $user = $this->getUser();
         $organizations = $organizationRepository->findOrganizationsByUser($user);
 
         return $this->render('member_organization/index.html.twig', [
@@ -36,7 +36,7 @@ final class MemberOrganizationController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             // debut : ajout de l'utilisateur connecter à l'organization
-             $user = $security->getUser();
+            $user = $security->getUser();
             if ($user) {
                 $organization->addUser($user);
             } // fin
@@ -52,14 +52,24 @@ final class MemberOrganizationController extends AbstractController
             'form' => $form,
         ]);
     }
+    #[Route('/organization/{id}/budgets', name: 'app_organization_budgets')]
+    public function showBudgets(Organization $organization): Response
+    {
+        $budgets = $organization->getBudgets();
+
+        return $this->render('member_organization/show_budgets.html.twig', [
+            'organization' => $organization,
+            'budgets' => $budgets,
+        ]);
+    }
 
     #[Route('/{id}', name: 'app_organization_delete', methods: ['POST'])]
     public function delete(Request $request, Organization $organization, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$organization->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $organization->getId(), $request->getPayload()->getString('_token'))) {
             foreach ($organization->getUsers() as $user) {
-            $organization->removeUser($user);
-        }
+                $organization->removeUser($user);
+            }
             dump($organization->getUsers()->count());
             $entityManager->remove($organization);
             $entityManager->flush();
