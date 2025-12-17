@@ -1,0 +1,123 @@
+body {
+    overflow-x: hidden;
+}
+
+.navbar-toggle-btn {
+    position: fixed;
+    top: 65px;
+    left: 0;
+    z-index: 1050;
+    background-color: rgba(31, 47, 80, 1);
+    color: white;
+    border: none;
+    padding: 12px 15px 12px 10px;
+    border-radius: 0 12px 12px 0;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.navbar-toggle-btn:hover {
+    background-color: #0b5ed7;
+    padding-right: 18px;
+}
+
+.navbar-open .navbar-toggle-btn {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.offcanvas {
+    width: 270px;
+    transition: transform 0.3s ease-in-out;
+}
+
+.sidebar-nav {
+    width: 270px;
+}
+
+/* Navbar horizontale (header) */
+.header-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    z-index: 1030;
+    transition: left 0.3s ease-in-out;
+}
+
+.main-content {
+    transition: margin-left 0.3s ease-in-out, padding-left 0.3s ease-in-out;
+    margin-left: 0;
+    padding-left: 60px;
+     padding-top: 60px;
+    min-height: 100vh;
+}
+
+.chevron-icon {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 8px solid white;
+    margin-left: 3px;
+    transition: transform 0.3s ease;
+}
+
+.offcanvas, .offcanvas-start {
+    width: 270px !important;
+}
+
+@media (min-width: 992px) {
+    .offcanvas {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        visibility: visible !important;
+        border: none;
+        z-index: 1040;
+    }
+
+    /* Navbar ouverte sur desktop */
+    .navbar-open .main-content {
+        margin-left: 270px;
+        padding-left: 0;
+        /* Pas de padding, le bouton est caché */
+    }
+    .navbar-open .header-nav {
+        left: 270px;
+    }
+
+    /* Quand navbar fermée */
+    body:not(.navbar-open) .header-nav {
+        left: 0;
+    }
+
+    /* Navbar fermée sur desktop */
+    body:not(.navbar-open) .main-content {
+        margin-left: 0;
+        padding-left: 60px;
+        /* Padding pour le bouton */
+    }
+}
+
+@media (max-width: 991.98px) {
+    .header-nav {
+        left: 0; /* Toujours à gauche sur mobile */
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding-left: 60px;
+        padding-top: 60px;
+    }
+}
+
+.sidebar-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}

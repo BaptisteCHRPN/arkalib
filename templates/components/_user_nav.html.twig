@@ -1,50 +1,72 @@
-<nav class="d-flex flex-nowrap">
-	<div class="d-flex flex-column flex-shrink-0 p-3 bg-primary vh-100 position-fixed wd-270">
-		<a class="navbar-brand  fs-2 fw-bold mb-3" href="{{ path('app_home') }}">
-			<img class="img-logo" src="{{ asset('img/logo.svg') }}" alt="Logo d'Arkalib">
-			ARKALIB
-		</a>
+{# Toggle button to display navbar #}
+<button class="navbar-toggle-btn" type="button" id="navbarToggle">
+    <span class="chevron-icon"></span>
+</button>
 
-		<ul class="nav nav-pills flex-column mb-auto">
-			<li class="nav-item">
-				<a href="{{ path('app_dashboard') }}" class="nav-link mx-auto" aria-current="page">
-					{{ ux_icon('streamline:dashboard-circle', {'class': 'text-light stroke-3 me-2'}) }}
-					Tableau de bord
-				</a>
-			</li>
-			<li>
-				<a href="{{ path('app_member_organization') }}" class="nav-link">
-					{{ ux_icon('streamline:home-3-remix', {'class': 'text-light stroke-3 me-2'}) }}
-					organisations
-				</a>
-		</ul>
-	</div>
+<!-- Navbar Sidebar -->
+<nav class="offcanvas offcanvas-start" tabindex="-1" id="sidebarNav" data-bs-backdrop="false">
+    <div class="d-flex flex-column flex-shrink-0 p-3 bg-primary vh-100 sidebar-nav">
+        <!-- Logo et bouton de fermeture sur la même ligne -->
+        <div class="sidebar-header-row">
+            <a class="navbar-brand fs-2 fw-bold text-white text-decoration-none d-flex align-items-center" href="{{ path('app_home') }}">
+                <img class="img-logo me-2" src="{{ asset('img/logo.svg') }}" alt="Logo d'Arkalib" style="height: 40px;">
+                ARKALIB
+            </a>
+            <button type="button" class="btn-close btn-close-white" id="navbarClose" aria-label="Close"></button>
+        </div>
+        
+        <div class="offcanvas-body p-0">
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="{{ path('app_dashboard') }}" class="nav-link" aria-current="page">
+                        {{ ux_icon('streamline:dashboard-circle', {'class': 'text-light stroke-3 me-2'}) }}
+                        Tableau de bord
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('app_member_organization') }}" class="nav-link">
+                        {{ ux_icon('streamline:home-3-remix', {'class': 'text-light stroke-3 me-2'}) }}
+                        Organisations
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
 </nav>
 
-<nav class="ml-270 height-60 bg-withe d-flex align-items-center">
-	<h2 class="hello-title ms-3">
-		Bonjour {{ app.user.firstname }} !
-	</h2>
-	<a href="#" class="profile-rounded text-light d-inline-flex align-items-center justify-content-center ms-auto me-4 text-decoration-none" data-bs-toggle="dropdown" aria-expanded="true">
-		{{ app.user.firstname|first }}{{ app.user.lastname|first }}
-	</a>
-		<ul class="dropdown-menu text-small shadow me-3">
-			<li>
-				<a class="dropdown-item text-dark" href="#">{{ ux_icon('gg:profile') }} Mon profil</a>
-			</li>
-			<li>
-				<a class="dropdown-item text-dark" href="#">{{ ux_icon('ic:baseline-support') }} Support</a>
-			</li>
-			<li>
-				<a class="dropdown-item text-dark" href="#">{{ ux_icon('mingcute:question-line') }} Guide</a>
-			</li>
-			<li><hr class="dropdown-divider"></li>
-			<li class="d-flex justify-content-center p-2">
-				<div class="">
-					<a class="btn btn-primary" href="{{ path('app_logout') }}">
-						{{ ux_icon('streamline:logout-1', {'class': 'stroke-3 me-2'}) }} Se deconnecter
-					</a>
-				</div>
-			</li>
-		</ul>
+<!-- Header horizontal (s'adapte à la sidebar) -->
+<nav class="header-nav height-60 bg-white d-flex align-items-center border-bottom">
+    <h2 class="hello-title ms-3 mb-0">
+        Bonjour {{ app.user.firstname }} !
+    </h2>
+    <div class="dropdown ms-auto me-4">
+        <a href="#" class="profile-rounded text-light d-inline-flex align-items-center justify-content-center text-decoration-none" 
+           data-bs-toggle="dropdown" aria-expanded="false">
+            {{ app.user.firstname|first }}{{ app.user.lastname|first }}
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end text-small shadow">
+            <li>
+                <a class="dropdown-item text-dark" href="#">
+                    {{ ux_icon('gg:profile') }} Mon profil
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item text-dark" href="#">
+                    {{ ux_icon('ic:baseline-support') }} Support
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item text-dark" href="#">
+                    {{ ux_icon('mingcute:question-line') }} Guide
+                </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li class="d-flex justify-content-center p-2">
+                <a class="btn btn-primary" href="{{ path('app_logout') }}">
+                    {{ ux_icon('streamline:logout-1', {'class': 'stroke-3 me-2'}) }}
+                    Se déconnecter
+                </a>
+            </li>
+        </ul>
+    </div>
 </nav>
