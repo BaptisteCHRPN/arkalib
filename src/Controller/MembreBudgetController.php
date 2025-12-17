@@ -22,7 +22,7 @@ final class MembreBudgetController extends AbstractController
         return $this->render('membre_budget/index.html.twig');
     }
 
-    #[Route('/new', name: 'app_member_budget_new', methods: ['GET', 'POST'])]
+    #[Route('/membre/budget/new', name: 'app_member_budget_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
         $budget = new Budget();
