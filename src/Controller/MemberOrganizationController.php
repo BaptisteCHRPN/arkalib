@@ -56,6 +56,10 @@ final class MemberOrganizationController extends AbstractController
     {
         $budgets = $organization->getBudgets();
 
+        if(!$organization->getUsers()->contains($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
         return $this->render('member_organization/show_budgets.html.twig', [
             'organization' => $organization,
             'budgets' => $budgets,

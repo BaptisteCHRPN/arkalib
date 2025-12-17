@@ -2,6 +2,10 @@ body {
     overflow-x: hidden;
 }
 
+body.loading * {
+    transition: none !important;
+}
+
 .navbar-toggle-btn {
     position: fixed;
     top: 65px;

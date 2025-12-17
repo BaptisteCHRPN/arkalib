@@ -1,5 +1,4 @@
 // navbar-toggle.js
-
 document.addEventListener('DOMContentLoaded', function() {
     // Récupération des éléments
     const navbarToggle = document.getElementById('navbarToggle');
@@ -21,11 +20,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Fonction pour vérifier si on est sur mobile
     function isMobile() {
-        return window.innerWidth < 992; // Breakpoint lg de Bootstrap
+        return window.innerWidth < 992;
     }
 
-    // Initialiser l'état au chargement
+    // Initialiser l'état au chargement SANS animation
     function initNavbarState() {
+        // DÉSACTIVER LES TRANSITIONS TEMPORAIREMENT
+        sidebar.style.transition = 'none';
+        body.style.transition = 'none';
+        
         if (isMobile()) {
             // Sur mobile : fermer la navbar par défaut
             body.classList.remove('navbar-open');
@@ -35,10 +38,21 @@ document.addEventListener('DOMContentLoaded', function() {
             body.classList.add('navbar-open');
             bsOffcanvas.show();
         }
+        
+        // RÉACTIVER LES TRANSITIONS APRÈS UN COURT DÉLAI
+        setTimeout(() => {
+            sidebar.style.transition = '';
+            body.style.transition = '';
+        }, 50);
     }
 
-    // Appeler l'initialisation au chargement
+    // ⭐ APPELER L'INITIALISATION (ne pas commenter !)
     initNavbarState();
+    
+    // Retirer la classe loading après l'initialisation
+    setTimeout(() => {
+        document.body.classList.remove('loading');
+    }, 100);
 
     // Réinitialiser l'état lors du redimensionnement de la fenêtre
     let resizeTimer;
