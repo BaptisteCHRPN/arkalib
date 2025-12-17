@@ -11,7 +11,7 @@ final class CguController extends AbstractController
     #[Route('/cgu', name: 'app_cgu')]
     public function index(): Response
     {
-        return $this->render('cgu/index.html.twig', [
+        return $this->render('legals/cgu.html.twig', [
             'controller_name' => 'CguController',
         ]);
     }

@@ -11,7 +11,7 @@ final class CgvController extends AbstractController
     #[Route('/cgv', name: 'app_cgv')]
     public function index(): Response
     {
-        return $this->render('cgv/index.html.twig', [
+        return $this->render('legals/cgv.html.twig', [
             'controller_name' => 'CgvController',
         ]);
     }
