@@ -1,11 +1,13 @@
-{% extends 'base.html.twig' %}
+{% extends 'user_base.html.twig' %}
 
 {% block title %}New Budget{% endblock %}
 
 {% block body %}
-    <h1>Create new Budget</h1>
+<div class="container">
+    <h1>Nouveau budget</h1>
 
     {{ include('budget/_form.html.twig') }}
 
-    <a href="{{ path('app_budget_index') }}">back to list</a>
+    <a href="{{ path('app_budget_index') }}">Retour</a>
+</div>
 {% endblock %}

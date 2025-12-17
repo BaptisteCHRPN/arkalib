@@ -6,6 +6,7 @@ use App\Entity\Budget;
 use App\Entity\Organization;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -14,14 +15,22 @@ class BudgetType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name')
-            ->add('start_date')
-            ->add('end_date')
-            ->add('is_active')
-            ->add('organization', EntityType::class, [
-                'class' => Organization::class,
-                'choice_label' => 'id',
+            ->add('name', null, [
+                'label' => 'Nom',
             ])
+            ->add('start_date', DateType::class, [
+                'widget' => 'single_text',
+                'label' => 'Date de début'
+            ])
+            ->add('end_date', DateType::class, [
+                'widget' => 'single_text',
+                'label' => 'Date de fin'
+            ])
+
+            // ->add('organization', EntityType::class, [
+            //     'class' => Organization::class,
+            //     'choice_label' => 'id',
+            // ])
         ;
     }
 

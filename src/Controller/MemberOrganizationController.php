@@ -26,21 +26,20 @@ final class MemberOrganizationController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_membre_organization_new', methods: ['GET', 'POST'])]
+    #[Route('/organisation/new', name: 'app_membre_organization_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, Security $security): Response
     {
-
         $organization = new Organization();
         $form = $this->createForm(OrganizationType::class, $organization);
         $form->handleRequest($request);
+        $user = $this->getUser();
+
+      
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // debut : ajout de l'utilisateur connecter à l'organization
-            $user = $security->getUser();
-            if ($user) {
-                $organization->addUser($user);
-            } // fin
 
+            $organization->addUser($user);
+        
             $entityManager->persist($organization);
             $entityManager->flush();
 
