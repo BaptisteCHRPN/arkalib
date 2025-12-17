@@ -11,7 +11,7 @@ final class LegalsController extends AbstractController
     #[Route('/legals', name: 'app_legals')]
     public function index(): Response
     {
-        return $this->render('legals/index.html.twig', [
+        return $this->render('legals/legals.html.twig', [
             'controller_name' => 'LegalsController',
         ]);
     }
