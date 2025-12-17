@@ -15,4 +15,20 @@ final class LegalsController extends AbstractController
             'controller_name' => 'LegalsController',
         ]);
     }
+
+    #[Route('/cgu', name: 'app_cgu')]
+    public function cgu(): Response
+    {
+        return $this->render('legals/cgu.html.twig', [
+            'controller_name' => 'CguController',
+        ]);
+    }
+
+    #[Route('/cgv', name: 'app_cgv')]
+    public function cgv(): Response
+    {
+        return $this->render('legals/cgv.html.twig', [
+            'controller_name' => 'CgvController',
+        ]);
+    }
 }
