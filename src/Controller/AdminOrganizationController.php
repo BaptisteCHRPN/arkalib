@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 // This controller is only accessible by admin
 #[Route('/organization')]
-final class OrganizationController extends AbstractController
+final class AdminOrganizationController extends AbstractController
 {
     #[Route(name: 'app_organization_index', methods: ['GET'])]
     public function index(OrganizationRepository $organizationRepository): Response
