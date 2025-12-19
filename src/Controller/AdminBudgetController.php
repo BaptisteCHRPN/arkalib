@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/budget')]
-final class BudgetController extends AbstractController
+final class AdminBudgetController extends AbstractController
 {
     #[Route(name: 'app_budget_index', methods: ['GET'])]
     public function index(BudgetRepository $budgetRepository): Response
