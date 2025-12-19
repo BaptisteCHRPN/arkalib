@@ -21,7 +21,7 @@ final class MemberOrganizationController extends AbstractController
         $user = $this->getUser();
         $organizations = $organizationRepository->findOrganizationsByUser($user);
 
-        return $this->render('member_organization/index.html.twig', [
+        return $this->render('dashboard/index.html.twig', [
             'organizations' => $organizations,
         ]);
     }
@@ -60,7 +60,7 @@ final class MemberOrganizationController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        return $this->render('member_organization/show_budgets.html.twig', [
+        return $this->render('dashboard/show_budgets.html.twig', [
             'organization' => $organization,
             'budgets' => $budgets,
         ]);

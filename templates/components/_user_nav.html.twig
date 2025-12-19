@@ -6,7 +6,7 @@
 <!-- Navbar Sidebar -->
 <nav class="offcanvas offcanvas-start" tabindex="-1" id="sidebarNav" data-bs-backdrop="false">
     <div class="d-flex flex-column flex-shrink-0 p-3 bg-primary vh-100 sidebar-nav">
-        <!-- Logo et bouton de fermeture sur la même ligne -->
+        <!-- Logo and closure button on the same line-->
         <div class="sidebar-header-row">
             <a class="navbar-brand fs-2 fw-bold text-white text-decoration-none d-flex align-items-center" href="{{ path('app_home') }}">
                 <img class="img-logo me-2" src="{{ asset('img/logo.svg') }}" alt="Logo d'Arkalib" style="height: 40px;">
@@ -23,18 +23,20 @@
                         Tableau de bord
                     </a>
                 </li>
+                {% if is_granted('ROLE_ADMIN') %}
                 <li class="nav-item">
-                    <a href="{{ path('app_member_organization') }}" class="nav-link">
-                        {{ ux_icon('streamline:home-3-remix', {'class': 'text-light stroke-3 me-2'}) }}
-                        Organisations
+                    <a href="{{ path('app_back_office') }}" class="nav-link text-danger" aria-current="page">
+                        {{ ux_icon('eos-icons:admin-outlined', {'class': 'text-danger stroke-3 me-2'}) }}
+                        Back Office
                     </a>
                 </li>
+                {% endif %}
             </ul>
         </div>
     </div>
 </nav>
 
-<!-- Header horizontal (s'adapte à la sidebar) -->
+<!-- Horizontal header -->
 <nav class="header-nav height-60 bg-white d-flex align-items-center border-bottom">
     <h2 class="hello-title ms-3 mb-0">
         Bonjour {{ app.user.firstname }} !
