@@ -22,7 +22,7 @@ body.loading * {
 }
 
 .navbar-toggle-btn:hover {
-    background-color: #0b5ed7;
+    background-color: rgb(15, 23, 44);
     padding-right: 18px;
 }
 
