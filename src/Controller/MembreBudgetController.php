@@ -6,7 +6,6 @@ use App\Entity\Budget;
 use App\Entity\Organization;
 use App\Form\BudgetType;
 use App\Repository\BudgetRepository;
-use App\Repository\OrganizationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -54,8 +53,10 @@ final class MembreBudgetController extends AbstractController
     }
 
     #[Route('/membre/budget/{id}', name: 'app_membre_budget_show', methods: ['GET'])]
-    public function show(Budget $budget, Organization $organization): Response
+    public function show(Budget $budget): Response
     {
+        $organization = $budget->getOrganization();
+
         return $this->render('member_budget/index.html.twig', [
             'budget' => $budget,
             'organization' => $organization,
