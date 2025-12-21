@@ -1,0 +1,347 @@
+// 1. VARIABLES PERSONNALISÉES (avant d'importer Bootstrap)
+// Vos couleurs
+$primary: rgba(52, 187, 252, 1);
+$secondary: rgba(31, 47, 80, 1);
+$light-gray: rgba(239, 239, 239, 1);
+
+// Autres personnalisations
+$body-secondary-color: #fff;
+$border-radius: 5px;
+$font-weight-bold: 700;
+
+// 2. IMPORTER BOOTSTRAP
+@import "~bootstrap/scss/bootstrap";
+
+// 3. VOS STYLES PERSONNALISÉS (après Bootstrap)
+
+// Utilitaires personnalisés
+.pt-80 {
+    padding-top: 80px;
+}
+
+.wd-270 {
+    width: 270px;
+}
+
+.ml-270 {
+    margin-left: 270px;
+}
+
+.height-60 {
+    height: 60px;
+}
+
+.bg-lighgray {
+    background-color: $light-gray;
+}
+
+// Composants
+.img-logo {
+    width: 4rem;
+}
+
+.profile-rounded {
+    background-color: rgba(217, 217, 217, 1);
+    height: 3.2rem;
+    width: 3.2rem;
+    border-radius: 50%;
+    font-size: 1.8rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hello-title {
+    font-size: 2rem;
+    font-weight: $font-weight-bold;
+    color: $secondary;
+}
+
+.title-blue {
+    color: $secondary;
+}
+
+// Boutons (surcharge Bootstrap)
+.btn-primary {
+    background-color: $primary !important;
+    border: none;
+    color: #fff;
+    
+    &:hover {
+        background-color: darken($primary, 10%) !important;
+        text-decoration: none;
+    }
+}
+
+.btn-light {
+    color: $secondary !important;
+    border: none;
+    
+    &:hover {
+        text-decoration: none;
+    }
+}
+
+// ====================================
+// NAVIGATION
+// ====================================
+.navbar {
+    // Liens de navigation
+    .navbar-brand,
+    .nav-link {
+        color: #fff !important;
+        
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    // Logo
+    .navbar-brand {
+        &:hover {
+            text-decoration: none;
+        }
+    }
+}
+
+.navbar-toggler {
+    background-color: #fff;
+}
+
+// Navbar background
+.bg-secondary {
+    background-color: $secondary !important;
+}
+
+// Login page
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    border-radius: $border-radius;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+.login-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-link {
+    color: $primary;
+    text-decoration: none;
+    
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+// ====================================
+// FOOTER
+// ====================================
+.home_footer {
+    a, p {
+        color: #fff;
+    }
+}
+
+// ====================================
+// HERO SECTION
+// ====================================
+.hero-budget {
+    background-color: $light-gray;
+
+    &-title {
+        font-size: 3rem;
+        font-weight: $font-weight-bold;
+        color: $secondary;
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+    }
+
+    &-subtitle {
+        font-size: 1.25rem;
+        color: rgba(98, 109, 122, 1);
+        margin-bottom: 2rem;
+    }
+
+    &-image {
+        max-width: 1000px;
+    }
+}
+
+// ====================================
+// BODY & LOADING STATE
+// ====================================
+body {
+    overflow-x: hidden;
+
+    &.loading * {
+        transition: none !important;
+    }
+}
+
+// ====================================
+// NAVBAR TOGGLE BUTTON
+// ====================================
+.navbar-toggle-btn {
+    position: fixed;
+    top: 65px;
+    left: 0;
+    z-index: 1050;
+    background-color: $secondary;
+    color: white;
+    border: none;
+    padding: 12px 15px 12px 10px;
+    border-radius: 0 12px 12px 0;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+
+    &:hover {
+        background-color: darken($secondary, 10%);
+        padding-right: 18px;
+    }
+
+    .navbar-open & {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
+.chevron-icon {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 8px solid white;
+    margin-left: 3px;
+    transition: transform 0.3s ease;
+}
+
+// ====================================
+// SIDEBAR & OFFCANVAS
+// ====================================
+.offcanvas,
+.offcanvas-start,
+.sidebar-nav {
+    width: 270px !important;
+    transition: transform 0.3s ease-in-out;
+}
+
+.sidebar-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+// ====================================
+// HEADER NAVBAR
+// ====================================
+.header-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    z-index: 1030;
+    transition: left 0.3s ease-in-out;
+}
+
+// ====================================
+// MAIN CONTENT
+// ====================================
+.main-content {
+    transition: margin-left 0.3s ease-in-out, padding-left 0.3s ease-in-out;
+    margin-left: 0;
+    padding-left: 60px;
+    padding-top: 60px;
+    min-height: 100vh;
+}
+
+// ====================================
+// RESPONSIVE - DESKTOP (≥992px)
+// ====================================
+@media (min-width: 992px) {
+    .offcanvas {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        visibility: visible !important;
+        border: none;
+        z-index: 1040;
+    }
+
+    // Navbar ouverte
+    .navbar-open {
+        .main-content {
+            margin-left: 270px;
+            padding-left: 0;
+        }
+
+        .header-nav {
+            left: 270px;
+        }
+    }
+
+    // Navbar fermée
+    body:not(.navbar-open) {
+        .header-nav {
+            left: 0;
+        }
+
+        .main-content {
+            margin-left: 0;
+            padding-left: 60px;
+        }
+    }
+}
+
+// ====================================
+// RESPONSIVE - MOBILE (<992px)
+// ====================================
+@media (max-width: 991.98px) {
+    .header-nav {
+        left: 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding-left: 60px;
+        padding-top: 60px;
+    }
+}
+
+// ====================================
+// CARDS & COMPONENTS
+// ====================================
+.ark-card {
+    background-color: $light-gray;
+    border-radius: 4px;
+    border: none;
+}
+
+.h2-values {
+    text-align: center;
+    font-weight: bold;
+    color: $secondary;
+}
+
+.svg-primary {
+    color: $secondary;
+}
