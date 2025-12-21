@@ -83,6 +83,11 @@ $font-weight-bold: 700;
     }
 }
 
+.form-control::placeholder {
+    color: #6c757d;
+    opacity: 1;
+}
+
 // ====================================
 // NAVIGATION
 // ====================================

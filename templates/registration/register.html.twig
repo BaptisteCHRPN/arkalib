@@ -14,6 +14,7 @@
         {{ form_errors(registrationForm) }}
 
         {{ form_start(registrationForm) }}
+        <div class="mb-3">
             {# Champ email (sans label, avec placeholder) #}
             {{ form_widget(registrationForm.email, {
                 'attr': {
@@ -21,20 +22,25 @@
                     'placeholder': 'Adresse e-mail'
                 }
             }) }}
+            </div>
 
             {# Champ mot de passe (sans label, avec placeholder) #}
+            <div class="mb-3">
             {{ form_widget(registrationForm.plainPassword.first, {
                 'attr': {
                     'class': 'form-control login-input',
                     'placeholder': 'Mot de passe'
                 }
             }) }}
+            </div>
+            <div class="mb-3">
             {{ form_widget(registrationForm.plainPassword.second, {
                 'attr': {
                     'class': 'form-control login-input',
                     'placeholder': 'Confirmer le mot de passe'
                 }
             }) }}
+            </div>
 
             {# Case à cocher pour les conditions #}
             <div class="form-check">
