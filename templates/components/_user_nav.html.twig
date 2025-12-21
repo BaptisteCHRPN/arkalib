@@ -5,7 +5,7 @@
 
 <!-- Navbar Sidebar -->
 <nav class="offcanvas offcanvas-start" tabindex="-1" id="sidebarNav" data-bs-backdrop="false">
-    <div class="d-flex flex-column flex-shrink-0 p-3 bg-primary vh-100 sidebar-nav">
+    <div class="d-flex flex-column flex-shrink-0 p-3 bg-secondary vh-100 sidebar-nav">
         <!-- Logo and closure button on the same line-->
         <div class="sidebar-header-row">
             <a class="navbar-brand fs-2 fw-bold text-white text-decoration-none d-flex align-items-center" href="{{ path('app_home') }}">
@@ -18,7 +18,7 @@
         <div class="offcanvas-body p-0">
             <ul class="nav nav-pills flex-column mb-auto">
                 <li class="nav-item">
-                    <a href="{{ path('app_dashboard') }}" class="nav-link" aria-current="page">
+                    <a href="{{ path('app_dashboard') }}" class="nav-link text-white" aria-current="page">
                         {{ ux_icon('streamline:dashboard-circle', {'class': 'text-light stroke-3 me-2'}) }}
                         Tableau de bord
                     </a>
