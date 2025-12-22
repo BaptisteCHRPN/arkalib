@@ -1,0 +1,45 @@
+{% extends 'user_base.html.twig' %}
+
+{% block title %}BudgetLine index{% endblock %}
+
+{% block body %}
+    <h1>BudgetLine index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Is_expense</th>
+                <th>Descrption</th>
+                <th>Amount</th>
+                <th>Created_at</th>
+                <th>Is_active</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for budget_line in budget_lines %}
+            <tr>
+                <td>{{ budget_line.id }}</td>
+                <td>{{ budget_line.name }}</td>
+                <td>{{ budget_line.isExpense ? 'Yes' : 'No' }}</td>
+                <td>{{ budget_line.descrption }}</td>
+                <td>{{ budget_line.amount }}</td>
+                <td>{{ budget_line.createdAt ? budget_line.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                <td>{{ budget_line.isActive ? 'Yes' : 'No' }}</td>
+                <td>
+                    <a href="{{ path('app_admin_budget_line_show', {'id': budget_line.id}) }}">show</a>
+                    <a href="{{ path('app_admin_budget_line_edit', {'id': budget_line.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_admin_budget_line_new') }}">Create new</a>
+{% endblock %}
