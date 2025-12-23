@@ -11,14 +11,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/budget')]
+#[Route('/admin/budget')]
 final class AdminBudgetController extends AbstractController
 {
     #[Route(name: 'app_budget_index', methods: ['GET'])]
     public function index(BudgetRepository $budgetRepository): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
-        return $this->render('budget/index.html.twig', [
+        return $this->render('admin_budget/index.html.twig', [
             'budgets' => $budgetRepository->findAll(),
         ]);
     }
@@ -38,7 +38,7 @@ final class AdminBudgetController extends AbstractController
             return $this->redirectToRoute('app_budget_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('budget/new.html.twig', [
+        return $this->render('admin_budget/new.html.twig', [
             'budget' => $budget,
             'form' => $form,
         ]);
@@ -48,7 +48,7 @@ final class AdminBudgetController extends AbstractController
     public function show(Budget $budget): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
-        return $this->render('budget/show.html.twig', [
+        return $this->render('admin_budget/show.html.twig', [
             'budget' => $budget,
         ]);
     }
@@ -66,7 +66,7 @@ final class AdminBudgetController extends AbstractController
             return $this->redirectToRoute('app_budget_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('budget/edit.html.twig', [
+        return $this->render('admin_budget/edit.html.twig', [
             'budget' => $budget,
             'form' => $form,
         ]);

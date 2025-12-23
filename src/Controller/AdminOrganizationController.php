@@ -13,7 +13,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 // This controller is only accessible by admin
-#[Route('/organization')]
+#[Route('/admin/organization')]
 final class AdminOrganizationController extends AbstractController
 {
     #[Route(name: 'app_organization_index', methods: ['GET'])]
@@ -21,7 +21,7 @@ final class AdminOrganizationController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        return $this->render('organization/index.html.twig', [
+        return $this->render('admin_organization/index.html.twig', [
             'organizations' => $organizationRepository->findAll(),
         ]);
     }
@@ -48,7 +48,7 @@ final class AdminOrganizationController extends AbstractController
             return $this->redirectToRoute('app_organization_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('organization/new.html.twig', [
+        return $this->render('admin_organization/new.html.twig', [
             'organization' => $organization,
             'form' => $form,
         ]);
@@ -59,7 +59,7 @@ final class AdminOrganizationController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        return $this->render('organization/show.html.twig', [
+        return $this->render('admin_organization/show.html.twig', [
             'organization' => $organization,
         ]);
     }
@@ -85,7 +85,7 @@ final class AdminOrganizationController extends AbstractController
             return $this->redirectToRoute('app_organization_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('organization/edit.html.twig', [
+        return $this->render('admin_organization/edit.html.twig', [
             'organization' => $organization,
             'form' => $form,
         ]);
