@@ -22,14 +22,14 @@ class BudgetLine
     #[ORM\Column]
     private bool $is_expense = true;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $descrption = null;
 
     #[ORM\Column]
     private ?float $amount = null;
 
     #[ORM\Column]
-    private ?\DateTimeImmutable $created_at = null;
+    private ?\DateTimeImmutable $created_at;
 
     #[ORM\Column]
     private ?bool $is_active = null;
@@ -49,6 +49,8 @@ class BudgetLine
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
+        $this->created_at = new \DateTimeImmutable();
+        $this->is_active = true;
     }
 
     public function getId(): ?int
