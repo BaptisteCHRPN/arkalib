@@ -12,7 +12,7 @@ use Symfony\Config\Security\ProviderConfig\Memory\UserConfig;
 
 final class BackOfficeController extends AbstractController
 {
-    #[Route('/backoffice', name: 'app_back_office')]
+    #[Route('/admin/backoffice', name: 'app_back_office')]
     public function index(OrganizationRepository $organization, BudgetLineRepository $budget, UserRepository $user): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');

@@ -46,7 +46,7 @@ final class MemberOrganizationController extends AbstractController
             return $this->redirectToRoute('app_member_organization', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('organization/new.html.twig', [
+        return $this->render('member_organization/new.html.twig', [
             'organization' => $organization,
             'form' => $form,
         ]);

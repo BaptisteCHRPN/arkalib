@@ -30,5 +30,8 @@
 
     <p colspan="6">Aucune organisation trouvée.</p>
 {% endfor %}
-    <a class="btn btn-primary" href="{{ path('app_membre_organization_new') }}">Créer une nouvelle organisation</a>
+    <div class="d-flex gap-2 justify-content-center">
+        <a class="btn btn-primary my-1" href="{{ path('app_membre_organization_new') }}">Créer une nouvelle organisation</a>
+        <a class="btn btn-primary my-1" href="#">Rejoindre une organisation</a>
+    </div>
 {% endblock %}
