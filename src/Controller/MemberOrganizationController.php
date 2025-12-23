@@ -66,7 +66,7 @@ final class MemberOrganizationController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_organization_delete', methods: ['POST'])]
+    #[Route('/organization/{id}', name: 'app_organization_delete', methods: ['POST'])]
     public function delete(Request $request, Organization $organization, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $organization->getId(), $request->getPayload()->getString('_token'))) {

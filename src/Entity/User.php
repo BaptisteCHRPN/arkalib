@@ -175,7 +175,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @return Collection<int, Organization>
      */
-    public function getorganizations(): Collection
+    public function getOrganizations(): Collection
     {
         return $this->organizations;
     }
