@@ -20,7 +20,7 @@ class BudgetLine
     private ?string $name = null;
 
     #[ORM\Column]
-    private ?bool $is_expense = null;
+    private bool $is_expense = true;
 
     #[ORM\Column(type: Types::TEXT)]
     private ?string $descrption = null;
