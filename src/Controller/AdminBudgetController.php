@@ -17,7 +17,7 @@ final class AdminBudgetController extends AbstractController
     #[Route(name: 'app_budget_index', methods: ['GET'])]
     public function index(BudgetRepository $budgetRepository): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
         return $this->render('admin_budget/index.html.twig', [
             'budgets' => $budgetRepository->findAll(),
         ]);
@@ -26,7 +26,7 @@ final class AdminBudgetController extends AbstractController
     #[Route('/new', name: 'app_budget_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $budget = new Budget();
         $form = $this->createForm(BudgetType::class, $budget);
         $form->handleRequest($request);
@@ -47,7 +47,7 @@ final class AdminBudgetController extends AbstractController
     #[Route('/{id}', name: 'app_budget_show', methods: ['GET'])]
     public function show(Budget $budget): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
         return $this->render('admin_budget/show.html.twig', [
             'budget' => $budget,
         ]);
@@ -56,7 +56,7 @@ final class AdminBudgetController extends AbstractController
     #[Route('/{id}/edit', name: 'app_budget_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Budget $budget, EntityManagerInterface $entityManager): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $form = $this->createForm(BudgetType::class, $budget);
         $form->handleRequest($request);
 
@@ -75,7 +75,7 @@ final class AdminBudgetController extends AbstractController
     #[Route('/{id}', name: 'app_budget_delete', methods: ['POST'])]
     public function delete(Request $request, Budget $budget, EntityManagerInterface $entityManager): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
         if ($this->isCsrfTokenValid('delete'.$budget->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($budget);
             $entityManager->flush();

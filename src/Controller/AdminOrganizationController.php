@@ -19,8 +19,7 @@ final class AdminOrganizationController extends AbstractController
     #[Route(name: 'app_organization_index', methods: ['GET'])]
     public function index(OrganizationRepository $organizationRepository): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
         return $this->render('admin_organization/index.html.twig', [
             'organizations' => $organizationRepository->findAll(),
         ]);
@@ -29,8 +28,7 @@ final class AdminOrganizationController extends AbstractController
     #[Route('/new', name: 'app_organization_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, Security $security): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $organization = new Organization();
         $form = $this->createForm(OrganizationType::class, $organization);
         $form->handleRequest($request);
@@ -57,8 +55,7 @@ final class AdminOrganizationController extends AbstractController
     #[Route('/{id}', name: 'app_organization_show', methods: ['GET'])]
     public function show(Organization $organization): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
         return $this->render('admin_organization/show.html.twig', [
             'organization' => $organization,
         ]);
@@ -67,8 +64,7 @@ final class AdminOrganizationController extends AbstractController
     #[Route('/{id}/edit', name: 'app_organization_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Organization $organization, EntityManagerInterface $entityManager, Security $security): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $form = $this->createForm(OrganizationType::class, $organization);
         $form->handleRequest($request);
 
@@ -94,8 +90,7 @@ final class AdminOrganizationController extends AbstractController
     #[Route('/{id}', name: 'app_organization_delete', methods: ['POST'])]
     public function delete(Request $request, Organization $organization, EntityManagerInterface $entityManager): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
+        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
         if ($this->isCsrfTokenValid('delete'.$organization->getId(), $request->getPayload()->getString('_token'))) {
             foreach ($organization->getUsers() as $user) {
             $organization->removeUser($user);
