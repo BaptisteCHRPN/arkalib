@@ -52,7 +52,7 @@ final class MembreBudgetController extends AbstractController
         ]);
     }
 
-    #[Route('/membre/budget/{id}', name: 'app_membre_budget_show', methods: ['GET'])]
+    #[Route('/membre/budget/{budgetId}', name: 'app_membre_budget_show', methods: ['GET'])]
     public function show(Budget $budget): Response
     {
         $organization = $budget->getOrganization();
