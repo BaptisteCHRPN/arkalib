@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Member;
 
 use App\Repository\OrganizationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,7 +13,7 @@ final class DashboardController extends AbstractController
     public function index(OrganizationRepository $organizationRepository,): Response
     {
         $user = $this->getUser();
-        return $this->render('dashboard/index.html.twig', [
+        return $this->render('member/dashboard/index.html.twig', [
             'organizations' => $organizationRepository->findOrganizationsByUser($user)
         ]);
     }

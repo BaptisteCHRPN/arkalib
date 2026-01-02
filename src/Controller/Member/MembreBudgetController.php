@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Member;
 
 use App\Entity\Budget;
 use App\Entity\Organization;
@@ -17,7 +17,7 @@ final class MembreBudgetController extends AbstractController
     #[Route('/membre/budget', name: 'app_membre_budget')]
     public function index(BudgetRepository $budgetRepository): Response
     {
-        return $this->render('membre_budget/index.html.twig');
+        return $this->render('membre/budget/index.html.twig');
     }
 
     #[Route('/membre/budget/new/{organizationId}', name: 'app_member_budget_new', methods: ['GET', 'POST'])]
@@ -46,7 +46,7 @@ final class MembreBudgetController extends AbstractController
             return $this->redirectToRoute('app_organization_budgets', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('budget/new.html.twig', [
+        return $this->render('member/budget/new.html.twig', [
             'budget' => $budget,
             'form' => $form,
         ]);
@@ -57,7 +57,7 @@ final class MembreBudgetController extends AbstractController
     {
         $organization = $budget->getOrganization();
 
-        return $this->render('member_budget/index.html.twig', [
+        return $this->render('member/budget/index.html.twig', [
             'budget' => $budget,
             'organization' => $organization,
         ]);

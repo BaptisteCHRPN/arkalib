@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Backoffice;
 
 use App\Entity\Organization;
 use App\Form\OrganizationType;
@@ -20,7 +20,7 @@ final class AdminOrganizationController extends AbstractController
     public function index(OrganizationRepository $organizationRepository): Response
     {
         // $this->denyAccessUnlessGranted('ROLE_ADMIN');
-        return $this->render('admin_organization/index.html.twig', [
+        return $this->render('admin/organization/index.html.twig', [
             'organizations' => $organizationRepository->findAll(),
         ]);
     }
@@ -46,7 +46,7 @@ final class AdminOrganizationController extends AbstractController
             return $this->redirectToRoute('app_organization_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('admin_organization/new.html.twig', [
+        return $this->render('admin/organization/new.html.twig', [
             'organization' => $organization,
             'form' => $form,
         ]);
@@ -56,7 +56,7 @@ final class AdminOrganizationController extends AbstractController
     public function show(Organization $organization): Response
     {
         // $this->denyAccessUnlessGranted('ROLE_ADMIN');
-        return $this->render('admin_organization/show.html.twig', [
+        return $this->render('admin/organization/show.html.twig', [
             'organization' => $organization,
         ]);
     }
@@ -81,7 +81,7 @@ final class AdminOrganizationController extends AbstractController
             return $this->redirectToRoute('app_organization_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('admin_organization/edit.html.twig', [
+        return $this->render('admin/organization/edit.html.twig', [
             'organization' => $organization,
             'form' => $form,
         ]);
