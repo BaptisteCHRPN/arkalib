@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Backoffice;
 
 use App\Repository\BudgetLineRepository;
 use App\Repository\OrganizationRepository;
@@ -17,7 +17,7 @@ final class BackOfficeController extends AbstractController
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
-        return $this->render('back_office/index.html.twig', [
+        return $this->render('admin/back_office/index.html.twig', [
             'organizations' => $organization,
             'budgets' => $budget,
             'users' => $user,

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Public;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,7 +11,7 @@ final class LegalsController extends AbstractController
     #[Route('/legals', name: 'app_legals')]
     public function index(): Response
     {
-        return $this->render('legals/legals.html.twig', [
+        return $this->render('public/legals/legals.html.twig', [
             'controller_name' => 'LegalsController',
         ]);
     }
@@ -19,7 +19,7 @@ final class LegalsController extends AbstractController
     #[Route('/cgu', name: 'app_cgu')]
     public function cgu(): Response
     {
-        return $this->render('legals/cgu.html.twig', [
+        return $this->render('public/legals/cgu.html.twig', [
             'controller_name' => 'CguController',
         ]);
     }
@@ -27,7 +27,7 @@ final class LegalsController extends AbstractController
     #[Route('/cgv', name: 'app_cgv')]
     public function cgv(): Response
     {
-        return $this->render('legals/cgv.html.twig', [
+        return $this->render('public/legals/cgv.html.twig', [
             'controller_name' => 'CgvController',
         ]);
     }

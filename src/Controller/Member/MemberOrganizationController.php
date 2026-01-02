@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller;
+namespace App\Controller\Member;
 
 use App\Entity\Organization;
 use App\Form\OrganizationType;
@@ -21,7 +21,7 @@ final class MemberOrganizationController extends AbstractController
         $user = $this->getUser();
         $organizations = $organizationRepository->findOrganizationsByUser($user);
 
-        return $this->render('dashboard/index.html.twig', [
+        return $this->render('member/dashboard/index.html.twig', [
             'organizations' => $organizations,
         ]);
     }
@@ -44,7 +44,7 @@ final class MemberOrganizationController extends AbstractController
             return $this->redirectToRoute('app_member_organization', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('member_organization/new.html.twig', [
+        return $this->render('member/organization/new.html.twig', [
             'organization' => $organization,
             'form' => $form,
         ]);
@@ -58,7 +58,7 @@ final class MemberOrganizationController extends AbstractController
             throw $this->createAccessDeniedException();
         }
 
-        return $this->render('dashboard/show_budgets.html.twig', [
+        return $this->render('member/dashboard/show_budgets.html.twig', [
             'organization' => $organization,
             'budgets' => $budgets,
         ]);
