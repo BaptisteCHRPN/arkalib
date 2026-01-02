@@ -15,15 +15,15 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 #[Route('/member/budgetline')]
 final class MemberBudgetLineController extends AbstractController
 {
-    #[Route(name: 'app_admin_budget_line_index', methods: ['GET'])]
+    #[Route(name: 'app_budget_line_index', methods: ['GET'])]
     public function index(BudgetLineRepository $budgetLineRepository): Response
     {
-        return $this->render('admin_budget_line/index.html.twig', [
+        return $this->render('member_budget_line/index.html.twig', [
             'budget_lines' => $budgetLineRepository->findAll(),
         ]);
     }
 
-    #[Route('/new/{budgetId}', name: 'app_admin_budget_line_new', methods: ['GET', 'POST'])]
+    #[Route('/new/{id}', name: 'app_budget_line_new', methods: ['GET', 'POST'])]
     public function new(int $budgetId, Request $request, EntityManagerInterface $entityManager): Response
     {
         $budget = $entityManager->getRepository(Budget::class)->find($budgetId);
@@ -36,24 +36,24 @@ final class MemberBudgetLineController extends AbstractController
             $entityManager->persist($budgetLine);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_admin_budget_line_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_budget_line_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('admin_budget_line/new.html.twig', [
+        return $this->render('member_budget_line/new.html.twig', [
             'budget_line' => $budgetLine,
             'form' => $form,
         ]);
     }
 
-    #[Route('/{id}', name: 'app_admin_budget_line_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_budget_line_show', methods: ['GET'])]
     public function show(BudgetLine $budgetLine): Response
     {
-        return $this->render('admin_budget_line/show.html.twig', [
+        return $this->render('member_budget_line/show.html.twig', [
             'budget_line' => $budgetLine,
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_admin_budget_line_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_budget_line_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, BudgetLine $budgetLine, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(BudgetLineType::class, $budgetLine);
@@ -62,10 +62,10 @@ final class MemberBudgetLineController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_admin_budget_line_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_budget_line_index', [], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('admin_budget_line/edit.html.twig', [
+        return $this->render('member_budget_line/edit.html.twig', [
             'budget_line' => $budgetLine,
             'form' => $form,
         ]);
