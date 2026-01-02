@@ -32,9 +32,7 @@ final class MemberOrganizationController extends AbstractController
         $organization = new Organization();
         $form = $this->createForm(OrganizationType::class, $organization);
         $form->handleRequest($request);
-        $user = $this->getUser();
-
-      
+        $user = $this->getUser();      
 
         if ($form->isSubmitted() && $form->isValid()) {
 
