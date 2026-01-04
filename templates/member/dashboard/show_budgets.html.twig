@@ -16,7 +16,7 @@
                         </span>
                         {# <p>{{ budget.start_date }} {{ budget.end_date }}</p> #}
                         <h5 class="card-title mb-3">{{ budget.name|capitalize }}</h5>
-                        <a href="{{ path('app_membre_budget_show', {'id': budget.id}) }}" class="btn btn-primary">Ouvrir</a>
+                        <a href="{{ path('app_membre_budget_show', {'slug': budget.slug}) }}" class="btn btn-primary">Ouvrir</a>
                     </div>
                 </div>
             </div>

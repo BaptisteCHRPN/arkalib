@@ -3,13 +3,15 @@
 namespace App\Controller\Member;
 
 use App\Entity\Budget;
-use App\Entity\Organization;
 use App\Form\BudgetType;
+use App\Entity\Organization;
 use App\Repository\BudgetRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 final class MembreBudgetController extends AbstractController
@@ -21,7 +23,7 @@ final class MembreBudgetController extends AbstractController
     }
 
     #[Route('/membre/budget/new/{organizationId}', name: 'app_member_budget_new', methods: ['GET', 'POST'])]
-    public function new(int $organizationId, Request $request, EntityManagerInterface $entityManager): Response
+    public function new(int $organizationId, Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $organization = $entityManager->getRepository(Organization::class)->find($organizationId);
 
@@ -40,6 +42,11 @@ final class MembreBudgetController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            // auto slug generation
+            $slug = $slugger->slug($organization->getName())->lower();
+            $organization->setSlug($slug);
+
             $entityManager->persist($budget);
             $entityManager->flush();
 
@@ -52,8 +59,10 @@ final class MembreBudgetController extends AbstractController
         ]);
     }
 
-    #[Route('/membre/budget/{id}', name: 'app_membre_budget_show', methods: ['GET'])]
-    public function show(Budget $budget): Response
+    #[Route('/membre/budget/{slug}', name: 'app_membre_budget_show', methods: ['GET'])]
+    public function show(
+        #[MapEntity(mapping: ['slug' => 'slug'])]
+        Budget $budget): Response
     {
         $organization = $budget->getOrganization();
 
