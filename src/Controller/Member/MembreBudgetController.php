@@ -44,13 +44,13 @@ final class MembreBudgetController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             // auto slug generation
-            $slug = $slugger->slug($organization->getName())->lower();
-            $organization->setSlug($slug);
+            $slug = $slugger->slug($budget->getName())->lower();
+            $budget->setSlug($slug);
 
             $entityManager->persist($budget);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_organization_budgets', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_dashboard', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('member/budget/new.html.twig', [
