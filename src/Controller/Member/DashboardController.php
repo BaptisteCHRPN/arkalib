@@ -9,6 +9,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class DashboardController extends AbstractController
 {
+    // Dashboard route shows the organizations to which the logged-in user belongs
     #[Route('/dashboard', name: 'app_dashboard')]
     public function index(OrganizationRepository $organizationRepository,): Response
     {

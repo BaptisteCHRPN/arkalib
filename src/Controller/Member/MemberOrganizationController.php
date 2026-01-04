@@ -15,16 +15,17 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 // This controller is  accessible by connected users
 final class MemberOrganizationController extends AbstractController
 {
-    #[Route('/member/organization', name: 'app_member_organization')]
-    public function index(OrganizationRepository $organizationRepository): Response
-    {
-        $user = $this->getUser();
-        $organizations = $organizationRepository->findOrganizationsByUser($user);
+    // This methode à unset because Dashboard controller index make exactly 
+    // #[Route('/member/organization', name: 'app_member_organization')]
+    // public function index(OrganizationRepository $organizationRepository): Response
+    // {
+    //     $user = $this->getUser();
+    //     $organizations = $organizationRepository->findOrganizationsByUser($user);
 
-        return $this->render('member/dashboard/index.html.twig', [
-            'organizations' => $organizations,
-        ]);
-    }
+    //     return $this->render('member/dashboard/index.html.twig', [
+    //         'organizations' => $organizations,
+    //     ]);
+    // }
 
     #[Route('/organisation/new', name: 'app_membre_organization_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, Security $security): Response
