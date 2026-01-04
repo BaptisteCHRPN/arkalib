@@ -59,10 +59,13 @@ final class MembreBudgetController extends AbstractController
         ]);
     }
 
-    #[Route('/membre/budget/{slug}', name: 'app_membre_budget_show', methods: ['GET'])]
+    #[Route('/{organizationSlug}/{budgetSlug}', name: 'app_membre_budget_show', methods: ['GET'])]
     public function show(
-        #[MapEntity(mapping: ['slug' => 'slug'])]
-        Budget $budget): Response
+        #[MapEntity(mapping: ['budgetSlug' => 'slug'])]
+        Budget $budget, 
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
+        Organization $organization
+        ): Response
     {
         $organization = $budget->getOrganization();
 

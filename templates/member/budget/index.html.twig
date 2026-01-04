@@ -5,6 +5,6 @@
 {% block body %}
 
 <h1> {{ budget.name|capitalize }}  </h1>
-<a href="{{ path('app_admin_budget_line_new', {'slug': budget.slug}) }}" class="btn btn-primary">Nouvelle dépense / Recette</a>
+<a href="{{ path('app_admin_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary">Nouvelle dépense / Recette</a>
 
 {% endblock %}
