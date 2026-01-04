@@ -56,9 +56,9 @@ final class MemberOrganizationController extends AbstractController
             'form' => $form,
         ]);
     }
-    #[Route('/organization/{slug}/budgets', name: 'app_organization_budgets')]
+    #[Route('/{organizationSlug}/budgets', name: 'app_organization_budgets')]
     public function showBudgets(
-        #[MapEntity(mapping: ['slug' => 'slug'])]
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
         Organization $organization
     ): Response
     {
