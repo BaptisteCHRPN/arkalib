@@ -6,11 +6,13 @@ use App\Entity\Organization;
 use App\Form\OrganizationType;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\OrganizationRepository;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 // This controller is  accessible by connected users
 final class MemberOrganizationController extends AbstractController
@@ -28,7 +30,7 @@ final class MemberOrganizationController extends AbstractController
     // }
 
     #[Route('/organisation/new', name: 'app_membre_organization_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, Security $security): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, Security $security, SluggerInterface $slugger): Response
     {
         $organization = new Organization();
         $form = $this->createForm(OrganizationType::class, $organization);
@@ -37,12 +39,16 @@ final class MemberOrganizationController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
 
+            // auto slug generation
+            $slug = $slugger->slug($organization->getName())->lower();
+            $organization->setSlug($slug);
+
             $organization->addUser($user);
         
             $entityManager->persist($organization);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_member_organization', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_dashboard', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('member/organization/new.html.twig', [
@@ -50,8 +56,11 @@ final class MemberOrganizationController extends AbstractController
             'form' => $form,
         ]);
     }
-    #[Route('/organization/{id}/budgets', name: 'app_organization_budgets')]
-    public function showBudgets(Organization $organization): Response
+    #[Route('/organization/{slug}/budgets', name: 'app_organization_budgets')]
+    public function showBudgets(
+        #[MapEntity(mapping: ['slug' => 'slug'])]
+        Organization $organization
+    ): Response
     {
         $budgets = $organization->getBudgets();
 
