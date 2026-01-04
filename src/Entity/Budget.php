@@ -28,6 +28,9 @@ class Budget
     #[ORM\Column]
     private bool $is_active = true;
 
+    #[ORM\Column(length: 255, unique:true)]
+    private ?string $slug = null;
+
     #[ORM\ManyToOne(inversedBy: 'budgets')]
     private ?Organization $organization = null;
 
@@ -133,6 +136,18 @@ class Budget
                 $budgetLine->setBudget(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSlug(): ?string
+    {
+        return $this->slug;
+    }
+
+    public function setSlug(string $slug): static
+    {
+        $this->slug = $slug;
 
         return $this;
     }
