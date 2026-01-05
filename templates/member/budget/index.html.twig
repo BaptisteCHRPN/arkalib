@@ -20,12 +20,10 @@
 			</tr>
 		</thead>
 		<tbody>
-			{% for budget_line in budget_lines %}
+			{% for expense in expenses %}
 				<tr>
-					{% if budget_line.isExpense == true %}
-						<td>{{ budget_line.name }}</td>
-						<td>{{ budget_line.amount }}</td>
-					{% endif %}
+					<td>{{ expense.name }}</td>
+					<td>{{ expense.amount }}</td>
 				</tr>
 			{% else %}
 				<tr>
@@ -45,16 +43,17 @@
 			</tr>
 		</thead>
 		<tbody>
-			{% for budget_line in budget_lines %}
+        
+			{% for income in incomes %}
 				<tr>
-					{% if budget_line.isExpense == false %}
-						<td>{{ budget_line.name }}</td>
-						<td>{{ budget_line.amount }}</td>
-					{% endif %}
-				    {% else %}
-					    <td colspan="8">Aucune recette trouvée</td>
-				</tr>
-			{% endfor %}
+					<td>{{ income.name }}</td>
+					<td>{{ income.amount }}</td>
+                </tr>
+		    {% else %}
+                <tr>
+					<td colspan="8">Aucune recette trouvée</td>
+                </tr>
+            {% endfor %}
 		</tbody>
 	</table>
 	<a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary">Nouvelle dépense / Recette</a>
