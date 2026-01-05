@@ -16,11 +16,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 final class MembreBudgetController extends AbstractController
 {
-    #[Route('/membre/budget', name: 'app_membre_budget')]
-    public function index(BudgetRepository $budgetRepository): Response
-    {
-        return $this->render('membre/budget/index.html.twig');
-    }
+    // This methos is not required becaus we can see all budgets that belong in current organization
+    // #[Route('/membre/budget', name: 'app_membre_budget')]
+    // public function index(BudgetRepository $budgetRepository): Response
+    // {
+    //     return $this->render('membre/budget/index.html.twig');
+    // }
 
     #[Route('/membre/budget/new/{organizationId}', name: 'app_member_budget_new', methods: ['GET', 'POST'])]
     public function new(int $organizationId, Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response

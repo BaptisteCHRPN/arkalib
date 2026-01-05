@@ -23,10 +23,9 @@ final class MemberBudgetLineController extends AbstractController
         ]);
     }
 
-    #[Route('/new/{id}', name: 'app_budget_line_new', methods: ['GET', 'POST'])]
-    public function new(int $budgetId, Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $budget = $entityManager->getRepository(Budget::class)->find($budgetId);
+    #[Route('/new/{budgetSlug}', name: 'app_budget_line_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    {   
         
         $budgetLine = new BudgetLine();
         $form = $this->createForm(BudgetLineType::class, $budgetLine);
