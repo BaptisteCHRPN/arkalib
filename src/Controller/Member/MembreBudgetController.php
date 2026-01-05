@@ -3,6 +3,7 @@
 namespace App\Controller\Member;
 
 use App\Entity\Budget;
+use App\Entity\BudgetLine;
 use App\Form\BudgetType;
 use App\Entity\Organization;
 use App\Repository\BudgetRepository;
@@ -62,7 +63,9 @@ final class MembreBudgetController extends AbstractController
     }
 
     #[Route('/{organizationSlug}/{budgetSlug}', name: 'app_membre_budget_show', methods: ['GET'])]
+    // This method allow to see preview of the current budget
     public function show(
+        EntityManagerInterface $entityManager,
         BudgetLineRepository $budgetLineRepository,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])]
         Budget $budget, 
@@ -72,10 +75,22 @@ final class MembreBudgetController extends AbstractController
     {
         $organization = $budget->getOrganization();
 
+        $incomes = $entityManager->getRepository(BudgetLine::class)->findBy([
+            'budget' => $budget,
+            'is_expense' => false
+        ]);
+
+        $expenses = $entityManager->getRepository(BudgetLine::class)->findBy([
+            'budget' => $budget,
+            'is_expense' => true
+        ]);
+
         return $this->render('member/budget/index.html.twig', [
             'budget' => $budget,
             'organization' => $organization,
             'budget_lines' => $budgetLineRepository->findAll(),
+            'incomes' => $incomes,
+            'expenses' => $expenses,
         ]);
     }
 }
