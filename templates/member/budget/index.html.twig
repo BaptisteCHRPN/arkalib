@@ -1,10 +1,62 @@
 {% extends 'user_base.html.twig' %}
 
-{% block title %}{{ organization.name }} | {{ budget.name }}{% endblock %}
+{% block title %}
+	{{ organization.name }}
+	|
+	{{ budget.name }}
+{% endblock %}
 
 {% block body %}
+	<h1>{{ organization.name }}</h1>
+	<h2>
+		{{ budget.name|capitalize }}
+	</h2>
+	<h3>Dépenses</h3>
+	<table>
+		<thead>
+			<tr>
+				<th>Intitulé</th>
+				<th>Montant</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for budget_line in budget_lines %}
+				<tr>
+					{% if budget_line.isExpense == true %}
+						<td>{{ budget_line.name }}</td>
+						<td>{{ budget_line.amount }}</td>
+					{% endif %}
+				</tr>
+			{% else %}
+				<tr>
+					<td colspan="8">Aucune dépense trouvée</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
 
-<h1> {{ budget.name|capitalize }}  </h1>
-<a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary">Nouvelle dépense / Recette</a>
+
+	<h3>Recettes</h3>
+	<table>
+		<thead>
+			<tr>
+				<th>Intitulé</th>
+				<th>Montant</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for budget_line in budget_lines %}
+				<tr>
+					{% if budget_line.isExpense == false %}
+						<td>{{ budget_line.name }}</td>
+						<td>{{ budget_line.amount }}</td>
+					{% endif %}
+				    {% else %}
+					    <td colspan="8">Aucune recette trouvée</td>
+				</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	<a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary">Nouvelle dépense / Recette</a>
 
 {% endblock %}

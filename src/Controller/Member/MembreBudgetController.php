@@ -6,6 +6,7 @@ use App\Entity\Budget;
 use App\Form\BudgetType;
 use App\Entity\Organization;
 use App\Repository\BudgetRepository;
+use App\Repository\BudgetLineRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -62,6 +63,7 @@ final class MembreBudgetController extends AbstractController
 
     #[Route('/{organizationSlug}/{budgetSlug}', name: 'app_membre_budget_show', methods: ['GET'])]
     public function show(
+        BudgetLineRepository $budgetLineRepository,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])]
         Budget $budget, 
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
@@ -73,6 +75,7 @@ final class MembreBudgetController extends AbstractController
         return $this->render('member/budget/index.html.twig', [
             'budget' => $budget,
             'organization' => $organization,
+            'budget_lines' => $budgetLineRepository->findAll(),
         ]);
     }
 }

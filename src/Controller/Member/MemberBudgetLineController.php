@@ -24,10 +24,17 @@ final class MemberBudgetLineController extends AbstractController
     }
 
     #[Route('/new/{budgetSlug}', name: 'app_budget_line_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {   
-        
+    public function new(string $budgetSlug, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $budget = $entityManager->getRepository(Budget::class)->findOneBy(['slug' => $budgetSlug]);
+
+        if (!$budget) {
+            throw $this->createNotFoundException('Budget non trouvé');
+        }
+
         $budgetLine = new BudgetLine();
+        $budgetLine->setBudget($budget);
+
         $form = $this->createForm(BudgetLineType::class, $budgetLine);
         $form->handleRequest($request);
 
@@ -35,10 +42,14 @@ final class MemberBudgetLineController extends AbstractController
             $entityManager->persist($budgetLine);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_budget_line_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_membre_budget_show', [
+                'organizationSlug' => $budget->getOrganization()->getSlug(), // ou selon votre structure
+                'budgetSlug' => $budgetSlug
+            ], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('member/budget_line/new.html.twig', [
+            'budget' => $budget,
             'budget_line' => $budgetLine,
             'form' => $form,
         ]);
@@ -73,7 +84,7 @@ final class MemberBudgetLineController extends AbstractController
     #[Route('/{id}', name: 'app_admin_budget_line_delete', methods: ['POST'])]
     public function delete(Request $request, BudgetLine $budgetLine, EntityManagerInterface $entityManager): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$budgetLine->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $budgetLine->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($budgetLine);
             $entityManager->flush();
         }
