@@ -12,7 +12,7 @@
 		{{ budget.name|capitalize }}
 	</h2>
 	<h3>Dépenses</h3>
-	<table>
+	<table class="table table-sm">
 		<thead>
 			<tr>
 				<th>Intitulé</th>
@@ -23,7 +23,7 @@
 			{% for expense in expenses %}
 				<tr>
 					<td>{{ expense.name }}</td>
-					<td>{{ expense.amount }}</td>
+					<td>{{ expense.amount|format_number }} €</td>
 				</tr>
 			{% else %}
 				<tr>
@@ -35,7 +35,7 @@
 
 
 	<h3>Recettes</h3>
-	<table>
+	<table class="table table-sm">
 		<thead>
 			<tr>
 				<th>Intitulé</th>
@@ -47,7 +47,7 @@
 			{% for income in incomes %}
 				<tr>
 					<td>{{ income.name }}</td>
-					<td>{{ income.amount }}</td>
+					<td>{{ income.amount }} €</td>
                 </tr>
 		    {% else %}
                 <tr>
