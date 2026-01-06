@@ -47,6 +47,7 @@
         "symfonycasts/reset-password-bundle": "^1.24",
         "symfonycasts/verify-email-bundle": "^1.17",
         "twig/extra-bundle": "^2.12|^3.0",
+        "twig/intl-extra": "^3.22",
         "twig/twig": "^2.12|^3.0"
     },
     "config": {
