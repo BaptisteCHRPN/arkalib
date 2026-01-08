@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Budget;
 use App\Entity\BudgetLine;
 use App\Entity\Organization;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -30,6 +31,19 @@ class BudgetLineRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function sumExpensesBudget(Budget $budget): float
+    {
+        $result = $this->createQueryBuilder('bl')
+            ->select('SUM(bl.amount)')
+            ->where('bl.budget = :budget')
+            ->andWhere('bl.is_expense = :isExpense')
+            ->setParameter('budget', $budget)
+            ->setParameter('isExpense', true)
+            ->getQuery()
+            ->getSingleScalarResult(); // allow to have a simple value in return and not an array or an object
+
+        return $result ?? 0; // if result is null, return 0 instead
+    }
     //    /**
     //     * @return BudgetLine[] Returns an array of BudgetLine objects
     //     */

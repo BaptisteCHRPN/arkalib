@@ -23,7 +23,7 @@
 			{% for expense in expenses %}
 				<tr>
 					<td>{{ expense.name }}</td>
-					<td>{{ expense.amount|format_number }} €</td>
+					<td>{{ expense.amount|number_format(2, ',', ' ') }} €</td>
 				</tr>
 			{% else %}
 				<tr>
@@ -32,6 +32,7 @@
 			{% endfor %}
 		</tbody>
 	</table>
+	<div>Montant total des dépenses : {{ sum_expenses|number_format(2, ',', ' ') }} €</div>
 
 
 	<h3>Recettes</h3>
@@ -47,7 +48,7 @@
 			{% for income in incomes %}
 				<tr>
 					<td>{{ income.name }}</td>
-					<td>{{ income.amount }} €</td>
+					<td>{{ income.amount|number_format(2, ',', ' ') }} €</td>
                 </tr>
 		    {% else %}
                 <tr>
