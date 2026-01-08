@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: BudgetRepository::class)]
+#[ORM\UniqueConstraint(name: 'budget_slug_organization', columns: ['slug', 'organization_id'])]
 class Budget
 {
     #[ORM\Id]
@@ -28,7 +29,7 @@ class Budget
     #[ORM\Column]
     private bool $is_active = true;
 
-    #[ORM\Column(length: 255, unique:true)]
+    #[ORM\Column(length: 255)]
     private ?string $slug = null;
 
     #[ORM\ManyToOne(inversedBy: 'budgets')]
