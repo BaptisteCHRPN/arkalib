@@ -8,6 +8,7 @@ use App\Form\BudgetType;
 use App\Entity\Organization;
 use App\Repository\BudgetRepository;
 use App\Repository\BudgetLineRepository;
+use App\Service\BudgetCalculatorService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -67,6 +68,7 @@ final class MembreBudgetController extends AbstractController
     public function show(
         EntityManagerInterface $entityManager,
         BudgetLineRepository $budgetLineRepository,
+        BudgetCalculatorService $budgetCalculatorService,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])]
         Budget $budget, 
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
@@ -85,12 +87,15 @@ final class MembreBudgetController extends AbstractController
             'is_expense' => true
         ]);
 
+        $sumExpenses = $budgetCalculatorService->sumTotalExpenses($budget);
+
         return $this->render('member/budget/index.html.twig', [
             'budget' => $budget,
             'organization' => $organization,
             'budget_lines' => $budgetLineRepository->findAll(),
             'incomes' => $incomes,
             'expenses' => $expenses,
+            'sum_expenses' => $sumExpenses,
         ]);
     }
 }
