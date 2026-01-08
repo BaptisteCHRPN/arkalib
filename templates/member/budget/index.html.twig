@@ -1,66 +1,129 @@
 {% extends 'user_base.html.twig' %}
 
 {% block title %}
-	{{ organization.name }}
-	|
-	{{ budget.name }}
+    {{ organization.name }} | {{ budget.name }}
 {% endblock %}
 
 {% block body %}
-	<h1>{{ organization.name }}</h1>
+    {# Breadcrumb #}
+    {# <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{{ path('app_organization_show', {'slug': organization.slug}) }}">{{ organization.name }}</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">{{ budget.name }}</li>
+        </ol>
+    </nav> #}
 
-	<h2>{{ budget.name|capitalize }}</h2>
+    <div class="card mb-4">
+        <div class="card-body text-secondary">
+            <h1 class="h3 mb-1">{{ budget.name|capitalize }} - Vue d'ensemble</h1>
+            <p class="text-secondary mb-4">
+                Du {{ budget.startDate|date('d/m/Y') }} au {{ budget.endDate|date('d/m/Y') }}
+            </p>
 
-	<div>Balance : {{ balance_budget >= 0 ? '+' : '' }}{{ balance_budget|number_format(2, ',', ' ') }} €</div>
+            {# Budget balance #}
+            <div class="mb-4">
+                <h2 class="h5 d-inline me-3">Balance budgétaire :</h2>
+                <span class="h4 {% if balance_budget > 0 %}text-success{% elseif balance_budget < 0 %}text-danger{% else %}text-secondary{% endif %} fw-bold">
+                    {% if balance_budget > 0 %}+{% endif %}{{ balance_budget|number_format(2, ',', ' ') }} €
+                </span>
+            </div>
 
-	<h3>Dépenses</h3>
+            <div class="row">
+                {# Expenses #}
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-secondary">Dépenses</th>
+                                    <th class="text-end text-secondary">Montant prévisionnel</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for expense in expenses %}
+                                    <tr>
+                                        <td>{{ expense.name }}</td>
+                                        <td class="text-end text-danger">
+                                            - {{ expense.amount|number_format(2, ',', ' ') }} €
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="2" class="text-center text-secondary">
+                                            Aucune dépense trouvée
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
 
-	<table class="table table-sm">
-		<thead>
-			<tr>
-				<th>Intitulé</th>
-				<th>Montant</th>
-			</tr>
-		</thead>
-		<tbody>
-			{% for expense in expenses %}
-				<tr>
-					<td>{{ expense.name }}</td>
-					<td>{{ expense.amount|number_format(2, ',', ' ') }} €</td>
-				</tr>
-			{% else %}
-				<tr>
-					<td colspan="8">Aucune dépense trouvée</td>
-				</tr>
-			{% endfor %}
-		</tbody>
-	</table>
-	<div>Montant total des dépenses : {{ sum_expenses|number_format(2, ',', ' ') }} €</div>
+                        {% if expenses|length > 0 %}
+                            <div class="text-end mt-2">
+                                {# <a href="#" class="btn btn-link btn-sm text-primary text-decoration-none">
+                                    <i class="bi bi-plus-circle"></i> Ajouter une dépense
+                                </a> #}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
 
+                {# Incomes #}
+                <div class="col-md-6">
+                    <div class="mb-3">                        
+                        <table class="table table-sm table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="text-secondary">Recettes</th>
+                                    <th class="text-end text-secondary">Montant prévisionnel</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for income in incomes %}
+                                    <tr>
+                                        <td>{{ income.name }}</td>
+                                        <td class="text-end text-success">
+                                            + {{ income.amount|number_format(2, ',', ' ') }} €
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="2" class="text-center text-secondary">
+                                            Aucune recette trouvée
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
 
-	<h3>Recettes</h3>
-	<table class="table table-sm">
-		<thead>
-			<tr>
-				<th>Intitulé</th>
-				<th>Montant</th>
-			</tr>
-		</thead>
-		<tbody>
-        
-			{% for income in incomes %}
-				<tr>
-					<td>{{ income.name }}</td>
-					<td>{{ income.amount|number_format(2, ',', ' ') }} €</td>
-                </tr>
-		    {% else %}
-                <tr>
-					<td colspan="8">Aucune recette trouvée</td>
-                </tr>
-            {% endfor %}
-		</tbody>
-	</table>
-	<div>Montant total des dépenses : {{ sum_incomes|number_format(2, ',', ' ') }} €</div>
-	<a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary">Nouvelle dépense / Recette</a>
+                        {% if incomes|length > 0 %}
+                            <div class="text-end mt-2">
+                                {# <a href="#" class="btn btn-link btn-sm text-primary text-decoration-none">
+                                    <i class="bi bi-plus-circle"></i> Ajouter une recette
+                                </a> #}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
 
+            
+            <div class="text-center mt-4">
+                <a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" 
+                   class="btn btn-primary px-5">
+                    Nouvelle dépense / recette
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {# Bouton retour #}
+    {# <div class="mb-3">
+        <a href="{{ path('app_organization_show', {'slug': organization.slug}) }}" 
+           class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Retour
+        </a>
+    </div> #}
 {% endblock %}

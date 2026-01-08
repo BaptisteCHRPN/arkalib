@@ -54,7 +54,9 @@ final class MembreBudgetController extends AbstractController
             $entityManager->persist($budget);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_dashboard', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_organization_budgets', [
+                'organizationSlug' => $organization->getSlug()  // ← Ajoute le slug
+            ], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('member/budget/new.html.twig', [
@@ -70,11 +72,10 @@ final class MembreBudgetController extends AbstractController
         BudgetLineRepository $budgetLineRepository,
         BudgetCalculatorService $budgetCalculatorService,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])]
-        Budget $budget, 
+        Budget $budget,
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
         Organization $organization
-        ): Response
-    {
+    ): Response {
         $organization = $budget->getOrganization();
 
         $incomes = $entityManager->getRepository(BudgetLine::class)->findBy([
