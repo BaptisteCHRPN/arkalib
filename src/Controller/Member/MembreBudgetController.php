@@ -88,6 +88,8 @@ final class MembreBudgetController extends AbstractController
         ]);
 
         $sumExpenses = $budgetCalculatorService->sumTotalExpenses($budget);
+        $sumIncomes = $budgetCalculatorService->SumTotalIncomes($budget);
+        $balanceBudget = $budgetCalculatorService->BalanceBudget($budget);
 
         return $this->render('member/budget/index.html.twig', [
             'budget' => $budget,
@@ -96,6 +98,8 @@ final class MembreBudgetController extends AbstractController
             'incomes' => $incomes,
             'expenses' => $expenses,
             'sum_expenses' => $sumExpenses,
+            'sum_incomes' => $sumIncomes,
+            'balance_budget' => $balanceBudget,
         ]);
     }
 }
