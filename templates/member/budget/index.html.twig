@@ -8,10 +8,13 @@
 
 {% block body %}
 	<h1>{{ organization.name }}</h1>
-	<h2>
-		{{ budget.name|capitalize }}
-	</h2>
+
+	<h2>{{ budget.name|capitalize }}</h2>
+
+	<div>Balance : {{ balance_budget >= 0 ? '+' : '' }}{{ balance_budget|number_format(2, ',', ' ') }} €</div>
+
 	<h3>Dépenses</h3>
+
 	<table class="table table-sm">
 		<thead>
 			<tr>
@@ -57,6 +60,7 @@
             {% endfor %}
 		</tbody>
 	</table>
+	<div>Montant total des dépenses : {{ sum_incomes|number_format(2, ',', ' ') }} €</div>
 	<a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary">Nouvelle dépense / Recette</a>
 
 {% endblock %}

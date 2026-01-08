@@ -15,5 +15,18 @@ class BudgetCalculatorService {
         return $this->budgetLineRepository->sumExpensesBudget($budget);
     }
 
+    public function SumTotalIncomes(Budget $budget) :float
+    {
+        return $this->budgetLineRepository->sumIncomesBudget($budget);
+    }
+
+    public function BalanceBudget(Budget $budget): float
+    {
+            $incomes = $this->budgetLineRepository->sumIncomesBudget($budget);
+            $expenses =  $this->budgetLineRepository->sumExpensesBudget($budget);
+
+            return $incomes - $expenses;
+    }
+
 
 }

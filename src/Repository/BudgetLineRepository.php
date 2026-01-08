@@ -44,6 +44,21 @@ class BudgetLineRepository extends ServiceEntityRepository
 
         return $result ?? 0; // if result is null, return 0 instead
     }
+
+     public function sumIncomesBudget(Budget $budget): float
+    {
+        $result = $this->createQueryBuilder('bl')
+            ->select('SUM(bl.amount)')
+            ->where('bl.budget = :budget')
+            ->andWhere('bl.is_expense = :isExpense')
+            ->setParameter('budget', $budget)
+            ->setParameter('isExpense', false)
+            ->getQuery()
+            ->getSingleScalarResult(); // allow to have a simple value in return and not an array or an object
+
+        return $result ?? 0; // if result is null, return 0 instead
+    }
+
     //    /**
     //     * @return BudgetLine[] Returns an array of BudgetLine objects
     //     */
