@@ -7,5 +7,5 @@
 
     {{ include('member/budget_line/_form.html.twig') }}
 
-    <a href="{{ path('app_budget_line_index') }}">back to list</a>
+    <a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">Retour au budget</a>
 {% endblock %}

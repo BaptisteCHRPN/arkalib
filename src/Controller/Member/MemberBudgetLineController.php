@@ -4,29 +4,27 @@ namespace App\Controller\Member;
 
 use App\Entity\Budget;
 use App\Entity\BudgetLine;
+use App\Entity\Organization;
 use App\Form\BudgetLineType;
+use App\Service\BudgetCalculatorServie;
 use App\Repository\BudgetLineRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use App\Service\BudgetCalculatorServie;
 
 #[Route('/member/budgetline')]
 final class MemberBudgetLineController extends AbstractController
 {
-    #[Route(name: 'app_budget_line_index', methods: ['GET'])]
-    public function index(BudgetLineRepository $budgetLineRepository): Response
-    {
-        return $this->render('member/budget_line/index.html.twig', [
-            'budget_lines' => $budgetLineRepository->findAll(),
-        ]);
-    }
-
     #[Route('/new/{budgetSlug}', name: 'app_budget_line_new', methods: ['GET', 'POST'])]
-    public function new(string $budgetSlug, Request $request, EntityManagerInterface $entityManager): Response
+    public function new(string $budgetSlug, Request $request, EntityManagerInterface $entityManager,
+    #[MapEntity(mapping: ['budgetSlug' => 'slug'])]
+    Budget $budget,
+    ): Response
     {
+        $organization = $budget->getOrganization();
         $budget = $entityManager->getRepository(Budget::class)->findOneBy(['slug' => $budgetSlug]);
 
         if (!$budget) {
@@ -35,7 +33,7 @@ final class MemberBudgetLineController extends AbstractController
 
         $budgetLine = new BudgetLine();
         $budgetLine->setBudget($budget);
-
+ 
         $form = $this->createForm(BudgetLineType::class, $budgetLine);
         $form->handleRequest($request);
 
@@ -44,13 +42,14 @@ final class MemberBudgetLineController extends AbstractController
             $entityManager->flush();
 
             return $this->redirectToRoute('app_membre_budget_show', [
-                'organizationSlug' => $budget->getOrganization()->getSlug(), // ou selon votre structure
-                'budgetSlug' => $budgetSlug
+                'organizationSlug' => $budget->getOrganization()->getSlug(),
+                'budgetSlug' => $budgetSlug,
             ], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('member/budget_line/new.html.twig', [
             'budget' => $budget,
+            'organization' => $organization,
             'budget_line' => $budgetLine,
             'form' => $form,
         ]);
