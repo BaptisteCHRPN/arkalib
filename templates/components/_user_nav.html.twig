@@ -3,10 +3,10 @@
     <span class="chevron-icon"></span>
 </button>
 
-<!-- Navbar Sidebar -->
+{# Navbar Sidebar #}
 <nav class="offcanvas offcanvas-start" tabindex="-1" id="sidebarNav" data-bs-backdrop="false">
     <div class="d-flex flex-column flex-shrink-0 p-3 bg-secondary vh-100 sidebar-nav">
-        <!-- Logo and closure button on the same line-->
+        {# Logo and closure button on the same line #}
         <div class="sidebar-header-row">
             <a class="navbar-brand fs-2 fw-bold text-white text-decoration-none d-flex align-items-center" href="{{ path('app_home') }}">
                 <img class="img-logo me-2" src="{{ asset('img/logo.svg') }}" alt="Logo d'Arkalib" style="height: 40px;">
@@ -36,7 +36,7 @@
     </div>
 </nav>
 
-<!-- Horizontal header -->
+{# Horizontal header #}
 <nav class="header-nav height-60 bg-white d-flex align-items-center border-bottom">
     <h2 class="hello-title ms-3 mb-0">
         Bonjour {{ app.user.firstname }} !

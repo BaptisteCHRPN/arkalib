@@ -4,7 +4,7 @@
 
 
 .hero-budget-title {
-    font-size: 3rem !important;
+    font-size: 1rem !important;
     font-weight: 700 !important;
     color: rgba(31, 47, 80, 1) !important;
     line-height: 1.2 !important;
@@ -25,6 +25,6 @@
 
 @media (min-width: 768px) {
     .hero-budget-title {
-        font-size: 3rem;
+        font-size: 1rem;
     }
 }
