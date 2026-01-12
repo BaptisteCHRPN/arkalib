@@ -1,11 +1,11 @@
-{% extends 'base.html.twig' %}
+{% extends 'user_base.html.twig' %}
 
 {% block title %}New Transaction{% endblock %}
 
 {% block body %}
     <h1>Create new Transaction</h1>
 
-    {{ include('transaction/_form.html.twig') }}
+    {{ include('admin/transaction/_form.html.twig') }}
 
     <a href="{{ path('app_transaction_index') }}">back to list</a>
 {% endblock %}

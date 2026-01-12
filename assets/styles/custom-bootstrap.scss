@@ -58,6 +58,13 @@ $font-weight-bold: 700;
     color: $secondary;
 }
 
+.dashboard-title {
+    font-size: 2rem;
+    font-weight: $font-weight-bold;
+    color: $secondary;
+    line-height: 1.2;
+}
+
 .title-blue {
     color: $secondary;
 }
