@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Entity;
 
 use App\Repository\BudgetLineRepository;
@@ -43,7 +42,9 @@ class BudgetLine
     #[ORM\ManyToMany(targetEntity: Transaction::class, mappedBy: 'budget_line')]
     private Collection $transactions;
 
-    #[ORM\ManyToOne(inversedBy: 'budget_line')]
+
+    #[ORM\ManyToOne(inversedBy: 'budgetLines')]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Category $category = null;
 
     public function __construct()
@@ -66,7 +67,6 @@ class BudgetLine
     public function setName(string $name): static
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -78,7 +78,6 @@ class BudgetLine
     public function setIsExpense(bool $is_expense): static
     {
         $this->is_expense = $is_expense;
-
         return $this;
     }
 
@@ -90,7 +89,6 @@ class BudgetLine
     public function setDescrption(string $descrption): static
     {
         $this->descrption = $descrption;
-
         return $this;
     }
 
@@ -102,7 +100,6 @@ class BudgetLine
     public function setAmount(float $amount): static
     {
         $this->amount = $amount;
-
         return $this;
     }
 
@@ -114,7 +111,6 @@ class BudgetLine
     public function setCreatedAt(\DateTimeImmutable $created_at): static
     {
         $this->created_at = $created_at;
-
         return $this;
     }
 
@@ -126,7 +122,6 @@ class BudgetLine
     public function setIsActive(bool $is_active): static
     {
         $this->is_active = $is_active;
-
         return $this;
     }
 
@@ -138,7 +133,6 @@ class BudgetLine
     public function setBudget(?Budget $budget): static
     {
         $this->budget = $budget;
-
         return $this;
     }
 
@@ -156,7 +150,6 @@ class BudgetLine
             $this->transactions->add($transaction);
             $transaction->addBudgetLine($this);
         }
-
         return $this;
     }
 
@@ -165,7 +158,6 @@ class BudgetLine
         if ($this->transactions->removeElement($transaction)) {
             $transaction->removeBudgetLine($this);
         }
-
         return $this;
     }
 
@@ -177,7 +169,6 @@ class BudgetLine
     public function setCategory(?Category $category): static
     {
         $this->category = $category;
-
         return $this;
     }
 }

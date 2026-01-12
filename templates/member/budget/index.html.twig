@@ -1,133 +1,176 @@
 {% extends 'user_base.html.twig' %}
 
 {% block title %}
-    {{ organization.name|title }} | {{ budget.name|capitalize }}
+	{{ organization.name|title }}
+	|
+	{{ budget.name|capitalize }}
 {% endblock %}
 
 {% block body %}
-    {# Breadcrumb #}
-    <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="{{ path('app_dashboard') }}">Tableau de bord</a>
-            </li>
-            <li class="breadcrumb-item">
-                <a href="{{ path('app_organization_budgets', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">{{ organization.name|title }}</a>
-            </li>
-            <li class="breadcrumb-item active text-secondary" aria-current="page">{{ budget.name|capitalize}}</li>
-        </ol>
-    </nav>
+	{# Breadcrumb #}
+	<nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_dashboard') }}">Tableau de bord</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_organization_budgets', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">{{ organization.name|title }}</a>
+			</li>
+			<li class="breadcrumb-item active text-secondary" aria-current="page">{{ budget.name|capitalize}}</li>
+		</ol>
+	</nav>
 
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <h1 class="dashboard-title mb-3">{{ budget.name|capitalize }} - Vue d'ensemble</h1>
-            <p class="text-muted mb-4">
-                Du {{ budget.startDate|date('d/m/Y') }} au {{ budget.endDate|date('d/m/Y') }}
-            </p>
+	<div class="card shadow-sm mb-4">
+		<div class="card-body">
+			<h1 class="dashboard-title mb-3">{{ budget.name|capitalize }}
+				- Vue d'ensemble</h1>
+			<p class="text-muted mb-4">
+				Du
+				{{ budget.startDate|date('d/m/Y') }}
+				au
+				{{ budget.endDate|date('d/m/Y') }}
+			</p>
 
-            {# Budget balance #}
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
-                <h2 class="h5 mb-0 me-3">Balance budgétaire :</h2>
-                <span class="h4 {% if balance_budget > 0 %}text-success{% elseif balance_budget < 0 %}text-danger{% else %}text-muted{% endif %} fw-bold">
-                    {% if balance_budget > 0 %}+{% endif %}{{ balance_budget|number_format(2, ',', ' ') }} €
-                </span>
-            </div>
+			{# Budget balance #}
+			<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+				<h2 class="h5 mb-0 me-3">Balance budgétaire :</h2>
+				<span class="h4 {% if balance_budget > 0 %}text-success{% elseif balance_budget < 0 %}text-danger{% else %}text-muted{% endif %} fw-bold">
+					{% if balance_budget > 0 %}+
+					{% endif %}
+					{{ balance_budget|number_format(2, ',', ' ') }}
+					€
+				</span>
+			</div>
 
-            {# Tables: Expenses & Incomes #}
-            <div class="row">
-                {# Expenses #}
-                <div class="col-12 col-md-6 mb-4 mb-md-0">
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="text-secondary">Dépenses</th>
-                                    <th class="text-end text-secondary">Montant prévisionnel</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for expense in expenses %}
-                                    <tr>
-                                        <td>{{ expense.name }}</td>
-                                        <td class="text-end text-danger">
-                                            - {{ expense.amount|number_format(2, ',', ' ') }} €
-                                        </td>
-                                    </tr>
-                                {% else %}
-                                    <tr>
-                                        <td colspan="2" class="text-center text-secondary">
-                                            Aucune dépense trouvée
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+			{# Tables: Expenses & Incomes #}
+			<div
+				class="row">
+				{# Expenses #}
+				<div class="col-12 col-md-6 mb-4 mb-md-0">
+					<div class="table-responsive">
+						<table class="table table-sm table-hover">
+							<thead class="table-light">
+								<tr>
+									<th class="text-secondary">Dépenses</th>
+									<th class="text-secondary">Catégorie</th>
+									<th class="text-end text-secondary">Montant prévisionnel</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for expense in expenses %}
+									<tr>
+										<td>{{ expense.name }}</td>
+										<td>
+											{% if expense.category %}
+												{# Afficher catégorie parente > sous-catégorie si elle existe #}
+												{% if expense.category.parentCategory %}
+													<span class="text-secondary small">{{ expense.category.parentCategory.name }}
+														>
+													</span>
+												{% endif %}
+												{{ expense.category.name }}
+											{% else %}
+												<span class="text-secondary fst-italic">Non catégorisé</span>
+											{% endif %}
+										</td>
+										<td class="text-end text-danger">
+											-
+											{{ expense.amount|number_format(2, ',', ' ') }}
+											€
+										</td>
+									</tr>
+								{% else %}
+									<tr>
+										<td colspan="2" class="text-center text-secondary">
+											Aucune dépense trouvée
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
 
-                    {% if expenses|length > 0 %}
-                        <div class="text-end mt-2">
-                            {# <a href="#" class="btn btn-link btn-sm text-primary text-decoration-none">
-                                <i class="bi bi-plus-circle"></i> Ajouter une dépense
-                            </a> #}
-                        </div>
-                    {% endif %}
-                </div>
+					{% if expenses|length > 0 %}
+						<div
+							class="text-end mt-2">{# <a href="#" class="btn btn-link btn-sm text-primary text-decoration-none">
+								                                <i class="bi bi-plus-circle"></i> Ajouter une dépense
+								                            </a> #}
+						</div>
+					{% endif %}
+				</div>
 
-                {# Incomes #}
-                <div class="col-12 col-md-6">
-                    <div class="table-responsive">
-                        <table class="table table-sm table-hover">
-                            <thead class="table-light">
-                                <tr>
-                                    <th class="text-secondary">Recettes</th>
-                                    <th class="text-end text-secondary">Montant prévisionnel</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for income in incomes %}
-                                    <tr>
-                                        <td>{{ income.name }}</td>
-                                        <td class="text-end text-success">
-                                            + {{ income.amount|number_format(2, ',', ' ') }} €
-                                        </td>
-                                    </tr>
-                                {% else %}
-                                    <tr>
-                                        <td colspan="2" class="text-center text-secondary">
-                                            Aucune recette trouvée
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+				{# Incomes #}
+				<div class="col-12 col-md-6">
+					<div class="table-responsive">
+						<table class="table table-sm table-hover">
+							<thead class="table-light">
+								<tr>
+									<th class="text-secondary">Recettes</th>
+									<th class="text-secondary">Catégorie</th>
+									<th class="text-end text-secondary">Montant prévisionnel</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for income in incomes %}
+									<tr>
+										<td>{{ income.name }}</td>
+										<td>
+											{% if income.category %}
+												{# Afficher catégorie parente > sous-catégorie si elle existe #}
+												{% if income.category.parentCategory %}
+													<span class="text-secondary small">{{ income.category.parentCategory.name }}
+														>
+													</span>
+												{% endif %}
+												{{ income.category.name }}
+											{% else %}
+												<span class="text-secondary fst-italic">Non catégorisé</span>
+											{% endif %}
+										</td>
+										<td class="text-end text-success">
+											+
+											{{ income.amount|number_format(2, ',', ' ') }}
+											€
+										</td>
+									</tr>
+								{% else %}
+									<tr>
+										<td colspan="2" class="text-center text-secondary">
+											Aucune recette trouvée
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
 
-                    {% if incomes|length > 0 %}
-                        <div class="text-end mt-2">
-                            {# <a href="#" class="btn btn-link btn-sm text-primary text-decoration-none">
-                                <i class="bi bi-plus-circle"></i> Ajouter une recette
-                            </a> #}
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
+					{% if incomes|length > 0 %}
+						<div
+							class="text-end mt-2">{# <a href="#" class="btn btn-link btn-sm text-primary text-decoration-none">
+								                                <i class="bi bi-plus-circle"></i> Ajouter une recette
+								                            </a> #}
+						</div>
+					{% endif %}
+				</div>
+			</div>
 
-            {# Bouton d'action #}
-            <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
-                <a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}"
-                   class="btn btn-primary px-4"
-                   aria-label="Ajouter une nouvelle dépense ou recette">
-                    Nouvelle dépense / recette
-                </a>
-            </div>
-        </div>
-    </div>
+			{# Bouton d'action #}
+			<div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+				<a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary px-4" aria-label="Ajouter une nouvelle dépense ou recette">
+					Nouvelle dépense / recette
+				</a>
+				<a href="{{ path('app_category_new', {'budget': budget.id}) }}" class="btn btn-primary px-4" aria-label="Créer une nouvelle catégorie">
+					Créer une catégorie
+				</a>
+			</div>
+		</div>
+	</div>
 
-    {# Bouton retour #}
-    <div class="mb-3">
-        {# <a href="{{ path('app_organization_show', {'slug': organization.slug}) }}"
-           class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Retour
-        </a> #}
-    </div>
+	{# Bouton retour #}
+	<div
+		class="mb-3">{# <a href="{{ path('app_organization_show', {'slug': organization.slug}) }}"
+			           class="btn btn-outline-secondary">
+			            <i class="bi bi-arrow-left"></i> Retour
+			        </a> #}
+	</div>
 {% endblock %}

@@ -34,7 +34,9 @@ final class MemberBudgetLineController extends AbstractController
         $budgetLine = new BudgetLine();
         $budgetLine->setBudget($budget);
  
-        $form = $this->createForm(BudgetLineType::class, $budgetLine);
+        $form = $this->createForm(BudgetLineType::class, $budgetLine, [
+            'budget' => $budget
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
