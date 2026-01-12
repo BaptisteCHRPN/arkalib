@@ -41,9 +41,13 @@ class Budget
     #[ORM\OneToMany(targetEntity: BudgetLine::class, mappedBy: 'budget')]
     private Collection $budget_line;
 
+    #[ORM\Column]
+    private ?bool $is_closed = null;
+
     public function __construct()
     {
         $this->budget_line = new ArrayCollection();
+        $this->is_closed = 0;
     }
 
     public function getId(): ?int
@@ -149,6 +153,18 @@ class Budget
     public function setSlug(string $slug): static
     {
         $this->slug = $slug;
+
+        return $this;
+    }
+
+    public function isClosed(): ?bool
+    {
+        return $this->is_closed;
+    }
+
+    public function setIsClosed(bool $is_closed): static
+    {
+        $this->is_closed = $is_closed;
 
         return $this;
     }
