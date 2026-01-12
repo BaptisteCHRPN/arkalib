@@ -8,9 +8,11 @@ use App\Entity\Category;
 use App\Entity\Transaction;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -18,15 +20,20 @@ class BudgetLineType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $budget = $options['budget'];
+        
         $builder
-            ->add('name', null, [
-                'label' => 'Nom',
+            ->add('name', TextType::class, [
+                'label' => 'Nom de la ligne',
                 'attr' => [
-                    'placeholder' => 'Nom de la dépense / recette'
-                ]
+                    'placeholder' => 'Ex: Loyer, subventions...',
+                    'class' => 'form-control'
+                ],
+                'required' => true
             ])
             ->add('is_expense', ChoiceType::class, [
                 'label' => 'Dépense ou recette',
+                'required' => false,
                 'choices' => [
                     'Dépense' => true,
                     'Recette' => false
@@ -35,14 +42,52 @@ class BudgetLineType extends AbstractType
             ->add('descrption', TextareaType::class, [
                 'label' => 'Description',
                 'required' => false,
+                'attr' => [
+                    'placeholder' => 'Description optionnelle...',
+                    'class' => 'form-control',
+                    'rows' => 3
+                ]
             ])
             ->add('amount', MoneyType::class, [
-                'label' => 'montant',
-
+                'label' => 'Montant',
+                'currency' => 'EUR',
+                'attr' => [
+                    'placeholder' => '0.00',
+                    'class' => 'form-control'
+                ],
+                'required' => true
             ])
             ->add('category', EntityType::class, [
                 'class' => Category::class,
-                'choice_label' => 'id',
+                'label' => 'Catégorie',
+                'placeholder' => '-- Sélectionner une catégorie --',
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-select'
+                ],
+                'choices' => $budget->getCategories(),
+                'choice_label' => function(?Category $category) {
+                    if (!$category) {
+                        return '';
+                    }
+                    
+                    if ($category->getParentCategory()) {
+                        return $category->getParentCategory()->getName() . ' > ' . $category->getName();
+                    }
+                    
+                    return $category->getName();
+                },
+                'group_by' => function(?Category $category) {
+                    if (!$category) {
+                        return null;
+                    }
+                    
+                    if ($category->getParentCategory()) {
+                        return $category->getParentCategory()->getName();
+                    }
+                    
+                    return 'Catégories principales';
+                },
             ])
         ;
     }
@@ -52,5 +97,9 @@ class BudgetLineType extends AbstractType
         $resolver->setDefaults([
             'data_class' => BudgetLine::class,
         ]);
+        
+        $resolver->setRequired('budget');
+        
+        $resolver->setAllowedTypes('budget', Budget::class);
     }
 }

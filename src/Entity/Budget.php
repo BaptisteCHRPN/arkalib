@@ -44,10 +44,17 @@ class Budget
     #[ORM\Column]
     private ?bool $is_closed = null;
 
+    /**
+     * @var Collection<int, Category>
+     */
+    #[ORM\OneToMany(targetEntity: Category::class, mappedBy: 'budget', orphanRemoval: true)]
+    private Collection $categories;
+
     public function __construct()
     {
         $this->budget_line = new ArrayCollection();
         $this->is_closed = 0;
+        $this->categories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -165,6 +172,36 @@ class Budget
     public function setIsClosed(bool $is_closed): static
     {
         $this->is_closed = $is_closed;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Category>
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Category $category): static
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories->add($category);
+            $category->setBudget($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): static
+    {
+        if ($this->categories->removeElement($category)) {
+            // set the owning side to null (unless already changed)
+            if ($category->getBudget() === $this) {
+                $category->setBudget(null);
+            }
+        }
 
         return $this;
     }
