@@ -33,6 +33,7 @@ class BudgetLineType extends AbstractType
             ])
             ->add('is_expense', ChoiceType::class, [
                 'label' => 'Dépense ou recette',
+                'placeholder' => '-- Type de ligne budgétaire --',
                 'required' => false,
                 'choices' => [
                     'Dépense' => true,

@@ -1,11 +1,38 @@
 {% extends 'user_base.html.twig' %}
 
-{% block title %}New BudgetLine{% endblock %}
+{% block title %}Nouvelle ligne budgétaire{% endblock %}
 
 {% block body %}
-    <h1>Create new BudgetLine</h1>
+<div class="container-fluid px-4 py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            {# Breadcrumb #}
+            <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">
+                            <i class="bi bi-arrow-left me-1"></i>{{ budget.name }}
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active text-secondary" aria-current="page">Nouvelle ligne</li>
+                </ol>
+            </nav>
+            
+            <h1 class="dashboard-title">
+                Créer une nouvelle ligne budgétaire
+            </h1>
+        </div>
+    </div>
 
-    {{ include('member/budget_line/_form.html.twig') }}
 
-    <a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">Retour au budget</a>
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    {{ include('member/budget_line/_form.html.twig') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

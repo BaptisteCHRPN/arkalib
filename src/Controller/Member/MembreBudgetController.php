@@ -19,13 +19,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 final class MembreBudgetController extends AbstractController
 {
-    // This methos is not required becaus we can see all budgets that belong in current organization
-    // #[Route('/membre/budget', name: 'app_membre_budget')]
-    // public function index(BudgetRepository $budgetRepository): Response
-    // {
-    //     return $this->render('membre/budget/index.html.twig');
-    // }
-
     #[Route('/membre/budget/new/{organizationId}', name: 'app_member_budget_new', methods: ['GET', 'POST'])]
     public function new(int $organizationId, Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
@@ -55,7 +48,7 @@ final class MembreBudgetController extends AbstractController
             $entityManager->flush();
 
             return $this->redirectToRoute('app_organization_budgets', [
-                'organizationSlug' => $organization->getSlug()  // ← Ajoute le slug
+                'organizationSlug' => $organization->getSlug()
             ], Response::HTTP_SEE_OTHER);
         }
 
@@ -66,40 +59,42 @@ final class MembreBudgetController extends AbstractController
     }
 
     #[Route('/budget/{organizationSlug}/{budgetSlug}', name: 'app_membre_budget_show', methods: ['GET'])]
-    // This method allow to see preview of the current budget
     public function show(
-        EntityManagerInterface $entityManager,
-        BudgetLineRepository $budgetLineRepository,
         BudgetCalculatorService $budgetCalculatorService,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])]
         Budget $budget,
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
         Organization $organization
     ): Response {
-        $organization = $budget->getOrganization();
+        // fetching all budget lines (actives & inactives)
+        $expenses = $budget->getBudgetLine()->filter(fn($line) => $line->isExpense());
+        $incomes = $budget->getBudgetLine()->filter(fn($line) => !$line->isExpense());
 
-        $incomes = $entityManager->getRepository(BudgetLine::class)->findBy([
-            'budget' => $budget,
-            'is_expense' => false
-        ]);
-
-        $expenses = $entityManager->getRepository(BudgetLine::class)->findBy([
-            'budget' => $budget,
-            'is_expense' => true
-        ]);
-
+        // Calcul toal budget lines active
         $sumExpenses = $budgetCalculatorService->sumTotalExpenses($budget);
-        $sumIncomes = $budgetCalculatorService->SumTotalIncomes($budget);
-        $balanceBudget = $budgetCalculatorService->BalanceBudget($budget);
+        $sumIncomes = $budgetCalculatorService->sumTotalIncomes($budget);
+        $balanceBudget = $budgetCalculatorService->balanceBudget($budget);
+
+        // Calcul all total even inactive lines
+        $total_expenses_all = 0;
+        foreach ($expenses as $expense) {
+            $total_expenses_all += $expense->getAmount();
+        }
+
+        $total_incomes_all = 0;
+        foreach ($incomes as $income) {
+            $total_incomes_all += $income->getAmount();
+        }
 
         return $this->render('member/budget/index.html.twig', [
             'budget' => $budget,
             'organization' => $organization,
-            'budget_lines' => $budgetLineRepository->findAll(),
-            'incomes' => $incomes,
             'expenses' => $expenses,
+            'incomes' => $incomes,
             'sum_expenses' => $sumExpenses,
             'sum_incomes' => $sumIncomes,
+            'total_expenses_all' => $total_expenses_all,
+            'total_incomes_all' => $total_incomes_all,
             'balance_budget' => $balanceBudget,
         ]);
     }
