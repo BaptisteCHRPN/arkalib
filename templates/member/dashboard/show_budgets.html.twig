@@ -3,8 +3,10 @@
 {% block title %}Budgets{% endblock %}
 
 {% block body %}
-<h1 class="hero-budget-title">Budgets de {{ organization.name }}</h1>
-    
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="hero-budget-title mb-0">Budgets de {{ organization.name }}</h1>
+    <div><a href="#">{{ ux_icon('icon-park-solid:setting') }}</a></div>
+</div>
 <div class="container">
     <div class="row justify-content-center">
         {% for budget in budgets %}
