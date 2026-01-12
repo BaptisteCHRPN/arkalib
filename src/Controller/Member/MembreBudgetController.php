@@ -65,7 +65,7 @@ final class MembreBudgetController extends AbstractController
         ]);
     }
 
-    #[Route('/{organizationSlug}/{budgetSlug}', name: 'app_membre_budget_show', methods: ['GET'])]
+    #[Route('/budget/{organizationSlug}/{budgetSlug}', name: 'app_membre_budget_show', methods: ['GET'])]
     // This method allow to see preview of the current budget
     public function show(
         EntityManagerInterface $entityManager,
