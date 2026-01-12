@@ -161,6 +161,24 @@ $font-weight-bold: 700;
     }
 }
 
+/* Permettre au dropdown de déborder du tableau */
+.table-responsive {
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+/* Sur les dernières lignes du tableau, forcer le dropdown vers le haut */
+tbody tr:nth-last-child(-n+3) .dropdown-menu {
+    bottom: 100%;
+    top: auto;
+    margin-bottom: 0.125rem;
+}
+
+/* Ajouter une ombre pour mieux voir le dropdown */
+.dropdown-menu {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
 // ====================================
 // FOOTER
 // ====================================
