@@ -13,11 +13,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Util\TargetPathTrait;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use SymfonyCasts\Bundle\VerifyEmail\Exception\VerifyEmailExceptionInterface;
 
 class RegistrationController extends AbstractController
 {
+    use TargetPathTrait;
+
     public function __construct(private EmailVerifier $emailVerifier)
     {
     }
@@ -76,6 +79,9 @@ class RegistrationController extends AbstractController
 
         // @TODO Change the redirect on success and handle or remove the flash message in your templates
         $this->addFlash('success', 'Your email address has been verified.');
+
+        // Clean up the target path to prevent unwanted redirections
+        $this->removeTargetPath($request->getSession(), 'main');
 
         return $this->redirectToRoute('app_dashboard');
     }
