@@ -358,6 +358,85 @@ body {
 }
 
 // ====================================
+// BUDGET VIEW FOR MOBILE
+// ====================================
+.mobile-list {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.mobile-item {
+  padding: 16px;
+  border-bottom: 1px solid #e9ecef;
+  background: #fff;
+}
+
+.mobile-item:last-child {
+  border-bottom: none;
+}
+
+.item-icon {
+  width: 48px;
+  height: 48px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: #6c757d;
+  flex-shrink: 0;
+}
+
+.mobile-item h6 {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: #212529;
+}
+
+.mobile-item small {
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.item-amount {
+  text-align: right;
+  white-space: nowrap;
+  margin-left: 12px;
+}
+
+// Classe utilitaire pour la troncature du texte
+.min-width-0 {
+    min-width: 0;
+}
+
+// Responsive mobile pour la vue budget
+@media (max-width: 767px) {
+    // Solution radicale : retire tout padding du main-content sur mobile pour budget
+    .budget-view {
+        margin-left: -60px;
+        width: calc(100% + 60px);
+    }
+    
+    .budget-view > * {
+        padding-left: 68px;
+        padding-right: 8px;
+    }
+    
+    .mobile-list {
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 8px;
+    }
+    
+    .card.shadow-sm {
+        margin-bottom: 8px;
+    }
+}
+
+// ====================================
 // CARDS & COMPONENTS
 // ====================================
 .ark-card {
