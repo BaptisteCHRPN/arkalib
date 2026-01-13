@@ -1,41 +1,31 @@
-// 1. VARIABLES PERSONNALISÉES (avant d'importer Bootstrap)
-// Vos couleurs
+// ====================================
+// 1. CUSTOM VARIABLES
+// ====================================
 $primary: rgba(52, 187, 252, 1);
 $secondary: rgba(31, 47, 80, 1);
 $light-gray: rgba(239, 239, 239, 1);
-
-// Autres personnalisations
 $body-secondary-color: #fff;
 $border-radius: 5px;
 $font-weight-bold: 700;
 
-// 2. IMPORTER BOOTSTRAP
+// ====================================
+// 2. IMPORT BOOTSTRAP
+// ====================================
 @import "~bootstrap/scss/bootstrap";
 
-// 3. VOS STYLES PERSONNALISÉS (après Bootstrap)
+// ====================================
+// 3. CUSTOM UTILITIES
+// ====================================
+.pt-80 { padding-top: 80px; }
+.wd-270 { width: 270px; }
+.ml-270 { margin-left: 270px; }
+.height-60 { height: 60px; }
+.bg-lighgray { background-color: $light-gray; }
+.min-width-0 { min-width: 0; }
 
-// Utilitaires personnalisés
-.pt-80 {
-    padding-top: 80px;
-}
-
-.wd-270 {
-    width: 270px;
-}
-
-.ml-270 {
-    margin-left: 270px;
-}
-
-.height-60 {
-    height: 60px;
-}
-
-.bg-lighgray {
-    background-color: $light-gray;
-}
-
-// Composants
+// ====================================
+// 4. BASE COMPONENTS
+// ====================================
 .img-logo {
     width: 4rem;
 }
@@ -52,12 +42,8 @@ $font-weight-bold: 700;
     justify-content: center;
 }
 
-.hello-title {
-    font-size: 2rem;
-    font-weight: $font-weight-bold;
-    color: $secondary;
-}
-
+// Headings
+.hello-title,
 .dashboard-title {
     font-size: 2rem;
     font-weight: $font-weight-bold;
@@ -69,7 +55,9 @@ $font-weight-bold: 700;
     color: $secondary;
 }
 
-// Boutons (surcharge Bootstrap)
+// ====================================
+// 5. BUTTONS
+// ====================================
 .btn-primary {
     background-color: $primary !important;
     border: none;
@@ -90,16 +78,18 @@ $font-weight-bold: 700;
     }
 }
 
+// ====================================
+// 6. FORMS
+// ====================================
 .form-control::placeholder {
     color: #6c757d;
     opacity: 1;
 }
 
 // ====================================
-// NAVIGATION
+// 7. NAVIGATION & HEADER
 // ====================================
 .navbar {
-    // Liens de navigation
     .navbar-brand,
     .nav-link {
         color: #fff !important;
@@ -109,11 +99,8 @@ $font-weight-bold: 700;
         }
     }
 
-    // Logo
-    .navbar-brand {
-        &:hover {
-            text-decoration: none;
-        }
+    .navbar-brand:hover {
+        text-decoration: none;
     }
 }
 
@@ -121,112 +108,10 @@ $font-weight-bold: 700;
     background-color: #fff;
 }
 
-// Navbar background
 .bg-secondary {
     background-color: $secondary !important;
 }
 
-// Login page
-.login-container {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa;
-}
-
-.login-card {
-    width: 100%;
-    max-width: 400px;
-    padding: 2rem;
-    border-radius: $border-radius;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    background: white;
-}
-
-.login-title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #333;
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.login-link {
-    color: $primary;
-    text-decoration: none;
-    
-    &:hover {
-        text-decoration: underline;
-    }
-}
-
-/* Permettre au dropdown de déborder du tableau */
-.table-responsive {
-    overflow-x: auto;
-    overflow-y: visible;
-}
-
-/* Sur les dernières lignes du tableau, forcer le dropdown vers le haut */
-tbody tr:nth-last-child(-n+3) .dropdown-menu {
-    bottom: 100%;
-    top: auto;
-    margin-bottom: 0.125rem;
-}
-
-/* Ajouter une ombre pour mieux voir le dropdown */
-.dropdown-menu {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-
-// ====================================
-// FOOTER
-// ====================================
-.home_footer {
-    a, p {
-        color: #fff;
-    }
-}
-
-// ====================================
-// HERO SECTION
-// ====================================
-.hero-budget {
-    background-color: $light-gray;
-
-    &-title {
-        font-size: 3rem;
-        font-weight: $font-weight-bold;
-        color: $secondary;
-        line-height: 1.2;
-        margin-bottom: 1.5rem;
-    }
-
-    &-subtitle {
-        font-size: 1.25rem;
-        color: rgba(98, 109, 122, 1);
-        margin-bottom: 2rem;
-    }
-
-    &-image {
-        max-width: 1000px;
-    }
-}
-
-// ====================================
-// BODY & LOADING STATE
-// ====================================
-body {
-    overflow-x: hidden;
-
-    &.loading * {
-        transition: none !important;
-    }
-}
-
-// ====================================
-// NAVBAR TOGGLE BUTTON
-// ====================================
 .navbar-toggle-btn {
     position: fixed;
     top: 65px;
@@ -263,8 +148,18 @@ body {
     transition: transform 0.3s ease;
 }
 
+.header-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    z-index: 1030;
+    transition: left 0.3s ease-in-out;
+}
+
 // ====================================
-// SIDEBAR & OFFCANVAS
+// 8. SIDEBAR
 // ====================================
 .offcanvas,
 .offcanvas-start,
@@ -281,20 +176,7 @@ body {
 }
 
 // ====================================
-// HEADER NAVBAR
-// ====================================
-.header-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 60px;
-    z-index: 1030;
-    transition: left 0.3s ease-in-out;
-}
-
-// ====================================
-// MAIN CONTENT
+// 9. MAIN CONTENT
 // ====================================
 .main-content {
     transition: margin-left 0.3s ease-in-out, padding-left 0.3s ease-in-out;
@@ -305,139 +187,131 @@ body {
 }
 
 // ====================================
-// RESPONSIVE - DESKTOP (≥992px)
+// 10. DROPDOWNS (DESKTOP & MOBILE)
 // ====================================
-@media (min-width: 992px) {
-    .offcanvas {
-        position: fixed !important;
-        top: 0;
-        left: 0;
-        visibility: visible !important;
-        border: none;
-        z-index: 1040;
-    }
-
-    // Navbar ouverte
-    .navbar-open {
-        .main-content {
-            margin-left: 270px;
-            padding-left: 0;
-        }
-
-        .header-nav {
-            left: 270px;
-        }
-    }
-
-    // Navbar fermée
-    body:not(.navbar-open) {
-        .header-nav {
-            left: 0;
-        }
-
-        .main-content {
-            margin-left: 0;
-            padding-left: 60px;
-        }
-    }
+.dropdown-menu {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    z-index: 1050;
 }
 
-// ====================================
-// RESPONSIVE - MOBILE (<992px)
-// ====================================
-@media (max-width: 991.98px) {
-    .header-nav {
-        left: 0;
-    }
-
-    .main-content {
-        margin-left: 0;
-        padding-left: 60px;
-        padding-top: 60px;
-    }
-}
-
-// ====================================
-// BUDGET VIEW FOR MOBILE
-// ====================================
-.mobile-list {
-  background: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.mobile-item {
-  padding: 16px;
-  border-bottom: 1px solid #e9ecef;
-  background: #fff;
-}
-
-.mobile-item:last-child {
-  border-bottom: none;
-}
-
-.item-icon {
-  width: 48px;
-  height: 48px;
-  background: #f8f9fa;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  color: #6c757d;
-  flex-shrink: 0;
-}
-
-.mobile-item h6 {
-  font-size: 16px;
-  font-weight: 500;
-  margin-bottom: 4px;
-  color: #212529;
-}
-
-.mobile-item small {
-  font-size: 13px;
-  color: #6c757d;
-}
-
-.item-amount {
-  text-align: right;
-  white-space: nowrap;
-  margin-left: 12px;
-}
-
-// Classe utilitaire pour la troncature du texte
-.min-width-0 {
-    min-width: 0;
-}
-
-// Responsive mobile pour la vue budget
-@media (max-width: 767px) {
-    // Solution radicale : retire tout padding du main-content sur mobile pour budget
-    .budget-view {
-        margin-left: -60px;
-        width: calc(100% + 60px);
+// Desktop: allow dropdown to overflow
+@media (min-width: 768px) {
+    .table-responsive {
+        overflow: visible !important;
     }
     
-    .budget-view > * {
-        padding-left: 68px;
-        padding-right: 8px;
+    // Force upward for last rows
+    tbody tr:nth-last-child(-n+2) .dropdown-menu {
+        bottom: 100% !important;
+        top: auto !important;
+        margin-bottom: 0.125rem !important;
     }
     
-    .mobile-list {
-        margin-left: 0;
-        margin-right: 0;
-        border-radius: 8px;
+    .card-body {
+        overflow: visible;
+    }
+}
+
+// Mobile: prevent automatic scroll
+@media (max-width: 767.98px) {
+    .table-responsive {
+        overflow-x: auto;
+        overflow-y: visible;
     }
     
-    .card.shadow-sm {
-        margin-bottom: 8px;
+    .budget-view-mobile {
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            position: absolute !important;
+            inset: auto !important;
+            top: 100% !important;
+            right: 0 !important;
+            left: auto !important;
+            transform: none !important;
+            margin: 2px 0 0 0 !important;
+            will-change: auto !important;
+        }
+        
+        .dropdown-menu.show {
+            animation: none !important;
+            transition: none !important;
+        }
     }
 }
 
 // ====================================
-// CARDS & COMPONENTS
+// 11. SPECIFIC PAGES
+// ====================================
+// Login
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    border-radius: $border-radius;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+.login-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-link {
+    color: $primary;
+    text-decoration: none;
+    
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+// Footer
+.home_footer {
+    a, p {
+        color: #fff;
+    }
+}
+
+// Hero Section
+.hero-budget {
+    background-color: $light-gray;
+
+    &-title {
+        font-size: 3rem;
+        font-weight: $font-weight-bold;
+        color: $secondary;
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+    }
+
+    &-subtitle {
+        font-size: 1.25rem;
+        color: rgba(98, 109, 122, 1);
+        margin-bottom: 2rem;
+    }
+
+    &-image {
+        max-width: 1000px;
+    }
+}
+
+// ====================================
+// 12. CARDS & COMPONENTS
 // ====================================
 .ark-card {
     background-color: $light-gray;
@@ -453,4 +327,132 @@ body {
 
 .svg-primary {
     color: $secondary;
+}
+
+// ====================================
+// 13. BUDGET VIEW MOBILE
+// ====================================
+.mobile-list {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.mobile-item {
+    padding: 16px;
+    border-bottom: 1px solid #e9ecef;
+    background: #fff;
+
+    &:last-child {
+        border-bottom: none;
+    }
+
+    h6 {
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 4px;
+        color: #212529;
+    }
+
+    small {
+        font-size: 13px;
+        color: #6c757d;
+    }
+}
+
+.item-icon {
+    width: 48px;
+    height: 48px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #6c757d;
+    flex-shrink: 0;
+}
+
+.item-amount {
+    text-align: right;
+    white-space: nowrap;
+    margin-left: 12px;
+}
+
+// ====================================
+// 14. GLOBAL SETTINGS
+// ====================================
+body {
+    overflow-x: hidden;
+
+    &.loading * {
+        transition: none !important;
+    }
+}
+
+// ====================================
+// 15. RESPONSIVE BREAKPOINTS
+// ====================================
+
+// DESKTOP (≥992px)
+@media (min-width: 992px) {
+    .offcanvas {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        visibility: visible !important;
+        border: none;
+        z-index: 1040;
+    }
+
+    .navbar-open {
+        .main-content {
+            margin-left: 270px;
+            padding-left: 0;
+        }
+
+        .header-nav {
+            left: 270px;
+        }
+    }
+
+    body:not(.navbar-open) {
+        .header-nav {
+            left: 0;
+        }
+
+        .main-content {
+            margin-left: 0;
+            padding-left: 60px;
+        }
+    }
+}
+
+// TABLET & MOBILE (<992px)
+@media (max-width: 991.98px) {
+    .header-nav {
+        left: 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding-left: 0 !important;
+        padding-top: 60px;
+    }
+}
+
+// MOBILE ONLY (<768px)
+@media (max-width: 767.98px) {
+    .budget-view-mobile {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+    
+    .mobile-list,
+    .card.shadow-sm {
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 8px;
+        margin-bottom: 8px;
+    }
 }
