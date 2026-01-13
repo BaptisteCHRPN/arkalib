@@ -8,5 +8,6 @@ window.bootstrap = bootstrap;
 
 // Importer votre script
 import './navbar-toggle.js';
+import './popper-unabled.js';
 
 console.log('Bootstrap chargé!');
