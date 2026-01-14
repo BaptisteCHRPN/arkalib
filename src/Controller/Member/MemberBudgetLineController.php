@@ -20,16 +20,20 @@ final class MemberBudgetLineController extends AbstractController
 {
     #[Route('/new/{organizationSlug}/{budgetSlug}', name: 'app_budget_line_new', methods: ['GET', 'POST'])]
     public function new(
+        string $budgetSlug,
         Request $request,
         EntityManagerInterface $entityManager,
-        #[MapEntity(mapping: ['budgetSlug' => 'slug'])]
-        Budget $budget,
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
         Organization $organization
     ): Response
     {
-        // Vérification de sécurité : le budget doit appartenir à l'organisation
-        if ($budget->getOrganization() !== $organization) {
+        // Récupérer le budget en tenant compte de l'organisation
+        $budget = $entityManager->getRepository(Budget::class)->findOneBy([
+            'slug' => $budgetSlug,
+            'organization' => $organization
+        ]);
+
+        if (!$budget) {
             throw $this->createNotFoundException('Budget non trouvé dans cette organisation');
         }
 
