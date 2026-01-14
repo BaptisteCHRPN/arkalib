@@ -102,7 +102,7 @@
 
                         </div>
                         <div class="text-end">
-                            <span class="fw-bold text-success d-block">+ {{ income.amount|number_format(2, ',', ' ') }} €</span>
+                            <span class="fw-bold text-success d-block text-nowrap">+ {{ income.amount|number_format(2, ',', ' ') }} €</span>
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-light mt-1" 
                                         type="button" 
@@ -191,7 +191,7 @@
                             
                         </div>
                         <div class="text-end">
-                            <span class="fw-bold text-danger d-block">- {{ expense.amount|number_format(2, ',', ' ') }} €</span>
+                            <span class="fw-bold text-danger d-block text-nowrap">- {{ expense.amount|number_format(2, ',', ' ') }} €</span>
                             <div class="dropdown">
                                 <button class="btn btn-sm btn-light mt-1" 
                                         type="button" 
