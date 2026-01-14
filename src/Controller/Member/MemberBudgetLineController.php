@@ -19,23 +19,27 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 final class MemberBudgetLineController extends AbstractController
 {
     #[Route('/new/{organizationSlug}/{budgetSlug}', name: 'app_budget_line_new', methods: ['GET', 'POST'])]
-    public function new(string $budgetSlug, Request $request, EntityManagerInterface $entityManager,
-    #[MapEntity(mapping: ['budgetSlug' => 'slug'])]
-    Budget $budget,
-    #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
-    Organization $organization,
+    public function new(
+        string $budgetSlug,
+        Request $request,
+        EntityManagerInterface $entityManager,
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
+        Organization $organization
     ): Response
     {
-        $organization = $budget->getOrganization();
-        $budget = $entityManager->getRepository(Budget::class)->findOneBy(['slug' => $budgetSlug]);
+        // Récupérer le budget en tenant compte de l'organisation
+        $budget = $entityManager->getRepository(Budget::class)->findOneBy([
+            'slug' => $budgetSlug,
+            'organization' => $organization
+        ]);
 
         if (!$budget) {
-            throw $this->createNotFoundException('Budget non trouvé');
+            throw $this->createNotFoundException('Budget non trouvé dans cette organisation');
         }
 
         $budgetLine = new BudgetLine();
         $budgetLine->setBudget($budget);
- 
+
         $form = $this->createForm(BudgetLineType::class, $budgetLine, [
             'budget' => $budget
         ]);
@@ -46,8 +50,8 @@ final class MemberBudgetLineController extends AbstractController
             $entityManager->flush();
 
             return $this->redirectToRoute('app_membre_budget_show', [
-                'organizationSlug' => $budget->getOrganization()->getSlug(),
-                'budgetSlug' => $budgetSlug,
+                'organizationSlug' => $organization->getSlug(),
+                'budgetSlug' => $budget->getSlug(),
             ], Response::HTTP_SEE_OTHER);
         }
 
