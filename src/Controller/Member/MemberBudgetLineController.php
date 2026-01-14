@@ -18,10 +18,12 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 #[Route('/member/budgetline')]
 final class MemberBudgetLineController extends AbstractController
 {
-    #[Route('/new/{budgetSlug}', name: 'app_budget_line_new', methods: ['GET', 'POST'])]
+    #[Route('/new/{organizationSlug}/{budgetSlug}', name: 'app_budget_line_new', methods: ['GET', 'POST'])]
     public function new(string $budgetSlug, Request $request, EntityManagerInterface $entityManager,
     #[MapEntity(mapping: ['budgetSlug' => 'slug'])]
     Budget $budget,
+    #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
+    Organization $organization,
     ): Response
     {
         $organization = $budget->getOrganization();
