@@ -66,9 +66,13 @@ final class MembreBudgetController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
         Organization $organization
     ): Response {
-        // fetching all budget lines (actives & inactives)
-        $expenses = $budget->getBudgetLine()->filter(fn($line) => $line->isExpense());
-        $incomes = $budget->getBudgetLine()->filter(fn($line) => !$line->isExpense());
+        // fetching all actives budget  lines
+        $expenses = $budget->getBudgetLine()->filter(
+            fn($line) => $line->isExpense() && $line->isActive()
+            );
+        $incomes = $budget->getBudgetLine()->filter(
+            fn($line) => !$line->isExpense() && $line->isActive()
+            );
 
         // Calcul toal budget lines active
         $sumExpenses = $budgetCalculatorService->sumTotalExpenses($budget);

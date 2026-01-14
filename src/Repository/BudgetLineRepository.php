@@ -37,8 +37,10 @@ class BudgetLineRepository extends ServiceEntityRepository
             ->select('SUM(bl.amount)')
             ->where('bl.budget = :budget')
             ->andWhere('bl.is_expense = :isExpense')
+            ->andWhere('bl.is_active = :isActive')
             ->setParameter('budget', $budget)
             ->setParameter('isExpense', true)
+            ->setParameter('isActive', true)
             ->getQuery()
             ->getSingleScalarResult(); // allow to have a simple value in return and not an array or an object
 
@@ -51,8 +53,10 @@ class BudgetLineRepository extends ServiceEntityRepository
             ->select('SUM(bl.amount)')
             ->where('bl.budget = :budget')
             ->andWhere('bl.is_expense = :isExpense')
+            ->andWhere('bl.is_active = :isActive')
             ->setParameter('budget', $budget)
             ->setParameter('isExpense', false)
+            ->setParameter('isActive', true)
             ->getQuery()
             ->getSingleScalarResult(); // allow to have a simple value in return and not an array or an object
 

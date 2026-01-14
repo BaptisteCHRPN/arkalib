@@ -112,7 +112,6 @@
 		</div>
 		<div class="card-body p-0">
 			{% if incomes|length > 0 %}
-				{# VERSION DESKTOP (tableau original) #}
 				<div class="d-none d-md-block">
 					<div class="table-responsive">
 						<table class="table table-hover mb-0">
@@ -130,12 +129,6 @@
 									<tr>
 										<td class="align-middle">
 											<strong>{{ income.name }}</strong>
-											{% if not income.isActive %}
-												<span class="badge bg-secondary ms-2" title="Ligne inactive">
-													{{ ux_icon('mdi:pause-circle') }}
-												</span>
-											{% endif %}
-										</td>
 										<td class="align-middle">
 											{% if income.category %}
 												{% if income.category.parentCategory %}
@@ -236,7 +229,6 @@
 		</div>
 		<div class="card-body p-0">
 			{% if expenses|length > 0 %}
-				{# VERSION DESKTOP (tableau original) #}
 				<div class="d-none d-md-block">
 					<div class="table-responsive">
 						<table class="table table-hover mb-0">
@@ -254,11 +246,6 @@
 									<tr>
 										<td class="align-middle">
 											<strong>{{ expense.name }}</strong>
-											{% if not expense.isActive %}
-												<span class="badge bg-secondary ms-2" title="Ligne inactive">
-													{{ ux_icon('mdi:pause-circle') }}
-												</span>
-											{% endif %}
 										</td>
 										<td class="align-middle">
 											{% if expense.category %}
