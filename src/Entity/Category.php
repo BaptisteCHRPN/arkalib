@@ -7,6 +7,11 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
+#[ORM\Table(name: 'category', indexes: [
+    new ORM\Index(name: "idx_budget_id", columns: ["budget_id"]),
+    new ORM\Index(name: "idx_parent_category_id", columns: ["parent_category_id"]),
+    new ORM\Index(name: "idx_budget_parent", columns: ["budget_id", "parent_category_id"]),
+])]
 class Category
 {
     #[ORM\Id]
