@@ -59,7 +59,7 @@
             </div>
         </div>
         <div class="mt-2">
-            <a href="{{ path('app_category_new', {'budget': budget.id}) }}" class="btn btn-outline-primary w-100 py-2 small">
+            <a href="{{ path('app_category_new', {'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-outline-primary w-100 py-2 small">
                 Créer une catégorie
             </a>
         </div>
