@@ -61,11 +61,23 @@ final class MembreBudgetController extends AbstractController
     #[Route('/budget/{organizationSlug}/{budgetSlug}', name: 'app_membre_budget_show', methods: ['GET'])]
     public function show(
         BudgetCalculatorService $budgetCalculatorService,
-        #[MapEntity(mapping: ['budgetSlug' => 'slug'])]
-        Budget $budget,
-        #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
-        Organization $organization
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
+        EntityManagerInterface $entityManager,
+        string $budgetSlug
     ): Response {
+        $budget = $entityManager->getRepository(Budget::class)->findOneBy([
+            'slug' => $budgetSlug,
+            'organization' => $organization,
+        ]);
+
+        if (!$budget) {
+            throw $this->createNotFoundException('Le budget demandé n\'existe pas dans cette organisation');
+        }
+
+        if ($budget->getOrganization()->getId() !== $organization->getId()) {
+            throw $this->createAccessDeniedException('Ce budget n\'appartient pas à cette organisation');
+        }
+
         // fetching all actives budget  lines
         $expenses = $budget->getBudgetLine()->filter(
             fn($line) => $line->isExpense() && $line->isActive()
