@@ -41,7 +41,7 @@ final class MembreBudgetController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             // auto slug generation
-            $slug = $slugger->slug($budget->getName())->lower();
+            $slug = $slugger->slug(sprintf('%s-%s', $budget->getName(), $organization->getSlug()))->lower();
             $budget->setSlug($slug);
 
             $entityManager->persist($budget);
@@ -55,6 +55,7 @@ final class MembreBudgetController extends AbstractController
         return $this->render('member/budget/new.html.twig', [
             'budget' => $budget,
             'form' => $form,
+            'organization' => $organization,
         ]);
     }
 

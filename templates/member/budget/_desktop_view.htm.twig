@@ -45,7 +45,7 @@
 					{{ ux_icon('mdi:plus-circle', {'class': 'me-2'}) }}
 					Nouvelle ligne budgétaire
 				</a>
-				<a href="{{ path('app_category_new', {'budget': budget.id}) }}" class="btn btn-outline-primary">
+				<a href="{{ path('app_category_new', {'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-outline-primary">
 					{{ ux_icon('mdi:tag', {'class': 'me-2'}) }}
 					Créer une catégorie
 				</a>
