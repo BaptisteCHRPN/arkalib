@@ -43,11 +43,7 @@ final class MemberCategoryController extends AbstractController
     #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
     Request $request,
     EntityManagerInterface $entityManager
-    ): Response {
-
-        dump($organization->getSlug(), $organization->getId());
-        dump($budget->getSlug(), $budget->getOrganization()->getSlug(), $budget->getOrganization()->getId());
-        
+    ): Response {        
         // Check if current budget is owned by organization
         if ($budget->getOrganization()->getId() !== $organization->getId()) {
             throw $this->createAccessDeniedException('Ce budget n\'appartient pas à cette organisation');

@@ -17,16 +17,16 @@ class TransactionType extends AbstractType
             ->add('date')
             ->add('amount')
             ->add('payment_method')
-            ->add('created_at', null, [
-                'widget' => 'single_text',
-            ])
             ->add('comment')
-            ->add('is_active')
             ->add('reference')
             ->add('budget_line', EntityType::class, [
                 'class' => BudgetLine::class,
-                'choice_label' => 'id',
+                'choice_label' => 'name',
                 'multiple' => true,
+                'required' => false,
+                'attr' => [
+                    'class' => 'form-select'
+                ]
             ])
         ;
     }
