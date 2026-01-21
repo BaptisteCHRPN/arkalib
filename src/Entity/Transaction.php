@@ -46,6 +46,8 @@ class Transaction
     public function __construct()
     {
         $this->budget_line = new ArrayCollection();
+        $this->created_at = new \DateTimeImmutable();
+        $this->is_active = true;
     }
 
     public function getId(): ?int
