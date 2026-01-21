@@ -27,7 +27,7 @@ final class MemberBudgetLineController extends AbstractController
         Organization $organization
     ): Response
     {
-        // Récupérer le budget en tenant compte de l'organisation
+        // Fetch current budget et check organization's owner
         $budget = $entityManager->getRepository(Budget::class)->findOneBy([
             'slug' => $budgetSlug,
             'organization' => $organization
