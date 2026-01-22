@@ -165,7 +165,7 @@
 												</button>
 												<ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownIncome{{ income.id }}">
 													<li>
-														<a class="dropdown-item" href="#">
+														<a class="dropdown-item" href="{{ path('app_member_budget_line_edit', {'id': income.id, 'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">
 															{{ ux_icon('mdi:pencil', {'class': 'me-2'}) }}Modifier
 														</a>
 													</li>
@@ -281,7 +281,7 @@
 												</button>
 												<ul class="dropdown-menu dropdown-menu-end">
 													<li>
-														<a class="dropdown-item" href="#">
+														<a class="dropdown-item" href="{{ path('app_member_budget_line_edit', {'id': expense.id, 'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">
 															{{ ux_icon('mdi:pencil', {'class': 'me-2'}) }}Modifier
 														</a>
 													</li>
