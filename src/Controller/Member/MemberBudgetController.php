@@ -17,9 +17,9 @@ use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\String\Slugger\SluggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-final class MembreBudgetController extends AbstractController
+final class MemberBudgetController extends AbstractController
 {
-    #[Route('/membre/budget/new/{organizationId}', name: 'app_member_budget_new', methods: ['GET', 'POST'])]
+    #[Route('/budget/new/{organizationId}', name: 'app_member_budget_new', methods: ['GET', 'POST'])]
     public function new(int $organizationId, Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $organization = $entityManager->getRepository(Organization::class)->find($organizationId);

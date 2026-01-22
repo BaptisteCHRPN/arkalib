@@ -89,14 +89,24 @@ final class MemberBudgetLineController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_admin_budget_line_delete', methods: ['POST'])]
-    public function delete(Request $request, BudgetLine $budgetLine, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/delete', name: 'app_soft_delete_budget_line', methods: ['POST'])]
+    public function softDelete(
+        Request $request, 
+        BudgetLine $budgetLine, 
+        EntityManagerInterface $entityManager) : Response 
     {
+        $budget = $budgetLine->getBudget();
+        $organization = $budget->getOrganization();
+
         if ($this->isCsrfTokenValid('delete' . $budgetLine->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($budgetLine);
+            $budgetLine->setIsActive(false);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_admin_budget_line_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_membre_budget_show', [
+            'organizationSlug' => $organization->getSlug(),
+        'budgetSlug' => $budget->getSlug(),
+        ], Response::HTTP_SEE_OTHER);
     }
+
 }

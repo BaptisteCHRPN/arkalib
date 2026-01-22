@@ -176,9 +176,7 @@
 													</li>
 													<li><hr class="dropdown-divider"></li>
 													<li>
-														<a class="dropdown-item text-danger" href="#">
-															{{ ux_icon('mdi:trash-can', {'class': 'me-2'}) }}Supprimer
-														</a>
+														{% include "member/budget_line/_delete_form.html.twig" with {'budgetLine': income} %}
 													</li>
 												</ul>
 											</div>
@@ -294,9 +292,7 @@
 													</li>
 													<li><hr class="dropdown-divider"></li>
 													<li>
-														<a class="dropdown-item text-danger" href="#">
-															{{ ux_icon('mdi:trash-can', {'class': 'me-2'}) }}Supprimer
-														</a>
+														{% include "member/budget_line/_delete_form.html.twig" with {'budgetLine': expense} %}
 													</li>
 												</ul>
 											</div>
