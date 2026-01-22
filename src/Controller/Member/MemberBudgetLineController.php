@@ -71,16 +71,22 @@ final class MemberBudgetLineController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_budget_line_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_member_budget_line_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, BudgetLine $budgetLine, EntityManagerInterface $entityManager): Response
     {
+        $budget = $budgetLine->getBudget();
+        $organization = $budget->getOrganization();
+
         $form = $this->createForm(BudgetLineType::class, $budgetLine);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_budget_line_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_budget_line_index', [
+                'organizationSlug' => $organization->getSlug(),
+                'budgetSlug' => $budget->getSlug(),
+            ], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('member/budget_line/edit.html.twig', [
@@ -105,7 +111,7 @@ final class MemberBudgetLineController extends AbstractController
 
         return $this->redirectToRoute('app_membre_budget_show', [
             'organizationSlug' => $organization->getSlug(),
-        'budgetSlug' => $budget->getSlug(),
+            'budgetSlug' => $budget->getSlug(),
         ], Response::HTTP_SEE_OTHER);
     }
 
