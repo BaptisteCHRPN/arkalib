@@ -50,6 +50,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Organization::class, mappedBy: 'users')]
     private Collection $organizations;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $profilePicture = null;
+
     public function __construct()
     {
         $this->organizations = new ArrayCollection();
@@ -185,4 +188,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     $this->organizations->removeElement($organization);
     return $this;
 }
+
+    public function getProfilePicture(): ?string
+    {
+        return $this->profilePicture;
+    }
+
+    public function setProfilePicture(?string $profilePicture): static
+    {
+        $this->profilePicture = $profilePicture;
+
+        return $this;
+    }
 }
