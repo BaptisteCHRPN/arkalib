@@ -1544,6 +1544,21 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *     script_attributes?: array<string, scalar|null>,
  *     link_attributes?: array<string, scalar|null>,
  * }
+ * @psalm-type TwigComponentConfig = array{
+ *     defaults?: array<string, string|array{ // Default: ["__deprecated__use_old_naming_behavior"]
+ *         template_directory?: scalar|null, // Default: "components"
+ *         name_prefix?: scalar|null, // Default: ""
+ *     }>,
+ *     anonymous_template_directory?: scalar|null, // Defaults to `components`
+ *     profiler?: bool|array{ // Enables the profiler for Twig Component
+ *         enabled?: bool, // Default: "%kernel.debug%"
+ *         collect_components?: bool, // Collect components instances // Default: true
+ *     },
+ *     controllers_json?: scalar|null, // Deprecated: The "twig_component.controllers_json" config option is deprecated, and will be removed in 3.0. // Default: null
+ * }
+ * @psalm-type LiveComponentConfig = array{
+ *     secret?: scalar|null, // The secret used to compute fingerprints and checksums // Default: "%kernel.secret%"
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1561,6 +1576,8 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *     ux_icons?: UxIconsConfig,
  *     symfonycasts_reset_password?: SymfonycastsResetPasswordConfig,
  *     webpack_encore?: WebpackEncoreConfig,
+ *     twig_component?: TwigComponentConfig,
+ *     live_component?: LiveComponentConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1581,6 +1598,8 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         ux_icons?: UxIconsConfig,
  *         symfonycasts_reset_password?: SymfonycastsResetPasswordConfig,
  *         webpack_encore?: WebpackEncoreConfig,
+ *         twig_component?: TwigComponentConfig,
+ *         live_component?: LiveComponentConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -1599,6 +1618,8 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         ux_icons?: UxIconsConfig,
  *         symfonycasts_reset_password?: SymfonycastsResetPasswordConfig,
  *         webpack_encore?: WebpackEncoreConfig,
+ *         twig_component?: TwigComponentConfig,
+ *         live_component?: LiveComponentConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -1618,6 +1639,8 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
  *         ux_icons?: UxIconsConfig,
  *         symfonycasts_reset_password?: SymfonycastsResetPasswordConfig,
  *         webpack_encore?: WebpackEncoreConfig,
+ *         twig_component?: TwigComponentConfig,
+ *         live_component?: LiveComponentConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

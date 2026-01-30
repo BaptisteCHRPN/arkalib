@@ -1,5 +1,5 @@
 // navbar-toggle.js
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('turbo:load', function() {
     // Récupération des éléments
     const navbarToggle = document.getElementById('navbarToggle');
     const navbarClose = document.getElementById('navbarClose');

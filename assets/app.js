@@ -2,6 +2,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/custom-bootstrap.scss';
 import * as bootstrap from 'bootstrap';
+import '@symfony/ux-turbo';
 
 // Rendre Bootstrap disponible globalement
 window.bootstrap = bootstrap;
