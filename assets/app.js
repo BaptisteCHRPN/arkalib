@@ -12,3 +12,18 @@ import './navbar-toggle.js';
 import './popper-unabled.js';
 
 console.log('Bootstrap chargé!');
+
+// Réinitialiser les dropdowns après chaque chargement Turbo
+document.addEventListener('turbo:load', function() {
+    // Réinitialiser tous les dropdowns
+    document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(function(dropdownToggle) {
+        new bootstrap.Dropdown(dropdownToggle);
+    });
+});
+
+document.addEventListener('turbo:frame-load', function() {
+    // Réinitialiser tous les dropdowns
+    document.querySelectorAll('[data-bs-toggle="dropdown"]').forEach(function(dropdownToggle) {
+        new bootstrap.Dropdown(dropdownToggle);
+    });
+});
