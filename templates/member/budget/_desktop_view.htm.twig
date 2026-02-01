@@ -176,7 +176,7 @@
 														</a>
 													</li>
 													<li>
-														<a class="dropdown-item" href="{{ path('app_member_transaction_new') }}">
+														<a class="dropdown-item" href="{{ path('app_member_transaction_new', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}">
 															{{ ux_icon('hugeicons:transaction', {'class': 'me-2'}) }}Ajouter une transaction
 														</a>
 													</li>
@@ -292,7 +292,7 @@
 														</a>
 													</li>
 													<li>
-														<a class="dropdown-item" href="#">
+														<a class="dropdown-item" href="{{ path('app_member_transaction_new', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}">
 															{{ ux_icon('hugeicons:transaction', {'class': 'me-2'}) }}Ajouter une transaction
 														</a>
 													</li>
