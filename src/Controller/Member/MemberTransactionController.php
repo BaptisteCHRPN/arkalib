@@ -5,15 +5,17 @@ namespace App\Controller\Member;
 use App\Entity\Budget;
 use App\Entity\BudgetLine;
 use App\Entity\Transaction;
+use App\Entity\Organization;
 use App\Form\TransactionType;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\TransactionRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-#[Route('/transaction')]
+#[Route('/budget/{organizationSlug}/{budgetSlug}/transaction', name: 'app_member_transaction_')]
 final class MemberTransactionController extends AbstractController
 {
     #[Route(name: 'app_member_transaction_index', methods: ['GET'])]
@@ -24,23 +26,35 @@ final class MemberTransactionController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_member_transaction_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    #[Route('/new', name: 'new', methods: ['GET', 'POST'])]
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
+        Organization $organization,
+        #[MapEntity(mapping: ['budgetSlug' => 'slug'])]
+        Budget $budget
+    ): Response
     {
         $transaction = new Transaction();
         $form = $this->createForm(TransactionType::class, $transaction);
         $form->handleRequest($request);
-
+        
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($transaction);
             $entityManager->flush();
-
-            return $this->redirectToRoute('app_member_transaction_index', [], Response::HTTP_SEE_OTHER);
+            
+            return $this->redirectToRoute('app_membre_budget_show', [
+                'organizationSlug' => $organization->getSlug(),
+                'budgetSlug' => $budget->getSlug(),
+            ], Response::HTTP_SEE_OTHER);
         }
-
+        
         return $this->render('member/transaction/new.html.twig', [
             'transaction' => $transaction,
             'form' => $form,
+            'organization' => $organization,
+            'budget' => $budget, 
         ]);
     }
 
