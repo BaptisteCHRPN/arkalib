@@ -44,11 +44,15 @@
     <div class="dropdown ms-auto me-4">
         <a href="#" class="profile-rounded text-light d-inline-flex align-items-center justify-content-center text-decoration-none" 
            data-bs-toggle="dropdown" aria-expanded="false">
-            {{ app.user.firstname|first }}{{ app.user.lastname|first }}
+            {% if app.user.picture %}
+            <img src="{{ path('user_avatar_upload', {nameFile: app.user.picture}) }}" alt="">
+            {% else %}
+            {{ app.user.firstname|first }}{{ app.user.lastname|first }} 
+            {% endif %}
         </a>
         <ul class="dropdown-menu dropdown-menu-end text-small shadow">
             <li>
-                <a class="dropdown-item text-dark" href="#">
+                <a class="dropdown-item text-dark" href="{{ path('app_member_user_edit', {'id': app.user.id}) }}">
                     {{ ux_icon('gg:profile') }} Mon profil
                 </a>
             </li>
