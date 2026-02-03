@@ -113,17 +113,14 @@ final class AdminOrganizationController extends AbstractController
     {
         if ($this->isCsrfTokenValid('delete' . $organization->getId(), $request->getPayload()->getString('_token'))) {
 
-            // Supprimer l'image du disque
             if ($organization->getPicture()) {
             unlink($this->getParameter('organization_logo') . '/' . $organization->getPicture());
             }
 
-            // Supprimer les relations utilisateurs
             foreach ($organization->getUsers() as $user) {
                 $organization->removeUser($user);
             }
 
-            // Supprimer l'entité
             $entityManager->remove($organization);
             $entityManager->flush();
         }

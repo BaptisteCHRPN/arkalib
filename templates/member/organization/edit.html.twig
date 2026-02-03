@@ -1,0 +1,49 @@
+{% extends 'user_base.html.twig' %}
+
+{% block title %}Paramètres de l'organisation{% endblock %}
+
+{% block body %}
+    <div class="container py-4">
+        {# En-tête #}
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h1 class="h2 mb-0">Paramètres</h1>
+            <a href="{{ path('app_organization_index') }}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left me-1"></i>
+                Retour à la liste
+            </a>
+        </div>
+
+        {# Card principale #}
+        <div class="card shadow-sm border-0">
+            {# En-tête de la card avec infos organisation #}
+            <div class="card-header bg-white border-bottom py-3">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="profile-rounded">
+                        {% if organization.picture %}
+                            <img src="{{ path('organization_logo_upload', {nameFile: organization.picture}) }}" alt="{{ organization.name }}">
+                        {% else %}
+                            {{ organization.name|first|capitalize }}
+                        {% endif %}
+                    </span>
+                    <div>
+                        <h2 class="h4 mb-1">{{ organization.name|title }}</h2>
+                        <p class="text-muted small mb-0">{{ organization.description|capitalize }}</p>
+                    </div>
+                </div>
+            </div>
+
+            {# Formulaire #}
+            <div class="card-body p-4">
+                {{ include('member/organization/_form.html.twig') }}
+            </div>
+
+            {# Footer avec suppression #}
+            <div class="card-footer bg-light border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Zone de danger</span>
+                    {{ include('member/organization/_delete_form.html.twig', {}) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

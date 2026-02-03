@@ -38,7 +38,7 @@
             
             {# Actions #}
             <div class="d-flex gap-2">
-                <a href="#" class="btn btn-outline-secondary btn-sm">
+                <a href="{{ path('app_member_organization_edit', {'id': organization.id}) }}" class="btn btn-outline-secondary btn-sm">
                     {{ ux_icon('icon-park-solid:setting') }}
                     <span class="ms-1">Paramètres</span>
                 </a>
