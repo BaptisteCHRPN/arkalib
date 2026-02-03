@@ -2,17 +2,18 @@
 
 namespace App\Controller\Member;
 
+use App\Entity\Budget;
 use App\Entity\Organization;
 use App\Form\OrganizationType;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\OrganizationRepository;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 // This controller is  accessible by connected users
 final class MemberOrganizationController extends AbstractController
@@ -86,17 +87,68 @@ final class MemberOrganizationController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/edit', name: 'app_member_organization_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request,
+        Organization $organization,
+        EntityManagerInterface $entityManager,
+        Security $security,
+    ): Response
+    {
+        $form = $this->createForm(OrganizationType::class, $organization);
+        $form->handleRequest($request);
+        $budgets = $organization->getBudgets();
+
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $picture = $form->get('picture')->getData();
+            if ($picture) {
+                $nameFile = date('YmdHis') . '-' . rand(1000, 9999) . '.' . $picture->getClientOriginalExtension();
+                $picture->move(
+                    $this->getParameter('organization_logo'),
+                    $nameFile
+                );
+
+                if ($organization->getPicture()) {
+                    unlink($this->getParameter('organization_logo') . '/' . $organization->getPicture());
+                }
+                $organization->setPicture($nameFile);
+            }
+
+            // link connecteed user to organization
+            $user = $security->getUser();
+            if ($user) {
+                $organization->addUser($user);
+            }
+
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_dashboard', [], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('member/organization/edit.html.twig', [
+            'organization' => $organization,
+            'form' => $form,
+            'budgets' => $budgets
+        ]);
+    }
+
     #[Route('/organization/{id}', name: 'app_member_organization_delete', methods: ['POST'])]
     public function delete(Request $request, Organization $organization, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $organization->getId(), $request->getPayload()->getString('_token'))) {
+
+            if ($organization->getPicture()) {
+            unlink($this->getParameter('organization_logo') . '/' . $organization->getPicture());
+            }
+
             foreach ($organization->getUsers() as $user) {
                 $organization->removeUser($user);
             }
+            
             $entityManager->remove($organization);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_organization_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_dashboard', [], Response::HTTP_SEE_OTHER);
     }
 }

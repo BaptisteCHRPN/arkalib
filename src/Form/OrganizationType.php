@@ -15,18 +15,23 @@ class OrganizationType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name')
+            ->add('name', null, [
+                'label' => 'Nom de l\'oraginsation'
+            ])
             // ->add('created_at', null, [
             //     'widget' => 'single_text',
             // ])
             // ->add('is_active')
-            ->add('description')
+            ->add('description', null, [
+                'label' => 'Présentatiopn rapide'
+            ])
             // ->add('users', EntityType::class, [
             //     'class' => User::class,
             //     'choice_label' => 'id',
             //     'multiple' => true,
             // ])
             ->add('picture', FileType::class, [
+                'label' => 'Logo de l\'organisation',
                 'required' => false,
                 'mapped' => false,
             ])
