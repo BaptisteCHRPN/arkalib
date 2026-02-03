@@ -19,7 +19,6 @@ final class AdminOrganizationController extends AbstractController
     #[Route(name: 'app_organization_index', methods: ['GET'])]
     public function index(OrganizationRepository $organizationRepository): Response
     {
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
         return $this->render('admin/organization/index.html.twig', [
             'organizations' => $organizationRepository->findAll(),
         ]);
@@ -28,14 +27,24 @@ final class AdminOrganizationController extends AbstractController
     #[Route('/new', name: 'app_organization_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, Security $security): Response
     {
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $organization = new Organization();
         $form = $this->createForm(OrganizationType::class, $organization);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $picture = $form->get('picture')->getData();
+            if ($picture) {
+                // define file name
+                $nameFile = date('YmdHis') . '-' . rand(1000, 9999) . '.' . $picture->getClientOriginalExtension();
+                // save file in project
+                // organization_logo is defined in service.yaml
+                $picture->move($this->getParameter('organization_logo'), $nameFile);
+                // save namefile in organization object to inject it in bdd
+                $organization->setPicture($nameFile);
+            }
             // debut : ajout de l'utilisateur connecter à l'organization
-             $user = $security->getUser();
+            $user = $security->getUser();
             if ($user) {
                 $organization->addUser($user);
             } // fin
@@ -55,7 +64,6 @@ final class AdminOrganizationController extends AbstractController
     #[Route('/{id}', name: 'app_organization_show', methods: ['GET'])]
     public function show(Organization $organization): Response
     {
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
         return $this->render('admin/organization/show.html.twig', [
             'organization' => $organization,
         ]);
@@ -64,17 +72,30 @@ final class AdminOrganizationController extends AbstractController
     #[Route('/{id}/edit', name: 'app_organization_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Organization $organization, EntityManagerInterface $entityManager, Security $security): Response
     {
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
         $form = $this->createForm(OrganizationType::class, $organization);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
 
-             // debut : ajout de l'utilisateur connecter à l'organization
-             $user = $security->getUser();
+            $picture = $form->get('picture')->getData();
+            if ($picture) {
+                $nameFile = date('YmdHis') . '-' . rand(1000, 9999) . '.' . $picture->getClientOriginalExtension();
+                $picture->move(
+                    $this->getParameter('organization_logo'),
+                    $nameFile
+                );
+
+                if ($organization->getPicture()) {
+                    unlink($this->getParameter('organization_logo') . '/' . $organization->getPicture());
+                }
+                $organization->setPicture($nameFile);
+            }
+
+            // link connecteed user to organization
+            $user = $security->getUser();
             if ($user) {
                 $organization->addUser($user);
-            } // fin
+            }
 
             $entityManager->flush();
 
@@ -90,12 +111,19 @@ final class AdminOrganizationController extends AbstractController
     #[Route('/{id}', name: 'app_organization_delete', methods: ['POST'])]
     public function delete(Request $request, Organization $organization, EntityManagerInterface $entityManager): Response
     {
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
-        if ($this->isCsrfTokenValid('delete'.$organization->getId(), $request->getPayload()->getString('_token'))) {
+        if ($this->isCsrfTokenValid('delete' . $organization->getId(), $request->getPayload()->getString('_token'))) {
+
+            // Supprimer l'image du disque
+            if ($organization->getPicture()) {
+            unlink($this->getParameter('organization_logo') . '/' . $organization->getPicture());
+            }
+
+            // Supprimer les relations utilisateurs
             foreach ($organization->getUsers() as $user) {
-            $organization->removeUser($user);
-        }
-            // dd("Nombre d'utilisateurs après suppression : " . $organization->getUsers()->count());
+                $organization->removeUser($user);
+            }
+
+            // Supprimer l'entité
             $entityManager->remove($organization);
             $entityManager->flush();
         }
