@@ -1,37 +1,81 @@
 {% extends 'user_base.html.twig' %}
-
-{% block title %}Tableau de bord{% endblock %}
-
-{% block nav %}
-    {% include "components/_user_nav.html.twig" %}
+{% block title %}Tableau de bord
 {% endblock %}
-
+{% block nav %}
+	{% include "components/_user_nav.html.twig" %}
+{% endblock %}
 {% block body %}
+	{# En-tête de la page #}
+	<div class="mb-5">
+		<p class="text-secondary mb-0">Pour quelle organisation allez vous travailler aujourd'hui ?</p>
+	</div>
 
-<div class="container">
-    <div class="row justify-content-center">
-        {% for organization in organizations %}
-            <div class="col-12 col-md-6 col-lg-4 mb-4">
-                <div class="card text-center">
-                    <div class="card-body d-flex flex-column align-items-center">
-                        <span class="profile-rounded text-light d-inline-flex align-items-center justify-content-center mb-3">
-                            {{ organization.name|first|capitalize }}
-                        </span>
-                        <h5 class="card-title mb-3">{{ organization.name|title }}</h5>
-                        <p class="card-text mb-3">{{ organization.description|capitalize }}</p>
-                        <a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}" class="btn btn-primary">Ouvrir</a>
-                    </div>
-                </div>
-            </div>
-        {% else %}
-    </div>
-</div>
+	<div class="container-fluid px-0">
+		{% if organizations is not empty %}
+			{# Section Mes organisations #}
+			<div class="d-flex justify-content-between mb-3">
+				<h2 class="dashboard-title mb-0">Mes organisations</h2>
+				<span class="badge bg-light text-dark">{{ organizations|length }}</span>
+			</div>
 
+			<div class="row g-4 mb-5">
+				{% for organization in organizations %}
+					<div class="col-12 col-md-6 col-lg-4">
+						<div class="card h-100 shadow-sm border-0 hover-card">
+							<div class="card-body d-flex flex-column">
+								<div class="d-flex align-items-start mb-3">
+									<span class="profile-rounded me-3">
+										{{ organization.name|first|capitalize }}
+									</span>
+									<div class="flex-grow-1">
+										<h5 class="card-title mb-1 fw-semibold">{{ organization.name|title }}</h5>
+										<p class="card-text text-secondary small mb-0" style="line-height: 1.4;">
+											{{ organization.description|capitalize }}
+										</p>
+									</div>
+								</div>
 
-    <p colspan="6">Aucune organisation trouvée.</p>
-{% endfor %}
-    <div class="d-flex gap-2 justify-content-center">
-        <a class="btn btn-primary my-1" href="{{ path('app_membre_organization_new') }}">Créer une nouvelle organisation</a>
-        <a class="btn btn-primary my-1" href="#">Rejoindre une organisation</a>
-    </div>
+								<div class="mt-auto pt-3 border-top">
+									<a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}" class="btn btn-primary btn-sm w-100">
+										Ouvrir
+										<i class="bi bi-arrow-right ms-1"></i>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+		{% else %}
+			{# État vide #}
+			<div class="row justify-content-center">
+				<div class="col-12 col-md-8 col-lg-6">
+					<div class="card border-0 shadow-sm">
+						<div class="card-body text-center py-5">
+							<div class="mb-4">
+								<svg width="80" height="80" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+									<circle cx="12" cy="12" r="10" stroke="#cbd5e0" stroke-width="2"/>
+									<path d="M12 8v4M12 16h.01" stroke="#cbd5e0" stroke-width="2" stroke-linecap="round"/>
+								</svg>
+							</div>
+							<h5 class="mb-3">Aucune organisation</h5>
+							<p class="text-secondary mb-4">Vous n'êtes membre d'aucune organisation pour le moment.<br>Créez-en une nouvelle ou rejoignez une organisation existante.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		{% endif %}
+
+		{# Actions principales #}
+		<div class="d-flex flex-column flex-sm-row gap-3 justify-content-center mt-4">
+			<a class="btn btn-primary px-4" href="{{ path('app_membre_organization_new') }}">
+				<i class="bi bi-plus-circle me-2"></i>
+				Créer une nouvelle organisation
+			</a>
+			<a class="btn btn-outline-primary px-4" href="#">
+				<i class="bi bi-box-arrow-in-right me-2"></i>
+				Rejoindre une organisation
+			</a>
+		</div>
+	</div>
 {% endblock %}

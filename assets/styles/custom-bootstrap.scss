@@ -31,7 +31,8 @@ $font-weight-bold: 700;
 }
 
 .profile-rounded {
-    background-color: rgba(217, 217, 217, 1);
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: #fff;
     height: 3.2rem;
     width: 3.2rem;
     border-radius: 50%;
@@ -45,7 +46,7 @@ $font-weight-bold: 700;
 // Headings
 .hello-title,
 .dashboard-title {
-    font-size: 2rem;
+    font-size: 1.4rem;
     font-weight: $font-weight-bold;
     color: $secondary;
     line-height: 1.2;
