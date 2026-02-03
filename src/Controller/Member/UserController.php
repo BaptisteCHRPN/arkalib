@@ -34,6 +34,15 @@ final class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $picture = $form->get('picture')->getData();
+            if($picture) {
+                $userFirstName = $user->getFirstName() ? preg_replace('/[^a-z0-9]/i', '', strtolower($user->getFirstName())) : 'user';
+                $nameFile = date('YmdHis') . '-' . $userFirstName . '-' . rand(1000, 9999) . '.' . $picture->getClientOriginalExtension();
+                $picture->move($this->getParameter('avatar_user'), $nameFile);
+                $user->setPicture($nameFile);
+            }
+
             $entityManager->persist($user);
             $entityManager->flush();
 
@@ -65,6 +74,20 @@ final class UserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $picture = $form->get('picture')->getData();
+            if($picture) {
+                $userFirstName = $user->getFirstName() ? preg_replace('/[^a-z0-9]/i', '', strtolower($user->getFirstName())) : 'user';
+                $nameFile = date('YmdHis') . '-' . $userFirstName . '-' . rand(1000, 9999) . '.' . $picture->getClientOriginalExtension();
+                $picture->move($this->getParameter('user_avatar'), $nameFile);
+                $user->setPicture($nameFile);
+
+                if($user->getPicture()) {
+                    unlink($this->getParameter('user_avatar') . '/' . $user->getPicture());
+                }
+                $user->setPicture($nameFile);
+            }
+        
             $entityManager->flush();
 
             return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
@@ -82,6 +105,11 @@ final class UserController extends AbstractController
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
         
         if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->getPayload()->getString('_token'))) {
+
+            if($user->getPicture()){
+                unlink($this->getParameter('user_avatar') . '/' );
+            }
+
             $entityManager->remove($user);
             $entityManager->flush();
         }

@@ -7,7 +7,7 @@
         {# En-tête #}
         <div class="d-flex align-items-center justify-content-between mb-4">
             <h1 class="h2 mb-0">Paramètres</h1>
-            <a href="{{ path('app_organization_index') }}" class="btn btn-outline-secondary">
+            <a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i>
                 Retour à la liste
             </a>

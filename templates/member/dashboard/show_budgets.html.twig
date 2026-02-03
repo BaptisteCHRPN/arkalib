@@ -1,114 +1,126 @@
 {% extends 'user_base.html.twig' %}
-{% block title %}{{ organization.name|title }}{% endblock %}
+{% block title %}
+	{{ organization.name|title }}
+{% endblock %}
 {% block body %}
-    {# Breadcrumb #}
-    <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item">
-                <a href="{{ path('app_dashboard') }}">Tableau de bord</a>
-            </li>
-            <li class="breadcrumb-item active text-secondary" aria-current="page">
-                {{ organization.name|title }}
-            </li>
-        </ol>
-    </nav>
+	{# Breadcrumb #}
+	<nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_dashboard') }}">Tableau de bord</a>
+			</li>
+			<li class="breadcrumb-item active text-secondary" aria-current="page">
+				{{ organization.name|title }}
+			</li>
+		</ol>
+	</nav>
 
-{# En-tête de l'organisation #}
-<div class="card shadow-sm mb-4">
-    <div class="card-body">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-            {# Info organisation #}
-            <div class="d-flex align-items-center gap-3">
-                <span class="profile-rounded">
-                    {{ organization.name|first|capitalize }}
-                </span>
-                <div>
-                    <h1 class="h3 mb-1">{{ organization.name|title }}</h1>
-                    <p class="text-secondary mb-0">
-                        <small>
-                            {% if budgets|length > 0 %}
-                                {{ budgets|length }} budget{{ budgets|length > 1 ? 's' : '' }}
-                            {% else %}
-                                Aucun budget
-                            {% endif %}
-                        </small>
-                    </p>
-                </div>
-            </div>
-            
-            {# Actions #}
-            <div class="d-flex gap-2">
-                <a href="{{ path('app_member_organization_edit', {'id': organization.id}) }}" class="btn btn-outline-secondary btn-sm">
-                    {{ ux_icon('icon-park-solid:setting') }}
-                    <span class="ms-1">Paramètres</span>
-                </a>
-                <a class="btn btn-primary btn-sm" href="{{ path('app_member_budget_new', {'organizationId': organization.id}) }}">
-                    <i class="bi bi-plus-circle me-1"></i>Nouveau budget
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
+	{# En-tête de l'organisation #}
+	<div class="card shadow-sm mb-4">
+		<div class="card-body">
+			<div
+				class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+				{# Info organisation #}
+				<div class="d-flex align-items-center gap-3">
+					<span class="profile-rounded me-3">
+						{% if organization.picture %}
+							<img src="{{ path('organization_logo_upload', {nameFile: organization.picture}) }}" alt="">
+						{% else %}
+							{{ organization.name|first|capitalize }}
+						{% endif %}
+					</span>
+					<div>
+						<h1 class="h3 mb-1">{{ organization.name|title }}</h1>
+						<p class="text-secondary mb-0">
+							<small>
+								{% if budgets|length > 0 %}
+									{{ budgets|length }}
+									budget{{ budgets|length > 1 ? 's' : '' }}
+								{% else %}
+									Aucun budget
+								{% endif %}
+							</small>
+						</p>
+					</div>
+				</div>
 
-    {# Section des budgets #}
-    <div class="container-fluid px-0">
-        <h2 class="h5 mb-3 text-secondary">Budget{{ budgets|length > 1 ? 's' : '' }} de l'organisation</h2>
-        
-        {% if budgets is not empty %}
-            <div class="card shadow-sm">
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th scope="col" class="ps-4">Budget</th>
-                                    <th scope="col" class="text-center">Statut</th>
-                                    <th scope="col" class="text-end pe-4">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for budget in budgets %}
-                                    <tr>
-                                        <td class="ps-4">
-                                            <div class="d-flex align-items-center">
-                                                <div>
-                                                    <h6 class="mb-0 fw-semibold">{{ budget.name|capitalize }}</h6>
-                                                    {% if budget.startDate and budget.endDate %}
-                                                        <small class="text-secondary">
-                                                            Du {{ budget.startDate|date('d/m/Y') }} au {{ budget.endDate|date('d/m/Y') }}
-                                                        </small>
-                                                    {% endif %}
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="text-center">
-                                            <span class="badge rounded-pill bg-success">Actif</span>
-                                        </td>
-                                        <td class="text-end pe-4">
-                                            <a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-sm btn-primary px-3">
-                                                Ouvrir
-                                            </a>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        {% else %}
-            <div class="card shadow-sm">
-                <div class="card-body text-center py-5">
-                    <div class="mb-3">
-                        <i class="bi bi-inbox" style="font-size: 3rem; color: #adb5bd;"></i>
-                    </div>
-                    <h5 class="text-secondary mb-3">Aucun budget disponible</h5>
-                    <p class="text-secondary mb-4">Commencez par créer votre premier budget pour cette organisation.</p>
-                    <a class="btn btn-primary" href="{{ path('app_member_budget_new', {'organizationId': organization.id}) }}">
-                        <i class="bi bi-plus-circle me-2"></i>Créer mon premier budget
-                    </a>
-                </div>
-            </div>
-        {% endif %}
-    </div>
+				{# Actions #}
+				<div class="d-flex gap-2">
+					<a href="{{ path('app_member_organization_edit', {'id': organization.id}) }}" class="btn btn-outline-secondary btn-sm">
+						{{ ux_icon('icon-park-solid:setting') }}
+						<span class="ms-1">Paramètres</span>
+					</a>
+					<a class="btn btn-primary btn-sm" href="{{ path('app_member_budget_new', {'organizationId': organization.id}) }}">
+						<i class="bi bi-plus-circle me-1"></i>Nouveau budget
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{# Section des budgets #}
+	<div class="container-fluid px-0">
+		<h2 class="h5 mb-3 text-secondary">Budget{{ budgets|length > 1 ? 's' : '' }}
+			de l'organisation</h2>
+
+		{% if budgets is not empty %}
+			<div class="card shadow-sm">
+				<div class="card-body p-0">
+					<div class="table-responsive">
+						<table class="table table-hover align-middle mb-0">
+							<thead class="table-light">
+								<tr>
+									<th scope="col" class="ps-4">Budget</th>
+									<th scope="col" class="text-center">Statut</th>
+									<th scope="col" class="text-end pe-4">Actions</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for budget in budgets %}
+									<tr>
+										<td class="ps-4">
+											<div class="d-flex align-items-center">
+												<div>
+													<h6 class="mb-0 fw-semibold">{{ budget.name|capitalize }}</h6>
+													{% if budget.startDate and budget.endDate %}
+														<small class="text-secondary">
+															Du
+															{{ budget.startDate|date('d/m/Y') }}
+															au
+															{{ budget.endDate|date('d/m/Y') }}
+														</small>
+													{% endif %}
+												</div>
+											</div>
+										</td>
+										<td class="text-center">
+											<span class="badge rounded-pill bg-success">Actif</span>
+										</td>
+										<td class="text-end pe-4">
+											<a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-sm btn-primary px-3">
+												Ouvrir
+											</a>
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		{% else %}
+			<div class="card shadow-sm">
+				<div class="card-body text-center py-5">
+					<div class="mb-3">
+						<i class="bi bi-inbox" style="font-size: 3rem; color: #adb5bd;"></i>
+					</div>
+					<h5 class="text-secondary mb-3">Aucun budget disponible</h5>
+					<p class="text-secondary mb-4">Commencez par créer votre premier budget pour cette organisation.</p>
+					<a class="btn btn-primary" href="{{ path('app_member_budget_new', {'organizationId': organization.id}) }}">
+						<i class="bi bi-plus-circle me-2"></i>Créer mon premier budget
+					</a>
+				</div>
+			</div>
+		{% endif %}
+	</div>
 {% endblock %}
