@@ -23,7 +23,7 @@ final class UploadsController extends AbstractController
     #[Route('/uploads/user_avatar/{nameFile}', name: 'user_avatar_upload')]
     public function userAvatar(string $nameFile): Response
     {
-        $pathFile = $this->getParameter('organization_logo') . '/' . $nameFile;
+        $pathFile = $this->getParameter('user_avatar') . '/' . $nameFile;
 
         if(!file_exists($pathFile)) {
             throw $this->createNotFoundException('Logo non trouvé');

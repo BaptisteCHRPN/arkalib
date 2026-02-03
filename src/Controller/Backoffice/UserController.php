@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controller\Member;
+namespace App\Controller\Backoffice;
 
 use App\Entity\User;
 use App\Form\UserType;
@@ -65,7 +65,7 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
+    #[Route('/admin/{id}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
@@ -80,7 +80,6 @@ final class UserController extends AbstractController
                 $userFirstName = $user->getFirstName() ? preg_replace('/[^a-z0-9]/i', '', strtolower($user->getFirstName())) : 'user';
                 $nameFile = date('YmdHis') . '-' . $userFirstName . '-' . rand(1000, 9999) . '.' . $picture->getClientOriginalExtension();
                 $picture->move($this->getParameter('user_avatar'), $nameFile);
-                $user->setPicture($nameFile);
 
                 if($user->getPicture()) {
                     unlink($this->getParameter('user_avatar') . '/' . $user->getPicture());
