@@ -43,6 +43,18 @@ final class MemberOrganizationController extends AbstractController
             $slug = $slugger->slug($organization->getName())->lower();
             $organization->setSlug($slug);
 
+            // If picture is submit
+            $picture = $form->get('picture')->getData();
+            if($picture) {
+                // define file name
+                $nameFile = date('YmdHis') . '-' . rand(1000,9999) . '.' . $picture->getClientOriginalExtension();
+                // save file in project
+                // organization_logo is defined in service.yaml
+                $picture->move($this->getParameter('organization_logo'), $nameFile);
+                // save namefile in organization object to inject it in bdd
+                $organization->setPicture($nameFile);
+            }
+
             $organization->addUser($user);
         
             $entityManager->persist($organization);
@@ -74,14 +86,13 @@ final class MemberOrganizationController extends AbstractController
         ]);
     }
 
-    #[Route('/organization/{id}', name: 'app_organization_delete', methods: ['POST'])]
+    #[Route('/organization/{id}', name: 'app_member_organization_delete', methods: ['POST'])]
     public function delete(Request $request, Organization $organization, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $organization->getId(), $request->getPayload()->getString('_token'))) {
             foreach ($organization->getUsers() as $user) {
                 $organization->removeUser($user);
             }
-            dump($organization->getUsers()->count());
             $entityManager->remove($organization);
             $entityManager->flush();
         }

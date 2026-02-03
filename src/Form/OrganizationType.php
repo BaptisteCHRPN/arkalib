@@ -2,12 +2,13 @@
 
 namespace App\Form;
 
-use App\Entity\Organization;
 use App\Entity\User;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Entity\Organization;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 
 class OrganizationType extends AbstractType
 {
@@ -25,6 +26,10 @@ class OrganizationType extends AbstractType
             //     'choice_label' => 'id',
             //     'multiple' => true,
             // ])
+            ->add('picture', FileType::class, [
+                'required' => false,
+                'mapped' => false,
+            ])
         ;
     }
 
