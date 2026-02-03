@@ -5,14 +5,14 @@
 	{% include "components/_user_nav.html.twig" %}
 {% endblock %}
 {% block body %}
-	{# En-tête de la page #}
+
 	<div class="mb-5">
 		<p class="text-secondary mb-0">Pour quelle organisation allez vous travailler aujourd'hui ?</p>
 	</div>
 
 	<div class="container-fluid px-0">
 		{% if organizations is not empty %}
-			{# Section Mes organisations #}
+		
 			<div class="d-flex justify-content-between mb-3">
 				<h2 class="dashboard-title mb-0">Mes organisations</h2>
 				<span class="badge bg-light text-dark">{{ organizations|length }}</span>
@@ -56,7 +56,7 @@
 				{% endfor %}
 			</div>
 		{% else %}
-			{# État vide #}
+		
 			<div class="row justify-content-center">
 				<div class="col-12 col-md-8 col-lg-6">
 					<div class="card border-0 shadow-sm">
@@ -75,7 +75,7 @@
 			</div>
 		{% endif %}
 
-		{# Actions principales #}
+
 		<div class="d-flex flex-column flex-sm-row gap-3 justify-content-center mt-4">
 			<a class="btn btn-primary px-4" href="{{ path('app_membre_organization_new') }}">
 				<i class="bi bi-plus-circle me-2"></i>
