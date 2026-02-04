@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Contactez-nous{% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h1 class="card-title text-center mb-4">Formulaire de contact</h1>
+                    <p class="text-muted text-center mb-4">
+                        Vous avez une question ? N'hésitez pas à nous contacter, nous vous répondrons dans les plus brefs délais.
+                    </p>
+
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+
+                    <form method="post" action="#">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">
+                                    Nom complet <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="name" name="name" placeholder="Votre nom" required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">
+                                    Email <span class="text-danger">*</span>
+                                </label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="votre@email.com" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">
+                                Sujet <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="subject" name="subject" placeholder="Objet de votre message" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="message" class="form-label">
+                                Message <span class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control" id="message" name="message" rows="6" placeholder="Votre message..." required></textarea>
+                        </div>
+
+                        <input type="hidden" name="_token" value="{{ csrf_token('contact') }}">
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-send"></i> Envoyer le message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center text-muted">
+                <small>
+                    <i class="bi bi-shield-check"></i> Vos données sont protégées et ne seront jamais partagées.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
