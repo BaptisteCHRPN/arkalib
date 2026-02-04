@@ -23,9 +23,9 @@
 		<header>
 			{% include "components/_user_nav.html.twig" %}
 		</header>
-
 		<main class="main-content">
 			<div class="container-fluid">
+			{% include "_flashes.html.twig" %}
 				<h1>
 					{% block h1 %}{% endblock %}
 				</h1>
