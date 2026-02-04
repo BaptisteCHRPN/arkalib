@@ -43,6 +43,7 @@ final class MemberTransactionController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($transaction);
             $entityManager->flush();
+            $this->addFlash('success', 'La transaction à été créée avec succès !');
             
             return $this->redirectToRoute('app_membre_budget_show', [
                 'organizationSlug' => $organization->getSlug(),
@@ -74,6 +75,7 @@ final class MemberTransactionController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
+            $this->addFlash('success', 'La transaction à été modifiée avec succès !');
 
             return $this->redirectToRoute('app_member_transaction_index', [], Response::HTTP_SEE_OTHER);
         }
@@ -90,6 +92,7 @@ final class MemberTransactionController extends AbstractController
         if ($this->isCsrfTokenValid('delete'.$transaction->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($transaction);
             $entityManager->flush();
+            $this->addFlash('success', 'La transaction à été supprimée avec succès !');
         }
 
         return $this->redirectToRoute('app_member_transaction_index', [], Response::HTTP_SEE_OTHER);

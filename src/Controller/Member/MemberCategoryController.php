@@ -62,8 +62,7 @@ final class MemberCategoryController extends AbstractController
             $category->setBudget($budget);
             $entityManager->persist($category);
             $entityManager->flush();
-
-            $this->addFlash('success', 'Catégorie créée avec succès !');
+            $this->addFlash('success', 'La catégorie à été créée avec succès !');
 
             return $this->redirectToRoute('app_membre_budget_show', [
             'organizationSlug' => $organization->getSlug(),

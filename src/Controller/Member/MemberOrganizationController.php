@@ -60,6 +60,7 @@ final class MemberOrganizationController extends AbstractController
         
             $entityManager->persist($organization);
             $entityManager->flush();
+            $this->addFlash('success', 'L\'organisation à été créée avec succès !');
 
             return $this->redirectToRoute('app_dashboard', [], Response::HTTP_SEE_OTHER);
         }
@@ -121,6 +122,7 @@ final class MemberOrganizationController extends AbstractController
             }
 
             $entityManager->flush();
+            $this->addFlash('success', 'L\'organisation à été modifiée avec succès !');
 
             return $this->redirectToRoute('app_dashboard', [], Response::HTTP_SEE_OTHER);
         }
@@ -147,6 +149,7 @@ final class MemberOrganizationController extends AbstractController
             
             $entityManager->remove($organization);
             $entityManager->flush();
+            $this->addFlash('success', 'L\'organisation à été supprimée avec succès !');
         }
 
         return $this->redirectToRoute('app_dashboard', [], Response::HTTP_SEE_OTHER);
