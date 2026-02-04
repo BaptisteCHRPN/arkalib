@@ -48,7 +48,12 @@ final class MemberBudgetLineController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->persist($budgetLine);
             $entityManager->flush();
-
+            if($budgetLine->isExpense() === false){
+                $this->addFlash('success', 'La recette à été créée avec succès !');
+            } else {
+                $this->addFlash('success', 'La dépense à été créée avec succès !');
+            }
+            
             return $this->redirectToRoute('app_membre_budget_show', [
                 'organizationSlug' => $organization->getSlug(),
                 'budgetSlug' => $budget->getSlug(),
@@ -88,6 +93,11 @@ final class MemberBudgetLineController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
+            if($budgetLine->isExpense() === false){
+                $this->addFlash('success', 'La recette à été modifiée avec succès !');
+            } else {
+                $this->addFlash('success', 'La dépense à été modifiée avec succès !');
+            }
 
             return $this->redirectToRoute('app_membre_budget_show', [
                 'organizationSlug' => $organization->getSlug(),
@@ -116,6 +126,11 @@ final class MemberBudgetLineController extends AbstractController
         if ($this->isCsrfTokenValid('delete' . $budgetLine->getId(), $request->getPayload()->getString('_token'))) {
             $budgetLine->setIsActive(false);
             $entityManager->flush();
+            if($budgetLine->isExpense() === false){
+                $this->addFlash('success', 'La recette à été suprimée avec succès !');
+            } else {
+                $this->addFlash('success', 'La dépense à été suprimée avec succès !');
+            }
         }
 
         return $this->redirectToRoute('app_membre_budget_show', [

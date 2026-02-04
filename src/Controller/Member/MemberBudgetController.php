@@ -46,6 +46,7 @@ final class MemberBudgetController extends AbstractController
 
             $entityManager->persist($budget);
             $entityManager->flush();
+            $this->addFlash('success', 'Le budget à été créé avec succès !');
 
             return $this->redirectToRoute('app_organization_budgets', [
                 'organizationSlug' => $organization->getSlug()
