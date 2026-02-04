@@ -10,12 +10,12 @@ class BudgetCalculatorService {
         private BudgetLineRepository $budgetLineRepository
     ) {}
 
-    public function SumTotalExpenses(Budget $budget) :float
+    public function SumTotalExpenses(Budget $budget): float
     {
         return $this->budgetLineRepository->sumExpensesBudget($budget);
     }
 
-    public function SumTotalIncomes(Budget $budget) :float
+    public function SumTotalIncomes(Budget $budget): float
     {
         return $this->budgetLineRepository->sumIncomesBudget($budget);
     }
@@ -27,6 +27,7 @@ class BudgetCalculatorService {
 
             return $incomes - $expenses;
     }
+
 
 
 }
