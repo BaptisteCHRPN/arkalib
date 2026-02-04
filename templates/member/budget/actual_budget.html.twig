@@ -1,0 +1,129 @@
+{% extends 'user_base.html.twig' %}
+
+{% block title %}
+	{{ organization.name|title }}
+	|
+	{{ budget.name|capitalize }}
+{% endblock %}
+
+{% block body %}
+
+<div class="container mt-4">
+    <h2>Budget {{ budget.name }} - Vue prévisionnelle-réelle</h2>
+    <p class="text-muted">Du {{ budget.startDate|date('d/m/Y') }} au {{ budget.endDate|date('d/m/Y') }}</p>
+    
+    <button class="btn btn-primary float-end mb-3">Vue prévisionnelle</button> {# A transformer en lien #}
+    
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Catégorie</th>
+                <th>Prévisionnel</th>
+                <th>Réel</th>
+                <th>Écart</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {# Section RECETTES #}
+            {% set currentParent = null %}
+            {% for income in incomesByCategory %}
+                {# En-tête de catégorie parente #}
+                {% if currentParent != income.parent_name %}
+                    <tr class="table-light">
+                        <td colspan="5" class="fw-bold">
+                            {{ income.parent_name ?? 'Recettes' }}
+                        </td>
+                    </tr>
+                    {% set currentParent = income.parent_name %}
+                {% endif %}
+                
+                {# Calcul de l'écart #}
+                {% set real = income.real_total ?? 0 %}
+                {% set ecart = real - income.total %}
+                
+                {# Ligne de sous-catégorie #}
+                <tr>
+                    <td class="ps-4">{{ income.name }}</td>
+                    <td class="text-success">+ {{ income.total|number_format(2, ',', ' ') }} €</td>
+                    <td class="text-success">+ {{ real|number_format(2, ',', ' ') }} €</td>
+                    <td class="{% if ecart >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        {{ ecart >= 0 ? '+' : '' }} {{ ecart|number_format(2, ',', ' ') }} €
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-link">↓</button>
+                    </td>
+                </tr>
+            {% endfor %}
+            
+            {# Ligne TOTAL RECETTES #}
+            {% set ecartIncomes = sum_real_incomes - sum_incomes %}
+            <tr class="table-success fw-bold">
+                <td>Recettes</td>
+                <td>+ {{ sum_incomes|number_format(2, ',', ' ') }} €</td>
+                <td>+ {{ sum_real_incomes|number_format(2, ',', ' ') }} €</td>
+                <td class="{% if ecartIncomes >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    {{ ecartIncomes >= 0 ? '+' : '' }} {{ ecartIncomes|number_format(2, ',', ' ') }} €
+                </td>
+                <td></td>
+            </tr>
+            
+            {# Section DÉPENSES #}
+            {% set currentParent = null %}
+            {% for expense in expensesByCategory %}
+                {# En-tête de catégorie parente #}
+                {% if currentParent != expense.parent_name %}
+                    <tr class="table-light">
+                        <td colspan="5" class="fw-bold">
+                            {{ expense.parent_name ?? 'Dépenses' }}
+                        </td>
+                    </tr>
+                    {% set currentParent = expense.parent_name %}
+                {% endif %}
+                
+                {# Calcul de l'écart (pour dépenses, un écart positif = on a dépensé moins que prévu) #}
+                {% set real = expense.real_total ?? 0 %}
+                {% set ecart = expense.total - real %}
+                
+                {# Ligne de sous-catégorie #}
+                <tr>
+                    <td class="ps-4">{{ expense.name }}</td>
+                    <td class="text-danger">- {{ expense.total|number_format(2, ',', ' ') }} €</td>
+                    <td class="text-danger">- {{ real|number_format(2, ',', ' ') }} €</td>
+                    <td class="{% if ecart >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        {{ ecart >= 0 ? '+' : '' }} {{ ecart|number_format(2, ',', ' ') }} €
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-link">↓</button>
+                    </td>
+                </tr>
+            {% endfor %}
+            
+            {# Ligne TOTAL DÉPENSES #}
+            {% set ecartExpenses = sum_expenses - sum_real_expenses %}
+            <tr class="table-danger fw-bold">
+                <td>Dépenses</td>
+                <td>- {{ sum_expenses|number_format(2, ',', ' ') }} €</td>
+                <td>- {{ sum_real_expenses|number_format(2, ',', ' ') }} €</td>
+                <td class="{% if ecartExpenses >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    {{ ecartExpenses >= 0 ? '+' : '' }} {{ ecartExpenses|number_format(2, ',', ' ') }} €
+                </td>
+                <td></td>
+            </tr>
+            
+            {# Ligne SOLDE FINAL #}
+            {% set ecartBalance = real_balance - balance_budget %}
+            <tr class="table-primary fw-bold">
+                <td>Solde</td>
+                <td>{{ balance_budget|number_format(2, ',', ' ') }} €</td>
+                <td>{{ real_balance|number_format(2, ',', ' ') }} €</td>
+                <td class="{% if ecartBalance >= 0 %}text-success{% else %}text-danger{% endif %}">
+                    {{ ecartBalance >= 0 ? '+' : '' }} {{ ecartBalance|number_format(2, ',', ' ') }} €
+                </td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

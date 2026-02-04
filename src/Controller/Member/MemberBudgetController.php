@@ -83,10 +83,10 @@ final class MemberBudgetController extends AbstractController
         // fetching all actives budget  lines
         $expenses = $budget->getBudgetLine()->filter(
             fn($line) => $line->isExpense() && $line->isActive()
-            );
+        );
         $incomes = $budget->getBudgetLine()->filter(
             fn($line) => !$line->isExpense() && $line->isActive()
-            );
+        );
 
         // Calcul toal budget lines active
         $sumExpenses = $budgetCalculatorService->sumTotalExpenses($budget);
@@ -114,6 +114,79 @@ final class MemberBudgetController extends AbstractController
             'total_expenses_all' => $total_expenses_all,
             'total_incomes_all' => $total_incomes_all,
             'balance_budget' => $balanceBudget,
+        ]);
+    }
+
+    #[Route('/budget-realise/{organizationSlug}/{budgetSlug}', name: 'app_membre_actuel_budget_show', methods: ['GET'])]
+    public function showActuelBudget(
+        BudgetLineRepository $budgetLineRepository,
+        BudgetCalculatorService $budgetCalculatorService,
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
+        EntityManagerInterface $entityManager,
+        string $budgetSlug
+    ): Response {
+        // Récupérer le budget
+        $budget = $entityManager->getRepository(Budget::class)->findOneBy([
+            'slug' => $budgetSlug,
+            'organization' => $organization,
+        ]);
+
+        // Récupérer les lignes de budget actives
+        $expenses = $budget->getBudgetLine()->filter(
+            fn($line) => $line->isExpense() && $line->isActive()
+        );
+
+        $incomes = $budget->getBudgetLine()->filter(
+            fn($line) => !$line->isExpense() && $line->isActive()
+        );
+
+        // Calculs des totaux prévisionnels
+        $sumExpenses = $budgetCalculatorService->sumTotalExpenses($budget);
+        $sumIncomes = $budgetCalculatorService->sumTotalIncomes($budget);
+        $balanceBudget = $budgetCalculatorService->balanceBudget($budget);
+
+        $total_expenses_all = 0;
+        foreach ($expenses as $expense) {
+            $total_expenses_all += $expense->getAmount();
+        }
+
+        $total_incomes_all = 0;
+        foreach ($incomes as $income) {
+            $total_incomes_all += $income->getAmount();
+        }
+
+        // Sommes par catégorie (avec réel)
+        $expensesByCategory = $budgetLineRepository->sumExpensesByCategory($budget);
+        $incomesByCategory = $budgetLineRepository->sumIncomesByCategory($budget);
+
+        // Calculer les totaux réels
+        $sumRealExpenses = 0;
+        foreach ($expensesByCategory as $expense) {
+            $sumRealExpenses += $expense['real_total'] ?? 0;
+        }
+
+        $sumRealIncomes = 0;
+        foreach ($incomesByCategory as $income) {
+            $sumRealIncomes += $income['real_total'] ?? 0;
+        }
+
+        $realBalance = $sumRealIncomes - $sumRealExpenses;
+
+        return $this->render('member/budget/actual_budget.html.twig', [
+            'budget' => $budget,
+            'organization' => $organization,
+            'expenses' => $expenses,
+            'incomes' => $incomes,
+            'sum_expenses' => $sumExpenses,
+            'sum_incomes' => $sumIncomes,
+            'sum_real_expenses' => $sumRealExpenses,
+            'sum_real_incomes' => $sumRealIncomes,
+            'real_balance' => $realBalance,
+            'total_expenses_all' => $total_expenses_all,
+            'total_incomes_all' => $total_incomes_all,
+            'balance_budget' => $balanceBudget,
+            'expensesByCategory' => $expensesByCategory,
+            'incomesByCategory' => $incomesByCategory,
         ]);
     }
 }
