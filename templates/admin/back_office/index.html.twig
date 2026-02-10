@@ -1,33 +1,157 @@
 {% extends 'user_base.html.twig' %}
+{% block stylesheets %}
+    <link rel="stylesheet" href="{{ asset('css/back-office.css') }}">
+{% endblock %}
 
 {% block title %}Administration{% endblock %}
 
 {% block body %}
-    <h1 class="title-blue">Administration</h1>
 
-    <div>
-        <a href="{{path("app_user_index")}}">Gestion des utilisateurs</a>
+<div class="container py-4 py-md-5">
+
+    {# ─── Header ─── #}
+    <div class="mb-4">
+        <h1 class="fw-bold fs-2 mb-1">Administration</h1>
+        <p class="text-secondary mb-0">Tableau de bord — Gérez l'ensemble des ressources de votre application</p>
     </div>
 
-    <div>
-        <a href="{{path("app_admin_organization_index")}}">Gestion des organisations</a>
-    </div>
+    {# ─── Status pills ─── #}
+    {# <div class="d-flex flex-wrap gap-2 mb-4">
+        <span class="badge rounded-pill bg-light text-secondary border d-inline-flex align-items-center gap-2 px-3 py-2 fw-medium">
+            <span class="rounded-circle d-inline-block" style="width:8px;height:8px;background:#22c55e;"></span>
+            Système opérationnel
+        </span>
+        <span class="badge rounded-pill bg-light text-secondary border d-inline-flex align-items-center gap-2 px-3 py-2 fw-medium">
+            <span class="rounded-circle d-inline-block" style="width:8px;height:8px;background:#3b82f6;"></span>
+            6 modules actifs
+        </span>
+    </div> #}
 
-    <div>
-        <a href="{{path("app_admin_budget_index")}}">Gestion des budgets</a>
-    </div>
+    {# ─── Cards Grid ─── #}
+    <div class="row g-3 g-md-4">
 
-    <div>
-        <a href="{{path("app_admin_budget_line_index")}}">Gestion des lignes budgetaires</a>
-    </div>
+        {# Utilisateurs #}
+        <div class="col-12 col-sm-6 col-lg-4">
+            <a href="{{ path('app_user_index') }}" class="admin-card card-users card shadow-sm h-100 d-flex flex-row align-items-center p-3 p-md-4 gap-3">
+                <div class="card-icon-box icon-users d-flex align-items-center justify-content-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/>
+                    </svg>
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="fw-semibold mb-1 fs-6">Utilisateurs</h5>
+                    <p class="text-secondary mb-0 small">Comptes, rôles et permissions</p>
+                </div>
+                <div class="card-arrow text-muted d-none d-sm-block">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                    </svg>
+                </div>
+            </a>
+        </div>
 
-    <div>
-        <a href="{{path("app_admin_category_index")}}">Gestion des catégories</a>
-    </div>
+        {# Organisations #}
+        <div class="col-12 col-sm-6 col-lg-4">
+            <a href="{{ path('app_admin_organization_index') }}" class="admin-card card-orgs card shadow-sm h-100 d-flex flex-row align-items-center p-3 p-md-4 gap-3">
+                <div class="card-icon-box icon-orgs d-flex align-items-center justify-content-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/>
+                    </svg>
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="fw-semibold mb-1 fs-6">Organisations</h5>
+                    <p class="text-secondary mb-0 small">Structures et rattachements</p>
+                </div>
+                <div class="card-arrow text-muted d-none d-sm-block">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                    </svg>
+                </div>
+            </a>
+        </div>
 
-    <div>
-        <a href="{{path("app_admin_transaction_index")}}">Gestion des transactions</a>
-    </div>
+        {# Budgets #}
+        <div class="col-12 col-sm-6 col-lg-4">
+            <a href="{{ path('app_admin_budget_index') }}" class="admin-card card-budgets card shadow-sm h-100 d-flex flex-row align-items-center p-3 p-md-4 gap-3">
+                <div class="card-icon-box icon-budgets d-flex align-items-center justify-content-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"/>
+                    </svg>
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="fw-semibold mb-1 fs-6">Budgets</h5>
+                    <p class="text-secondary mb-0 small">Enveloppes et allocations</p>
+                </div>
+                <div class="card-arrow text-muted d-none d-sm-block">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                    </svg>
+                </div>
+            </a>
+        </div>
 
-    
+        {# Lignes budgétaires #}
+        <div class="col-12 col-sm-6 col-lg-4">
+            <a href="{{ path('app_admin_budget_line_index') }}" class="admin-card card-lines card shadow-sm h-100 d-flex flex-row align-items-center p-3 p-md-4 gap-3">
+                <div class="card-icon-box icon-lines d-flex align-items-center justify-content-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 0 1 0 3.75H5.625a1.875 1.875 0 0 1 0-3.75Z"/>
+                    </svg>
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="fw-semibold mb-1 fs-6">Lignes budgétaires</h5>
+                    <p class="text-secondary mb-0 small">Postes et ventilations</p>
+                </div>
+                <div class="card-arrow text-muted d-none d-sm-block">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                    </svg>
+                </div>
+            </a>
+        </div>
+
+        {# Catégories #}
+        <div class="col-12 col-sm-6 col-lg-4">
+            <a href="{{ path('app_admin_category_index') }}" class="admin-card card-cats card shadow-sm h-100 d-flex flex-row align-items-center p-3 p-md-4 gap-3">
+                <div class="card-icon-box icon-cats d-flex align-items-center justify-content-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/>
+                    </svg>
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="fw-semibold mb-1 fs-6">Catégories</h5>
+                    <p class="text-secondary mb-0 small">Classification et nomenclatures</p>
+                </div>
+                <div class="card-arrow text-muted d-none d-sm-block">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                    </svg>
+                </div>
+            </a>
+        </div>
+
+        {# Transactions #}
+        <div class="col-12 col-sm-6 col-lg-4">
+            <a href="{{ path('app_admin_transaction_index') }}" class="admin-card card-trans card shadow-sm h-100 d-flex flex-row align-items-center p-3 p-md-4 gap-3">
+                <div class="card-icon-box icon-trans d-flex align-items-center justify-content-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/>
+                    </svg>
+                </div>
+                <div class="flex-grow-1">
+                    <h5 class="fw-semibold mb-1 fs-6">Transactions</h5>
+                    <p class="text-secondary mb-0 small">Historique des opérations financières</p>
+                </div>
+                <div class="card-arrow text-muted d-none d-sm-block">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                    </svg>
+                </div>
+            </a>
+        </div>
+
+    </div>
+</div>
+
 {% endblock %}
