@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'user_base.html.twig' %}
 
 {% block title %}Edit Transaction{% endblock %}
 
@@ -7,7 +7,7 @@
 
     {{ include('admin/transaction/_form.html.twig', {'button_label': 'Update'}) }}
 
-    <a href="{{ path('app_transaction_index') }}">back to list</a>
+    <a href="{{ path('app_admin_transaction_index') }}">back to list</a>
 
     {{ include('admin/transaction/_delete_form.html.twig') }}
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'user_base.html.twig' %}
 
 {% block title %}Transaction index{% endblock %}
 
@@ -31,8 +31,8 @@
                 <td>{{ transaction.isActive ? 'Yes' : 'No' }}</td>
                 <td>{{ transaction.reference }}</td>
                 <td>
-                    <a href="{{ path('app_transaction_show', {'id': transaction.id}) }}">show</a>
-                    <a href="{{ path('app_transaction_edit', {'id': transaction.id}) }}">edit</a>
+                    <a href="{{ path('app_admin_transaction_show', {'id': transaction.id}) }}">show</a>
+                    <a href="{{ path('app_admin_transaction_edit', {'id': transaction.id}) }}">edit</a>
                 </td>
             </tr>
         {% else %}
@@ -43,5 +43,5 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_transaction_new') }}">Create new</a>
+    <a href="{{ path('app_admin_transaction_new') }}">Create new</a>
 {% endblock %}
