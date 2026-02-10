@@ -1,0 +1,63 @@
+.admin-card {
+        text-decoration: none;
+        color: inherit;
+        border: none;
+        border-radius: 1rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .admin-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        border-radius: 0 4px 4px 0;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .admin-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        color: inherit;
+    }
+
+    .admin-card:hover::before {
+        opacity: 1;
+    }
+
+    .admin-card:hover .card-arrow {
+        transform: translateX(4px);
+        color: #6c757d !important;
+    }
+
+    .card-arrow {
+        transition: all 0.2s ease;
+    }
+
+    /* Accents couleur par carte */
+    .admin-card.card-users::before    { background: #3b82f6; }
+    .admin-card.card-orgs::before     { background: #22c55e; }
+    .admin-card.card-budgets::before  { background: #ca8a04; }
+    .admin-card.card-lines::before    { background: #a855f7; }
+    .admin-card.card-cats::before     { background: #ea580c; }
+    .admin-card.card-trans::before    { background: #0d9488; }
+
+    /* Icônes */
+    .icon-users   { background-color: #eff6ff !important; color: #3b82f6 !important; }
+    .icon-orgs    { background-color: #f0fdf4 !important; color: #22c55e !important; }
+    .icon-budgets { background-color: #fefce8 !important; color: #ca8a04 !important; }
+    .icon-lines   { background-color: #fdf4ff !important; color: #a855f7 !important; }
+    .icon-cats    { background-color: #fff7ed !important; color: #ea580c !important; }
+    .icon-trans   { background-color: #f0fdfa !important; color: #0d9488 !important; }
+
+    .card-icon-box {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        border-radius: 12px;
+    }
