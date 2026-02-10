@@ -3,7 +3,31 @@
 {% block title %}Administration{% endblock %}
 
 {% block body %}
-    <h1>Administration</h1>
+    <h1 class="title-blue">Administration</h1>
+
+    <div>
+        <a href="{{path("app_user_index")}}">Gestion des utilisateurs</a>
+    </div>
+
+    <div>
+        <a href="{{path("app_admin_organization_index")}}">Gestion des organisations</a>
+    </div>
+
+    <div>
+        <a href="{{path("app_admin_budget_index")}}">Gestion des budgets</a>
+    </div>
+
+    <div>
+        <a href="{{path("app_admin_budget_line_index")}}">Gestion des lignes budgetaires</a>
+    </div>
+
+    <div>
+        <a href="{{path("app_admin_category_index")}}">Gestion des catégories</a>
+    </div>
+
+    <div>
+        <a href="{{path("app_admin_transaction_index")}}">Gestion des transactions</a>
+    </div>
 
     
 {% endblock %}
