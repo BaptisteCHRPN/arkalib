@@ -16,7 +16,7 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/admin/organization')]
 final class AdminOrganizationController extends AbstractController
 {
-    #[Route(name: 'app_organization_index', methods: ['GET'])]
+    #[Route(name: 'app_admin_organization_index', methods: ['GET'])]
     public function index(OrganizationRepository $organizationRepository): Response
     {
         return $this->render('admin/organization/index.html.twig', [
@@ -24,7 +24,7 @@ final class AdminOrganizationController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_organization_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_admin_organization_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, Security $security): Response
     {
         $organization = new Organization();
@@ -61,7 +61,7 @@ final class AdminOrganizationController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_organization_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_admin_organization_show', methods: ['GET'])]
     public function show(Organization $organization): Response
     {
         return $this->render('admin/organization/show.html.twig', [
@@ -69,7 +69,7 @@ final class AdminOrganizationController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_organization_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_admin_organization_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Organization $organization, EntityManagerInterface $entityManager, Security $security): Response
     {
         $form = $this->createForm(OrganizationType::class, $organization);
@@ -108,7 +108,7 @@ final class AdminOrganizationController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_organization_delete', methods: ['POST'])]
+    #[Route('/{id}', name: 'app_admin_organization_delete', methods: ['POST'])]
     public function delete(Request $request, Organization $organization, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete' . $organization->getId(), $request->getPayload()->getString('_token'))) {
