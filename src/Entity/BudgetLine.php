@@ -47,6 +47,9 @@ class BudgetLine
     #[ORM\JoinColumn(nullable: true)]
     private ?Category $category = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $attachment = null;
+
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
@@ -169,6 +172,18 @@ class BudgetLine
     public function setCategory(?Category $category): static
     {
         $this->category = $category;
+        return $this;
+    }
+
+    public function getAttachment(): ?string
+    {
+        return $this->attachment;
+    }
+
+    public function setAttachment(?string $attachment): static
+    {
+        $this->attachment = $attachment;
+
         return $this;
     }
 }
