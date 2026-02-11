@@ -26,10 +26,20 @@ final class UploadsController extends AbstractController
         $pathFile = $this->getParameter('user_avatar') . '/' . $nameFile;
 
         if(!file_exists($pathFile)) {
-            throw $this->createNotFoundException('Logo non trouvé');
+            throw $this->createNotFoundException('Avatar non trouvé');
         }
         return new BinaryFileResponse($pathFile);
     }
 
+    #[Route('/uploads/budget_file/{nameFile}', name: 'budget_file_upload')]
+    public function budgetFile(string $nameFile): Response
+    {
+        $pathFile = $this->getParameter('budget_file') . '/' . $nameFile;
+
+        if (!file_exists($pathFile)) {
+            throw $this->createNotFoundException('Fichié non trouvé');
+        }
+        return new BinaryFileResponse($pathFile);
+    }
 
 }

@@ -46,8 +46,19 @@ final class MemberBudgetLineController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $attachment = $form->get('attachment')->getData();
+            $budgetLineName = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $budgetLine->getName()), '-'));
+            if($attachment) {
+                $nameFile = $budgetLineName . '-' . date('YmdHis') . '.' . $attachment->getClientOriginalExtension();
+                $attachment->move($this->getParameter('budget_file'), $nameFile);
+                $budgetLine->setAttachment($nameFile);
+            }
+
             $entityManager->persist($budgetLine);
+
             $entityManager->flush();
+
             if($budgetLine->isExpense() === false){
                 $this->addFlash('success', 'La recette à été créée avec succès !');
             } else {
@@ -92,6 +103,15 @@ final class MemberBudgetLineController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $attachment = $form->get('attachment')->getData();
+            $budgetLineName = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $budgetLine->getName()), '-'));
+            if($attachment) {
+                $nameFile = $budgetLineName . '-' . date('YmdHis') . '.' . $attachment->getClientOriginalExtension();
+                $attachment->move($this->getParameter('budget_file'), $nameFile);
+                $budgetLine->setAttachment($nameFile);
+            }
+            
             $entityManager->flush();
             if($budgetLine->isExpense() === false){
                 $this->addFlash('success', 'La recette à été modifiée avec succès !');
