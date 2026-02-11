@@ -1,41 +1,189 @@
 {% extends 'user_base.html.twig' %}
 
-{% block title %}organization index{% endblock %}
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ asset('css/back-office.css') }}">
+{% endblock %}
+
+{% block title %}Gestion des organisations
+{% endblock %}
 
 {% block body %}
-    <h1>organization index</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Name</th>
-                <th>Created_at</th>
-                <th>Is_active</th>
-                <th>Description</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for organization in organizations %}
-            <tr>
-                <td>{{ organization.id }}</td>
-                <td>{{ organization.name }}</td>
-                <td>{{ organization.createdAt ? organization.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ organization.isActive ? 'Yes' : 'No' }}</td>
-                <td>{{ organization.description }}</td>
-                <td>
-                    <a href="{{ path('app_admin_organization_show', {'id': organization.id}) }}">show</a>
-                    <a href="{{ path('app_admin_organization_edit', {'id': organization.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="6">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+	<div class="container py-4 py-md-5">
 
-    <a href="{{ path('app_admin_organization_new') }}">Create new</a>
+		{# ─── Breadcrumb ─── #}
+		<nav aria-label="breadcrumb" class="mb-3">
+			<ol class="breadcrumb mb-0 small">
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_back_office') }}">Administration</a>
+				</li>
+				<li class="breadcrumb-item active" aria-current="page">Organisations</li>
+			</ol>
+		</nav>
+
+		{# ─── Header ─── #}
+		<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
+			<div>
+				<h1 class="fw-bold fs-2 mb-1">Organisations</h1>
+				<p class="text-secondary mb-0">Gestion des structures et entités</p>
+			</div>
+			<a href="{{ path('app_admin_organization_new') }}" class="btn btn-create text-white d-inline-flex align-items-center gap-2">
+				{{ ux_icon('lucide:plus', {
+				    width: '18',
+				    height: '18'
+				}) }}
+				Nouvelle organisation
+			</a>
+		</div>
+
+		{# ─── Table Card ─── #}
+		<div
+			class="card admin-table-card shadow-sm">
+
+			{# Card Header #}
+			<div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
+				<div class="d-flex align-items-center gap-2">
+					<span class="fw-semibold text-dark">Toutes les organisations</span>
+					<span class="count-badge">{{ organizations|length }}</span>
+				</div>
+				<input type="text" class="form-control search-input" id="searchInput" placeholder="Rechercher..." style="max-width: 260px;" onkeyup="filterTable()">
+			</div>
+
+			{# Table #}
+			<div class="table-responsive">
+				<table class="table admin-table mb-0" id="organizationTable">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Logo</th>
+							<th>Nom</th>
+							<th>Description</th>
+							<th>Créée le</th>
+							<th>Statut</th>
+							<th class="text-end">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for organization in organizations %}
+							<tr>
+								<td>
+									<span class="badge badge-id">#{{ organization.id }}</span>
+								</td>
+								<td>
+									<div class="profile-rounded text-light d-inline-flex align-items-center justify-content-center text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
+										{% if organization.picture %}
+											<img src="{{ path('organization_logo_upload', {nameFile: organization.picture}) }}" alt="">
+										{% else %}
+											{{ organization.name|first }}
+										{% endif %}
+									</div>
+								</td>
+								<td class="fw-medium text-dark">{{ organization.name }}</td>
+								<td>
+									<span class="text-secondary small">{{ organization.description|length > 50 ? organization.description|slice(0, 50) ~ '…' : organization.description }}</span>
+								</td>
+								<td>
+									<span class="text-secondary small">{{ organization.createdAt ? organization.createdAt|date('d/m/Y') : '—' }}</span>
+								</td>
+								<td>
+									{% if organization.isActive %}
+										<span class="badge rounded-pill px-2 py-1 badge-verified">
+											{{ ux_icon('lucide:check', {
+											    width: '12',
+											    height: '12',
+											    class: 'me-1',
+											}) }}
+											Active
+										</span>
+									{% else %}
+										<span class="badge rounded-pill px-2 py-1 badge-unverified">
+											{{ ux_icon('lucide:x', {
+                                                width: '12',
+                                                height: '12',
+                                                'stroke-width': '2.5',
+                                                class: 'me-1'
+                                            }) }}
+											Inactive
+										</span>
+									{% endif %}
+								</td>
+								<td class="text-end">
+									<div class="d-inline-flex gap-2">
+										<a href="{{ path('app_admin_organization_show', {'id': organization.id}) }}" class="btn-action btn-show" title="Voir">
+											{{ ux_icon('gg:eye', {
+                                        width: '16',
+                                        height: '16',
+                                        fill: 'none',
+                                        stroke: 'currentColor'
+                                    }) }}
+										</a>
+										<a href="{{ path('app_admin_organization_edit', {'id': organization.id}) }}" class="btn-action btn-edit" title="Modifier">
+											{{ ux_icon('lucide:edit', {
+                                        width: '16',
+                                        height: '16',
+                                        fill: 'none',
+                                        stroke: 'currentColor'
+                                    }) }}
+										</a>
+									</div>
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="6">
+									<div class="empty-state text-center">
+										{{ ux_icon('heroicons:building-office', {
+                                            width: '48',
+                                            height: '48',
+                                            'stroke-width': '1',
+                                            class: 'mb-3'
+                                        }) }}
+										<p class="text-secondary mb-2 fw-medium">Aucune organisation trouvée</p>
+										<p class="text-muted small mb-3">Commencez par créer votre première organisation.</p>
+										<a href="{{ path('app_admin_organization_new') }}" class="btn btn-sm btn-create text-white d-inline-flex align-items-center gap-2">
+											{{ ux_icon('lucide:plus', {
+                                                width: '16',
+                                                height: '16'
+                                            }) }}
+											Créer une organisation
+										</a>
+									</div>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		{# ─── Footer ─── #}
+		{% if organizations|length > 0 %}
+			<div class="d-flex justify-content-between align-items-center mt-3 px-1">
+				<p class="small mb-0">{{ organizations|length }}
+					organisation{{ organizations|length > 1 ? 's' : '' }}
+					au total</p>
+				<a href="{{ path('app_back_office') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+					{{ ux_icon('lucide:arrow-left', {
+					    width: '14',
+					    height: '14'
+					}) }}
+					Retour au tableau de bord
+				</a>
+			</div>
+		{% endif %}
+	</div>
+
+	{# ─── Search script ─── #}
+	<script>
+		function filterTable()
+{
+const input = document.getElementById('searchInput').value.toLowerCase();
+const rows = document.querySelectorAll('#organizationTable tbody tr');
+rows.forEach(row => {
+const text = row.textContent.toLowerCase();
+row.style.display = text.includes(input) ? '' : 'none';
+});
+}
+	</script>
+
 {% endblock %}

@@ -1,63 +1,354 @@
+/* ============================================
+   BACK-OFFICE — Design System
+   ============================================ */
+
+/* ─── 1. Variables (palette unique) ─── */
+:root {
+    /* Couleurs modules */
+    --color-users:      #3b82f6;
+    --color-users-bg:   #eff6ff;
+    --color-orgs:       #22c55e;
+    --color-orgs-bg:    #f0fdf4;
+    --color-budgets:    #ca8a04;
+    --color-budgets-bg: #fefce8;
+    --color-lines:      #a855f7;
+    --color-lines-bg:   #fdf4ff;
+    --color-cats:       #ea580c;
+    --color-cats-bg:    #fff7ed;
+    --color-trans:      #0d9488;
+    --color-trans-bg:   #f0fdfa;
+
+    /* Neutres */
+    --gray-50:  #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-700: #374151;
+    --gray-900: #1a1d23;
+
+    /* Rayons & transitions */
+    --radius-sm: 8px;
+    --radius-md: 10px;
+    --radius-lg: 1rem;
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.2s ease;
+}
+
+
+/* ============================================
+   2. Dashboard — Cartes admin
+   ============================================ */
+
 .admin-card {
-        text-decoration: none;
-        color: inherit;
-        border: none;
-        border-radius: 1rem;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        position: relative;
-        overflow: hidden;
-    }
+    text-decoration: none;
+    color: inherit;
+    border: none;
+    border-radius: var(--radius-lg);
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+}
 
-    .admin-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 5px;
-        height: 100%;
-        border-radius: 0 4px 4px 0;
-        opacity: 0;
-        transition: opacity 0.2s ease;
-    }
+.admin-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    border-radius: 0 4px 4px 0;
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+}
 
-    .admin-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        color: inherit;
-    }
+.admin-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    color: inherit;
+}
 
-    .admin-card:hover::before {
-        opacity: 1;
-    }
+.admin-card:hover::before {
+    opacity: 1;
+}
 
-    .admin-card:hover .card-arrow {
-        transform: translateX(4px);
-        color: #6c757d !important;
-    }
+.admin-card:hover .card-arrow {
+    transform: translateX(4px);
+    color: var(--gray-500) !important;
+}
 
-    .card-arrow {
-        transition: all 0.2s ease;
-    }
+.card-arrow {
+    transition: all var(--transition-normal);
+}
 
-    /* Accents couleur par carte */
-    .admin-card.card-users::before    { background: #3b82f6; }
-    .admin-card.card-orgs::before     { background: #22c55e; }
-    .admin-card.card-budgets::before  { background: #ca8a04; }
-    .admin-card.card-lines::before    { background: #a855f7; }
-    .admin-card.card-cats::before     { background: #ea580c; }
-    .admin-card.card-trans::before    { background: #0d9488; }
+/* Accents couleur — cartes */
+.admin-card.card-users::before   { background: var(--color-users); }
+.admin-card.card-orgs::before    { background: var(--color-orgs); }
+.admin-card.card-budgets::before { background: var(--color-budgets); }
+.admin-card.card-lines::before   { background: var(--color-lines); }
+.admin-card.card-cats::before    { background: var(--color-cats); }
+.admin-card.card-trans::before   { background: var(--color-trans); }
 
-    /* Icônes */
-    .icon-users   { background-color: #eff6ff !important; color: #3b82f6 !important; }
-    .icon-orgs    { background-color: #f0fdf4 !important; color: #22c55e !important; }
-    .icon-budgets { background-color: #fefce8 !important; color: #ca8a04 !important; }
-    .icon-lines   { background-color: #fdf4ff !important; color: #a855f7 !important; }
-    .icon-cats    { background-color: #fff7ed !important; color: #ea580c !important; }
-    .icon-trans   { background-color: #f0fdfa !important; color: #0d9488 !important; }
+/* Icônes — cartes */
+.card-icon-box {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border-radius: 12px;
+}
 
-    .card-icon-box {
-        width: 48px;
-        height: 48px;
-        min-width: 48px;
-        border-radius: 12px;
-    }
+.icon-users   { background-color: var(--color-users-bg) !important;   color: var(--color-users) !important; }
+.icon-orgs    { background-color: var(--color-orgs-bg) !important;    color: var(--color-orgs) !important; }
+.icon-budgets { background-color: var(--color-budgets-bg) !important; color: var(--color-budgets) !important; }
+.icon-lines   { background-color: var(--color-lines-bg) !important;   color: var(--color-lines) !important; }
+.icon-cats    { background-color: var(--color-cats-bg) !important;    color: var(--color-cats) !important; }
+.icon-trans   { background-color: var(--color-trans-bg) !important;   color: var(--color-trans) !important; }
+
+
+/* ============================================
+   3. Tables CRUD
+   ============================================ */
+
+.admin-table-card {
+    border: none;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.admin-table-card .card-header {
+    background: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 1.25rem 1.5rem;
+}
+
+.admin-table thead th {
+    background: var(--gray-50);
+    border-bottom: 2px solid var(--gray-200);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--gray-500);
+    padding: 0.75rem 1rem;
+    white-space: nowrap;
+}
+
+.admin-table tbody td {
+    padding: 0.85rem 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 0.9rem;
+    color: var(--gray-700);
+}
+
+.admin-table tbody tr {
+    transition: background var(--transition-fast);
+}
+
+.admin-table tbody tr:hover {
+    background: var(--gray-50);
+}
+
+.admin-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* ============================================
+   4. Badges (réutilisables)
+   ============================================ */
+
+.badge-id {
+    background-color: var(--gray-100) !important;
+    color: var(--gray-500) !important;
+    font-weight: 600;
+    font-size: 0.78rem;
+}
+
+.badge-org {
+    background-color: var(--color-orgs-bg) !important;
+    color: var(--color-orgs) !important;
+    font-weight: 500;
+}
+
+.badge-budget {
+    background-color: var(--color-budgets-bg) !important;
+    color: var(--color-budgets) !important;
+    font-weight: 500;
+}
+
+.count-badge {
+    font-size: 0.82rem;
+    font-weight: 600;
+    background: var(--color-cats-bg) !important;
+    color: var(--color-cats) !important;
+    border-radius: var(--radius-sm);
+    padding: 0.25rem 0.65rem;
+}
+
+/* Badges rôles */
+.badge-role-admin {
+    background-color: var(--color-lines-bg) !important;
+    color: var(--color-lines) !important;
+    font-weight: 500;
+}
+
+.badge-role-superadmin {
+    background-color: #fef2f2 !important;
+    color: #dc2626 !important;
+    font-weight: 500;
+}
+
+.badge-role-user {
+    background-color: var(--color-users-bg) !important;
+    color: var(--color-users) !important;
+    font-weight: 500;
+}
+
+/* Badges vérification */
+.badge-verified {
+    background-color: var(--color-orgs-bg) !important;
+    color: var(--color-orgs) !important;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
+.badge-unverified {
+    background-color: #fef2f2 !important;
+    color: #dc2626 !important;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
+.badge-expense {
+    background-color: #fef2f2 !important;
+    color: #dc2626 !important;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
+.badge-income {
+    background-color: var(--color-orgs-bg) !important;
+    color: var(--color-orgs) !important;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
+
+/* ============================================
+   5. Boutons d'action (table)
+   ============================================ */
+
+.btn-action {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--gray-200);
+    background: #fff;
+    color: var(--gray-500);
+    transition: all var(--transition-fast);
+}
+
+.btn-action:hover {
+    border-color: var(--gray-300);
+    color: var(--gray-700);
+    background: var(--gray-50);
+}
+
+.btn-action.btn-show:hover {
+    color: var(--color-users);
+    border-color: #bfdbfe;
+    background: var(--color-users-bg);
+}
+
+.btn-action.btn-edit:hover {
+    color: var(--color-budgets);
+    border-color: #fde68a;
+    background: var(--color-budgets-bg);
+}
+
+
+/* ============================================
+   6. Bouton création
+   ============================================ */
+
+.btn-create {
+    background: var(--color-cats);
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0.5rem 1.2rem;
+    font-weight: 600;
+    font-size: 0.88rem;
+    transition: all var(--transition-normal);
+}
+
+.btn-create:hover {
+    background: #c2410c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+}
+
+
+/* ============================================
+   7. Champ de recherche
+   ============================================ */
+
+.search-input {
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    padding: 0.5rem 0.85rem 0.5rem 2.4rem;
+    font-size: 0.88rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 0.75rem center;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.search-input:focus {
+    border-color: var(--color-lines);
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.1);
+    outline: none;
+}
+
+
+/* ============================================
+   8. Breadcrumb & états vides
+   ============================================ */
+
+.breadcrumb {
+    --bs-breadcrumb-divider: '>';
+}
+
+.breadcrumb-item a {
+    text-decoration: none;
+    color: var(--color-users);
+    font-weight: 500;
+    transition: color var(--transition-fast);
+}
+
+.breadcrumb-item a:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+    color: var(--gray-700);
+    font-weight: 600;
+}
+
+.empty-state {
+    padding: 3rem 1rem;
+}
+
+.empty-state svg {
+    color: var(--gray-300);
+}
