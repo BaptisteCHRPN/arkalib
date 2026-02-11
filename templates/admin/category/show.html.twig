@@ -15,12 +15,20 @@
                 <th>Name</th>
                 <td>{{ category.name }}</td>
             </tr>
+            <tr>
+                <th>Budget</th>
+                <td>{{ category.budget.name }}</td>
+            </tr>
+            <tr>
+                <th>Organisations</th>
+                <td>{{ category.budget.organization.name }}</td>
+            </tr>
         </tbody>
     </table>
 
-    <a href="{{ path('app_admin_category_index') }}">back to list</a>
+    <a href="{{ path('app_admin_category_index') }}">Retour à la liste des catégories</a>
 
-    <a href="{{ path('app_admin_category_edit', {'id': category.id}) }}">edit</a>
+    <a href="{{ path('app_admin_category_edit', {'id': category.id}) }}">Modifier</a>
 
     {{ include('admin/category/_delete_form.html.twig') }}
 {% endblock %}
