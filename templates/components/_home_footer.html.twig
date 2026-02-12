@@ -1,18 +1,26 @@
-<footer class="py-3 my-4 home_footer bg-secondary">
-	<ul class="nav justify-content-center pb-3 mb-3">
-		<li class="nav-item">
-			<a href="{{ path('app_home') }}" class="nav-link px-2 text-body-secondary">Accueil</a>
-		</li>
-		<li class="nav-item">
-			<a href="{{ path('app_legals') }}" class="nav-link px-2 text-body-secondary">Mentions légales</a>
-		</li>
-		<li class="nav-item">
-			<a href="{{ path('app_cgv') }}" class="nav-link px-2 text-body-secondary">CGV</a>
-		</li>
-		<li class="nav-item">
-			<a href="{{ path('app_cgu') }}" class="nav-link px-2 text-body-secondary">CGU</a>
-		</li>
-	</ul>
-	<p class="text-center text-body-secondary">© 2025 Arkalib</p>
-	<p class="text-center text-body-secondary">Illustrations by <a target="_blank" href="https://storyset.com/">Storyset</a></p>
+<footer class="py-3 my-4 home_footer bg-secondary" role="contentinfo">
+    <nav aria-label="Navigation du pied de page">
+        <ul class="nav justify-content-center pb-3 mb-3">
+            <li class="nav-item">
+                <a href="{{ path('app_home') }}" class="nav-link px-2 text-body-primary">Accueil</a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ path('app_legals') }}" class="nav-link px-2 text-body-primary">Mentions légales</a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ path('app_cgv') }}" class="nav-link px-2 text-body-primary">Conditions générales de vente</a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ path('app_cgu') }}" class="nav-link px-2 text-body-primary">Conditions générales d'utilisation</a>
+            </li>
+        </ul>
+    </nav>
+    <p class="text-center text-body-primary">© 2025 Arkalib</p>
+    <p class="text-center text-body-primary">
+        Illustrations par
+        <a href="https://storyset.com/" target="_blank" rel="noopener noreferrer">
+            Storyset
+            <span class="visually-hidden">(s'ouvre dans un nouvel onglet)</span>
+        </a>
+    </p>
 </footer>

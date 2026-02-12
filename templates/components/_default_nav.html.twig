@@ -1,39 +1,47 @@
-<nav class="navbar navbar-expand-lg bg-secondary ps-3 pe-3 fixed-top">
+<nav class="navbar navbar-expand-lg bg-secondary ps-3 pe-3 fixed-top" aria-label="Navigation principale">
   <div class="container-fluid">
-    <a class="navbar-brand  fs-2 fw-bold" href="{{ path('app_home') }}">
-      <img class="img-logo" src="{{ asset('img/logo.svg') }}" alt="Logo d'Arkalib">
+    <a class="navbar-brand fs-2 fw-bold" href="{{ path('app_home') }}" aria-label="Arkalib – Retour à l'accueil">
+      <img class="img-logo" src="{{ asset('img/logo.svg') }}" alt="" width="40" height="40" aria-hidden="true">
       ARKALIB
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Ouvrir le menu de navigation"
+    >
+      <span class="navbar-toggler-icon" aria-hidden="true"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-          <a class="nav-link fs-5" href="{{ path('app_home') }}">Accueil</a>
+          <a class="nav-link fs-5" href="{{ path('app_home') }}" {% if app.request.attributes.get('_route') == 'app_home' %}aria-current="page"{% endif %}>Accueil</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link fs-5 ps-3 pe-3" href="{{ path('app_contact') }}">Contact</a>
+          <a class="nav-link fs-5 ps-3 pe-3" href="{{ path('app_contact') }}" {% if app.request.attributes.get('_route') == 'app_contact' %}aria-current="page"{% endif %}>Contact</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link me-4 fs-5" href="#">À propos</a>
+          <a class="nav-link me-4 fs-5" href="#" {% if app.request.attributes.get('_route') == 'app_about' %}aria-current="page"{% endif %}>À propos</a>
         </li>
         {% if app.user %}
           <li class="nav-item me-3">
-                <a class="btn btn-primary fs-5" href="{{ path('app_dashboard') }}">Tableau de bord</a>
+            <a class="btn btn-primary fs-5" href="{{ path('app_dashboard') }}">Tableau de bord</a>
           </li>
         {% endif %}
         {% if not app.user %}
-            <li class="nav-item">
-              <a class="btn btn-light me-4 mb-2 fs-5" href="{{ path('app_login') }}">Se connecter</a>
-            </li>
-            <li class="nav-item">
-              <a class="btn btn-primary fs-5" href="{{ path('app_register') }}">S'inscrire</a>
-            </li>
+          <li class="nav-item">
+            <a class="btn btn-light me-4 mb-2 fs-5" href="{{ path('app_login') }}">Se connecter</a>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-primary fs-5" href="{{ path('app_register') }}">S'inscrire</a>
+          </li>
         {% else %}
-            <li class="nav-item">
-              <a class="btn btn-primary fs-5" href="{{ path('app_logout') }}">Se déconnecter</a>
-            </li>
+          <li class="nav-item">
+            <a class="btn btn-primary fs-5" href="{{ path('app_logout') }}">Se déconnecter</a>
+          </li>
         {% endif %}
       </ul>
     </div>
