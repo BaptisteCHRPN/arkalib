@@ -1,0 +1,553 @@
+/* =============================================
+   1. VARIABLES PERSONNALISÉES (CSS custom props)
+   ============================================= */
+
+:root {
+    --ark-primary: rgba(52, 187, 252, 1);
+    --ark-primary-hover: rgba(30, 160, 225, 1);
+    --ark-secondary: rgba(31, 47, 80, 1);
+    --ark-secondary-hover: rgba(22, 34, 60, 1);
+    --ark-light-gray: rgba(239, 239, 239, 1);
+    --ark-text-muted: rgba(98, 109, 122, 1);
+    --ark-radius: 5px;
+    --ark-sidebar-width: 270px;
+    --ark-header-height: 60px;
+}
+
+
+/* =============================================
+   2. BASE & RESET
+   ============================================= */
+
+body {
+    overflow-x: hidden;
+}
+
+body.loading * {
+    transition: none !important;
+}
+
+
+/* =============================================
+   3. UTILITAIRES
+   ============================================= */
+
+.pt-80  { padding-top: 80px; }
+.wd-270 { width: var(--ark-sidebar-width); }
+.ml-270 { margin-left: var(--ark-sidebar-width); }
+.height-60 { height: var(--ark-header-height); }
+.bg-lighgray { background-color: var(--ark-light-gray); }
+.min-width-0 { min-width: 0; }
+
+
+/* =============================================
+   4. TYPOGRAPHIE
+   ============================================= */
+
+.hello-title,
+.dashboard-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--ark-secondary);
+    line-height: 1.2;
+}
+
+.title-blue {
+    color: var(--ark-secondary);
+}
+
+.h2-values {
+    text-align: center;
+    font-weight: bold;
+    color: var(--ark-secondary);
+}
+
+
+/* =============================================
+   5. SURCHARGES BOOTSTRAP – Boutons
+   ============================================= */
+
+.btn-primary {
+    background-color: var(--ark-primary) !important;
+    border: none;
+    color: #fff;
+}
+
+.btn-primary:hover,
+.btn-primary:focus-visible {
+    background-color: var(--ark-primary-hover) !important;
+    text-decoration: none;
+}
+
+.btn-light {
+    color: var(--ark-secondary) !important;
+    border: none;
+}
+
+.btn-light:hover,
+.btn-light:focus-visible {
+    text-decoration: none;
+}
+
+
+/* =============================================
+   6. SURCHARGES BOOTSTRAP – Formulaires
+   ============================================= */
+
+.form-control::placeholder {
+    color: #6c757d;
+    opacity: 1;
+}
+
+
+/* =============================================
+   7. SURCHARGES BOOTSTRAP – Couleurs de fond
+   ============================================= */
+
+.bg-secondary {
+    background-color: var(--ark-secondary) !important;
+}
+
+
+/* =============================================
+   8. NAVIGATION PRINCIPALE (top navbar)
+   ============================================= */
+
+.navbar .navbar-brand,
+.navbar .nav-link {
+    color: #fff !important;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus-visible {
+    text-decoration: underline;
+}
+
+.navbar .navbar-brand:hover {
+    text-decoration: none;
+}
+
+.navbar-toggler {
+    background-color: #fff;
+}
+
+.img-logo {
+    width: 4rem;
+}
+
+
+/* =============================================
+   9. HEADER FIXE (dashboard)
+   ============================================= */
+
+.header-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--ark-header-height);
+    z-index: 1030;
+    transition: left 0.3s ease-in-out;
+}
+
+.navbar-toggle-btn {
+    position: fixed;
+    top: 65px;
+    left: 0;
+    z-index: 1050;
+    background-color: var(--ark-secondary);
+    color: #fff;
+    border: none;
+    padding: 12px 15px 12px 10px;
+    border-radius: 0 12px 12px 0;
+    box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.navbar-toggle-btn:hover {
+    background-color: var(--ark-secondary-hover);
+    padding-right: 18px;
+}
+
+.navbar-open .navbar-toggle-btn {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.chevron-icon {
+    display: inline-block;
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 8px solid #fff;
+    margin-left: 3px;
+    transition: transform 0.3s ease;
+}
+
+
+/* =============================================
+   10. SIDEBAR
+   ============================================= */
+
+.offcanvas,
+.offcanvas-start,
+.sidebar-nav {
+    width: var(--ark-sidebar-width) !important;
+    transition: transform 0.3s ease-in-out;
+}
+
+.sidebar-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+
+/* =============================================
+   11. CONTENU PRINCIPAL (dashboard)
+   ============================================= */
+
+.main-content {
+    transition: margin-left 0.3s ease-in-out, padding-left 0.3s ease-in-out;
+    margin-left: 0;
+    padding-left: 60px;
+    padding-top: var(--ark-header-height);
+    min-height: 100vh;
+}
+
+
+/* =============================================
+   12. SURCHARGES BOOTSTRAP – Dropdowns
+   ============================================= */
+
+.dropdown-menu {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    z-index: 1050;
+}
+
+
+/* =============================================
+   13. PAGE D'ACCUEIL – Hero
+   ============================================= */
+
+.hero-budget {
+    background-color: var(--ark-light-gray);
+}
+
+.hero-budget-title {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--ark-secondary);
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+}
+
+.hero-budget-subtitle {
+    font-size: 1.25rem;
+    color: var(--ark-text-muted);
+    margin-bottom: 2rem;
+}
+
+.hero-budget-image {
+    max-width: 1000px;
+}
+
+
+/* =============================================
+   14. PAGE D'ACCUEIL – Cards (valeurs)
+   ============================================= */
+
+.ark-card {
+    background-color: var(--ark-light-gray);
+    border-radius: 4px;
+    border: none;
+}
+
+.svg-primary {
+    color: var(--ark-secondary);
+}
+
+
+/* =============================================
+   15. PAGE D'ACCUEIL – Footer
+   ============================================= */
+
+.home_footer a,
+.home_footer p {
+    color: #fff;
+}
+
+
+/* =============================================
+   16. PAGE LOGIN
+   ============================================= */
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    padding: 2rem;
+    border-radius: var(--ark-radius);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: #fff;
+}
+
+.login-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-link {
+    color: var(--ark-primary);
+    text-decoration: none;
+}
+
+.login-link:hover,
+.login-link:focus-visible {
+    text-decoration: underline;
+}
+
+
+/* =============================================
+   17. COMPOSANT – Profil arrondi
+   ============================================= */
+
+.profile-rounded {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+    color: #fff;
+    height: 3.2rem;
+    width: 3.2rem;
+    border-radius: 50%;
+    font-size: 1.8rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-rounded img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+
+/* =============================================
+   18. VUE MOBILE – Budget
+   ============================================= */
+
+.mobile-list {
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.mobile-item {
+    padding: 16px;
+    border-bottom: 1px solid #e9ecef;
+    background: #fff;
+}
+
+.mobile-item:last-child {
+    border-bottom: none;
+}
+
+.mobile-item h6 {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: #212529;
+}
+
+.mobile-item small {
+    font-size: 13px;
+    color: #6c757d;
+}
+
+.item-icon {
+    width: 48px;
+    height: 48px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: #6c757d;
+    flex-shrink: 0;
+}
+
+.item-amount {
+    text-align: right;
+    white-space: nowrap;
+    margin-left: 12px;
+}
+
+
+/* =============================================
+   19. ACCESSIBILITÉ
+   ============================================= */
+
+/* Skip link (lien d'évitement) */
+.skip-link {
+    position: absolute;
+    top: -100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--ark-primary);
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0 0 0.5rem 0.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    z-index: 9999;
+    text-decoration: none;
+    transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+    top: 0;
+    outline: 3px solid #fff;
+    outline-offset: 2px;
+}
+
+/* Focus visible global (navigation clavier) */
+*:focus-visible {
+    outline: 3px solid var(--ark-primary);
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+
+*:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Cards : indicateur de focus interne */
+.ark-card:focus-within {
+    box-shadow: 0 0 0 3px var(--ark-primary);
+}
+
+
+/* =============================================
+   20. RESPONSIVE – Desktop (≥ 992px)
+   ============================================= */
+
+@media (min-width: 992px) {
+    .offcanvas {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        visibility: visible !important;
+        border: none;
+        z-index: 1040;
+    }
+
+    .navbar-open .main-content {
+        margin-left: var(--ark-sidebar-width);
+        padding-left: 0;
+    }
+
+    .navbar-open .header-nav {
+        left: var(--ark-sidebar-width);
+    }
+
+    body:not(.navbar-open) .header-nav {
+        left: 0;
+    }
+
+    body:not(.navbar-open) .main-content {
+        margin-left: 0;
+        padding-left: 60px;
+    }
+
+    /* Dropdowns desktop : overflow visible */
+    .table-responsive {
+        overflow: visible !important;
+    }
+
+    tbody tr:nth-last-child(-n+2) .dropdown-menu {
+        bottom: 100% !important;
+        top: auto !important;
+        margin-bottom: 0.125rem !important;
+    }
+
+    .card-body {
+        overflow: visible;
+    }
+}
+
+
+/* =============================================
+   21. RESPONSIVE – Tablette & mobile (< 992px)
+   ============================================= */
+
+@media (max-width: 991.98px) {
+    .header-nav {
+        left: 0;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding-left: 0 !important;
+        padding-top: var(--ark-header-height);
+    }
+}
+
+
+/* =============================================
+   22. RESPONSIVE – Mobile uniquement (< 768px)
+   ============================================= */
+
+@media (max-width: 767.98px) {
+    .table-responsive {
+        overflow-x: auto;
+        overflow-y: visible;
+    }
+
+    .budget-view-mobile {
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
+
+    .budget-view-mobile .dropdown {
+        position: relative;
+    }
+
+    .budget-view-mobile .dropdown-menu {
+        position: absolute !important;
+        inset: auto !important;
+        top: 100% !important;
+        right: 0 !important;
+        left: auto !important;
+        transform: none !important;
+        margin: 2px 0 0 0 !important;
+        will-change: auto !important;
+    }
+
+    .budget-view-mobile .dropdown-menu.show {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .mobile-list,
+    .card.shadow-sm {
+        margin-left: 0;
+        margin-right: 0;
+        border-radius: 8px;
+        margin-bottom: 8px;
+    }
+}
