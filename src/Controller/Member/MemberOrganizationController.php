@@ -70,6 +70,7 @@ final class MemberOrganizationController extends AbstractController
             'form' => $form,
         ]);
     }
+
     #[Route('/{organizationSlug}/budgets', name: 'app_organization_budgets')]
     public function showBudgets(
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
@@ -85,6 +86,22 @@ final class MemberOrganizationController extends AbstractController
         return $this->render('member/dashboard/show_budgets.html.twig', [
             'organization' => $organization,
             'budgets' => $budgets,
+        ]);
+    }
+
+    #[Route('/{organizationSlug}/settings', name: 'app_member_organization_show', methods: ['GET'])]
+    public function show(
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
+        Organization $organization
+        ): Response
+    {
+        
+        if(!$organization->getUsers()->contains($this->getUser())) {
+            throw $this->createAccessDeniedException();
+        }
+
+        return $this->render('member/organization/show.html.twig', [
+            'organization' => $organization,
         ]);
     }
 
