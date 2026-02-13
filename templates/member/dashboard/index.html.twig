@@ -34,10 +34,6 @@
 									<div class="flex-grow-1">
 										<div class="d-flex justify-content-between align-items-start mb-2">
 											<h5 class="card-title mb-0 fw-semibold">{{ organization.name|title }}</h5>
-											<a href="{{ path('app_member_organization_edit', {'id': organization.id}) }}" class="btn btn-outline-secondary btn-sm ms-2">
-												{{ ux_icon('icon-park-solid:setting') }}
-												<span class="ms-1">Paramètres</span>
-											</a>
 										</div>
 										<p class="card-text text-secondary small mb-0" style="line-height: 1.4;">
 											{{ organization.description|capitalize }}

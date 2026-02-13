@@ -46,7 +46,7 @@
 
 				{# Actions #}
 				<div class="d-flex gap-2">
-					<a href="{{ path('app_member_organization_edit', {'id': organization.id}) }}" class="btn btn-outline-secondary btn-sm">
+					<a href="{{ path('app_member_organization_show', {'organizationSlug': organization.slug}) }}" class="btn btn-outline-secondary btn-sm">
 						{{ ux_icon('icon-park-solid:setting') }}
 						<span class="ms-1">Paramètres</span>
 					</a>
@@ -97,7 +97,7 @@
 											<span class="badge rounded-pill bg-success">Actif</span>
 										</td>
 										<td class="text-end pe-4">
-											<a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-sm btn-primary px-3">
+											<a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationId': organization.id, 'organizationSlug': organization.slug}) }}" class="btn btn-sm btn-primary px-3">
 												Ouvrir
 											</a>
 										</td>

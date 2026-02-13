@@ -1,13 +1,33 @@
 {% extends 'user_base.html.twig' %}
 
-{% block title %}New organization{% endblock %}
+{% block title %}Nouvelle organisation{% endblock %}
 
 {% block body %}
-<div class="container">
-    <h1>Create new organization</h1>
+<div class="container py-5" style="max-width: 640px;">
 
-    {{ include('member/organization/_form.html.twig') }}
+    <a href="{{ path('app_dashboard') }}" class="text-decoration-none d-inline-flex align-items-center gap-2 mb-4 small fw-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+        Retour au tableau de bord
+    </a>
 
-    <a href="{{ path('app_organization_index') }}">back to list</a>
+    <div class="mb-4">
+        <h1 class="h3 fw-bold mb-1">Créer une organisation</h1>
+        <p class="mb-0">Renseignez les informations de votre nouvelle organisation pour commencer.</p>
+    </div>
+
+    <div class="card border rounded-3 shadow-sm">
+        <div class="card-body p-4">
+            {{ include('member/organization/_form.html.twig') }}
+
+            <hr class="mt-4 mb-3">
+
+            <div class="d-flex justify-content-end gap-2">
+                <a href="{{ path('app_dashboard') }}" class="btn btn-outline-secondary">Annuler</a>
+            </div>
+        </div>
+    </div>
+
 </div>
 {% endblock %}
