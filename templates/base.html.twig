@@ -7,29 +7,42 @@
 		<title>
 			{% block title %}{% endblock %}
 			| Arkalib</title>
-		{# {{ encore_entry_link_tags('app') }} #}
-		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-		<link rel="stylesheet" href="{{ asset('css/main-style.css') }}"> {% block stylesheets %}{% endblock %}
+		<link 
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" 
+			rel="stylesheet" 
+			integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" 
+			crossorigin="anonymous"
+		>
+		<link 
+			rel="stylesheet" 
+			href="{{ asset('css/main-style.css') }}"
+		>
+		{% block stylesheets %}{% endblock %}
 		</head>
 		<body>
-			{# ── Lien d'évitement (skip link) ── #}
+			{# skip link) #}
 			<a class="skip-link" href="#main-content">Aller au contenu principal</a>
 
+			{# public navbar #}
 			<header role="banner">
 				{% include "components/_default_nav.html.twig" %}
 			</header>
-
+			{# main content #}
 			<main id="main-content" class="pt-80" role="main">
 				<h1 class="visually-hidden"> {% block h1 %}{% endblock %}
 					</h1>
 					{% block body %}{% endblock %}
 				</main>
 
+				{# footer #}
 				{% include "components/_home_footer.html.twig" %}
 
+				{# JS #}
 				{% block javascripts %}
-					{# {{ encore_entry_script_tags('app') }} #}
-					<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+					<script 
+					src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" 
+					integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" 
+					crossorigin="anonymous"></script>
 				{% endblock %}
 			</body>
 		</html>
