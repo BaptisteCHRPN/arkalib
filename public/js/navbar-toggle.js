@@ -1,55 +1,60 @@
+// navbar-toggle.js
 document.addEventListener('DOMContentLoaded', function() {
-    // Get elements
+    // Récupération des éléments
     const navbarToggle = document.getElementById('navbarToggle');
     const navbarClose = document.getElementById('navbarClose');
     const sidebar = document.getElementById('sidebarNav');
     const body = document.body;
     
-    // Check that Bootstrap is loaded
+    // Vérifier que Bootstrap est chargé
     if (typeof bootstrap === 'undefined') {
         console.error('Bootstrap n\'est pas chargé !');
         return;
     }
     
-    // Bootstrap Offcanvas instance
+    // Instance Bootstrap Offcanvas
     const bsOffcanvas = new bootstrap.Offcanvas(sidebar, {
         backdrop: false,
         scroll: true
     });
-    // Function to check if we are on mobile
+
+    // Fonction pour vérifier si on est sur mobile
     function isMobile() {
         return window.innerWidth < 992;
     }
-    // Initialize state on load WITHOUT animation
+
+    // Initialiser l'état au chargement SANS animation
     function initNavbarState() {
-        // TEMPORARILY DISABLE TRANSITIONS
+        // DÉSACTIVER LES TRANSITIONS TEMPORAIREMENT
         sidebar.style.transition = 'none';
         body.style.transition = 'none';
         
         if (isMobile()) {
-            // On mobile: close navbar by default
+            // Sur mobile : fermer la navbar par défaut
             body.classList.remove('navbar-open');
             bsOffcanvas.hide();
         } else {
-            // On desktop: open navbar by default
+            // Sur desktop : ouvrir la navbar par défaut
             body.classList.add('navbar-open');
             bsOffcanvas.show();
         }
         
-        // RE-ENABLE TRANSITIONS AFTER A SHORT DELAY
+        // RÉACTIVER LES TRANSITIONS APRÈS UN COURT DÉLAI
         setTimeout(() => {
             sidebar.style.transition = '';
             body.style.transition = '';
         }, 50);
     }
-    // ⭐ CALL INITIALIZATION (do not comment!)
+
+    // ⭐ APPELER L'INITIALISATION (ne pas commenter !)
     initNavbarState();
     
-    // Remove loading class after initialization
+    // Retirer la classe loading après l'initialisation
     setTimeout(() => {
         document.body.classList.remove('loading');
     }, 100);
-    // Reset state when window is resized
+
+    // Réinitialiser l'état lors du redimensionnement de la fenêtre
     let resizeTimer;
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimer);
@@ -57,7 +62,8 @@ document.addEventListener('DOMContentLoaded', function() {
             initNavbarState();
         }, 250);
     });
-    // Toggle with chevron button
+
+    // Toggle avec le bouton chevron
     if (navbarToggle) {
         navbarToggle.addEventListener('click', function() {
             if (body.classList.contains('navbar-open')) {
@@ -69,17 +75,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    // Close with internal X button
+
+    // Fermer avec le bouton X interne
     if (navbarClose) {
         navbarClose.addEventListener('click', function() {
             body.classList.remove('navbar-open');
             bsOffcanvas.hide();
         });
     }
-    // Synchronize class when Bootstrap hides/shows offcanvas
+
+    // Synchroniser la classe quand Bootstrap cache/montre l'offcanvas
     sidebar.addEventListener('hidden.bs.offcanvas', function () {
         body.classList.remove('navbar-open');
     });
+
     sidebar.addEventListener('shown.bs.offcanvas', function () {
         body.classList.add('navbar-open');
     });

@@ -89,6 +89,16 @@ body.loading * {
     text-decoration: none;
 }
 
+.btn-outline-primary {
+    color: var(--ark-primary) !important;
+    border: 1px solid var(--ark-primary) !important;
+    background-color: transparent !important;
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:focus-visible {
+    background-color: var(--ark-primary) !important;
+    color: #fff !important;
+}
 
 /* =============================================
    6. SURCHARGES BOOTSTRAP – Formulaires
