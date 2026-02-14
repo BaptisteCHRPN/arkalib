@@ -1,49 +1,104 @@
 {% extends 'user_base.html.twig' %}
-
-{% block title %}Paramètres de l'organisation{% endblock %}
+{% block title %}Paramètres de l'organisation
+{% endblock %}
 
 {% block body %}
-    <div class="container py-4">
-        {# En-tête #}
-        <div class="d-flex align-items-center justify-content-between mb-4">
-            <h1 class="h2 mb-0">Paramètres</h1>
-            <a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-1"></i>
-                Retour à la liste
-            </a>
-        </div>
+	{# Breadcrumb #}
+	<nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_dashboard') }}">Tableau de bord</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}">{{ organization.name|title }}</a>
+			</li>
+			<li class="breadcrumb-item active text-secondary" aria-current="page">
+				Paramètres
+			</li>
+		</ol>
+	</nav>
+	<div class="container" style="max-width: 900px;">
+		<div class="py-4">
+			<h1 class="h3 fw-normal border-bottom pb-3 mb-4">Paramètres de l'organisation</h1>
 
-        {# Card principale #}
-        <div class="card shadow-sm border-0">
-            {# En-tête de la card avec infos organisation #}
-            <div class="card-header bg-white border-bottom py-3">
-                <div class="d-flex align-items-center gap-3">
-                    <span class="profile-rounded">
-                        {% if organization.picture %}
-                            <img src="{{ path('organization_logo_upload', {nameFile: organization.picture}) }}" alt="{{ organization.name }}">
-                        {% else %}
-                            {{ organization.name|first|capitalize }}
-                        {% endif %}
-                    </span>
-                    <div>
-                        <h2 class="h4 mb-1">{{ organization.name|title }}</h2>
-                        <p class="text-muted small mb-0">{{ organization.description|capitalize }}</p>
-                    </div>
-                </div>
-            </div>
+			{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 
-            {# Formulaire #}
-            <div class="card-body p-4">
-                {{ include('member/organization/_form.html.twig') }}
-            </div>
+			{# Name input #}
+			<div class="row mb-4 pb-4 border-bottom">
+				<div class="col-md-4">
+					<h2 class="h5 mb-1">Nom</h2>
+					<p class="small">Le nom affiché de votre organisation.</p>
+				</div>
+				<div class="col-md-8">
+					{{ form_widget(form.name, {'attr': {'class': 'form-control', 'style': 'max-width: 400px;'}}) }}
+					{{ form_errors(form.name) }}
+				</div>
+			</div>
 
-            {# Footer avec suppression #}
-            <div class="card-footer bg-light border-top">
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-muted small">Zone de danger</span>
-                    {{ include('member/organization/_delete_form.html.twig', {}) }}
-                </div>
-            </div>
-        </div>
-    </div>
+			{# Description input #}
+			<div class="row mb-4 pb-4 border-bottom">
+				<div class="col-md-4">
+					<h2 class="h5 mb-1">Description</h2>
+					<p class="small">Une courte description de votre organisation.</p>
+				</div>
+				<div class="col-md-8">
+					{{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4, 'style': 'max-width: 500px;'}}) }}
+					{{ form_errors(form.description) }}
+				</div>
+			</div>
+
+			{# Logo input #}
+			<div class="row mb-4 pb-4 border-bottom">
+				<div class="col-md-4">
+					<h2 class="h5 mb-1">Photo de profil</h2>
+					<p class="small">L'avatar de votre organisation.</p>
+				</div>
+				<div class="col-md-8">
+					<div class="d-flex align-items-start gap-4">
+						<div style="width: 100px; height: 100px; flex-shrink: 0;">
+							{% if organization.picture %}
+								<img src="{{ path('organization_logo_upload', {nameFile: organization.picture}) }}" alt="{{ organization.name }}" class="rounded-circle border" style="width: 100px; height: 100px; object-fit: cover;">
+							{% else %}
+								<div class="rounded-circle border d-flex align-items-center justify-content-center bg-light" style="width: 100px; height: 100px; font-size: 2.5rem; color: #586069;">
+									{{ organization.name|first|capitalize }}
+								</div>
+							{% endif %}
+						</div>
+						<div>
+							{{ form_widget(form.picture, {'attr': {'class': 'form-control', 'style': 'max-width: 300px;'}}) }}
+							{{ form_errors(form.picture) }}
+							<p class="small mt-2 mb-0">Formats : JPG, PNG. Max : 2 Mo.</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			{# Submit button #}
+			<div class="row mb-5">
+				<div class="col-md-8 offset-md-4">
+					<button class="btn btn-primary px-4">Mettre à jour l'organisation</button>
+				</div>
+			</div>
+
+			{{ form_end(form) }}
+
+			{# Danger zone #}
+			<div class="border border-danger rounded-3 mt-5">
+				<div class="p-3 border-bottom border-danger bg-light rounded-top-3">
+					<h2 class="h5 mb-0 text-danger">Zone de danger</h2>
+				</div>
+				<div class="p-3">
+					<div class="d-flex align-items-center justify-content-between">
+						<div>
+							<p class="fw-semibold mb-1">Supprimer cette organisation</p>
+							<p class="small mb-0">
+								Cette action est irréversible. Toutes les données seront supprimées.
+							</p>
+						</div>
+						{{ include('member/organization/_delete_form.html.twig') }}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock %}
