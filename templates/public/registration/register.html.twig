@@ -1,61 +1,81 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Register{% endblock %}
+{% block title %}Register
+{% endblock %}
 
 {% block body %}
-<div class="login-container">
-    <div class="login-card">
-        <h1 class="login-title">Inscription</h1>
+	<div class="login-container">
+		<div class="login-card">
+			<h1 class="login-title">Inscription</h1>
 
-        {% for flash_error in app.flashes('verify_email_error') %}
-            <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
-        {% endfor %}
+			{% for flash_error in app.flashes('verify_email_error') %}
+				<div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+			{% endfor %}
 
-        {{ form_errors(registrationForm) }}
+			{{ form_errors(registrationForm) }}
 
-        {{ form_start(registrationForm) }}
-        <div class="mb-3">
-            {# Champ email (sans label, avec placeholder) #}
-            {{ form_widget(registrationForm.email, {
+			{{ form_start(registrationForm) }}
+			<div
+				class="mb-3">
+				{# Champ email (sans label, avec placeholder) #}
+				{{ form_widget(registrationForm.email, {
                 'attr': {
                     'class': 'form-control login-input',
                     'placeholder': 'Adresse e-mail'
                 }
             }) }}
-            </div>
+			</div>
 
-            {# Champ mot de passe (sans label, avec placeholder) #}
-            <div class="mb-3">
-            {{ form_widget(registrationForm.plainPassword.first, {
+			{# Champ mot de passe (sans label, avec placeholder) #}
+			<div class="mb-3">
+				{{ form_widget(registrationForm.plainPassword.first, {
                 'attr': {
                     'class': 'form-control login-input',
                     'placeholder': 'Mot de passe'
                 }
             }) }}
-            </div>
-            <div class="mb-3">
-            {{ form_widget(registrationForm.plainPassword.second, {
+			</div>
+			<div class="mb-3">
+				{{ form_widget(registrationForm.plainPassword.second, {
                 'attr': {
                     'class': 'form-control login-input',
                     'placeholder': 'Confirmer le mot de passe'
                 }
             }) }}
-            </div>
+			</div>
 
-            {# Case à cocher pour les conditions #}
-            <div class="form-check">
-                {{ form_widget(registrationForm.agreeTerms, {
+			{# Checkbox #}
+			<div class="form-check">
+				{{ form_widget(registrationForm.agreeTerms, {
                     'attr': {
                         'class': 'form-check-input'
                     }
                 }) }}
-                <label class="form-check-label" for="{{ registrationForm.agreeTerms.vars.id }}">
-                <a href="{{ path('app_cgu') }}">Conditions d'utilisation</a>
-                </label>
-            </div>
+				<label class="form-check-label" for="{{ registrationForm.agreeTerms.vars.id }}">
+					<a href="#" data-bs-toggle="modal" data-bs-target="#cguModal">
+						Conditions d'utilisation
+					</a>
+				</label>
+			</div>
 
-            <button type="submit" class="w-100 btn btn-primary login-button">S'inscrire</button>
-        {{ form_end(registrationForm) }}
-    </div>
-</div>
-{% endblock %}
+			<button type="submit" class="w-100 btn btn-primary login-button">S'inscrire</button>
+			{{ form_end(registrationForm) }}
+		</div>
+		{# Modale CGU #}
+		<div class="modal fade" id="cguModal" tabindex="-1" aria-labelledby="cguModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-lg modal-dialog-scrollable">
+				<div class="modal-content" style="max-height: 90vh;">
+					<div class="modal-header">
+						<h2 class="modal-title h5" id="cguModalLabel">Conditions Générales d'Utilisation</h2>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+					</div>
+					<div class="modal-body">
+						{% include "public/legals/_cgu.html.twig" %}
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-bs-dismiss="modal">J'ai compris</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	{% endblock %}
