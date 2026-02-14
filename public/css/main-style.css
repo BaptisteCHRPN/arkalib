@@ -1,5 +1,5 @@
 /* =============================================
-   1. VARIABLES PERSONNALISÉES (CSS custom props)
+   VARIABLES PERSONNALISÉES (CSS custom props)
    ============================================= */
 
 :root {
@@ -16,7 +16,7 @@
 
 
 /* =============================================
-   2. BASE & RESET
+   BASE & RESET
    ============================================= */
 
 body {
@@ -29,7 +29,7 @@ body.loading * {
 
 
 /* =============================================
-   3. UTILITAIRES
+   UTILITAIRES
    ============================================= */
 
 .pt-80  { padding-top: 80px; }
@@ -41,7 +41,7 @@ body.loading * {
 
 
 /* =============================================
-   4. TYPOGRAPHIE
+   TYPOGRAPHIE
    ============================================= */
 
 .hello-title,
@@ -64,7 +64,7 @@ body.loading * {
 
 
 /* =============================================
-   5. SURCHARGES BOOTSTRAP – Boutons
+   SURCHARGES BOOTSTRAP – Boutons
    ============================================= */
 
 .btn-primary {
@@ -101,7 +101,7 @@ body.loading * {
 }
 
 /* =============================================
-   6. SURCHARGES BOOTSTRAP – Formulaires
+   SURCHARGES BOOTSTRAP – Formulaires
    ============================================= */
 
 .form-control::placeholder {
@@ -111,7 +111,7 @@ body.loading * {
 
 
 /* =============================================
-   7. SURCHARGES BOOTSTRAP – Couleurs de fond
+   SURCHARGES BOOTSTRAP – Couleurs de fond
    ============================================= */
 
 .bg-secondary {
@@ -120,7 +120,7 @@ body.loading * {
 
 
 /* =============================================
-   8. NAVIGATION PRINCIPALE (top navbar)
+   NAVIGATION PRINCIPALE (top navbar)
    ============================================= */
 
 .navbar .navbar-brand,
@@ -147,7 +147,20 @@ body.loading * {
 
 
 /* =============================================
-   9. HEADER FIXE (dashboard)
+   BREADCRUMP
+   ============================================= */
+.breadcrumb a {
+    color: var(--ark-primary) !important;
+    text-decoration: none;
+}
+.breadcrumb a:hover,
+.breadcrumb a:focus-visible {
+    color: var(--ark-primary-hover) !important;
+    text-decoration: underline;
+}
+
+/* =============================================
+   HEADER FIXE (dashboard)
    ============================================= */
 
 .header-nav {
@@ -198,7 +211,7 @@ body.loading * {
 
 
 /* =============================================
-   10. SIDEBAR
+   SIDEBAR
    ============================================= */
 
 .offcanvas,
@@ -217,7 +230,7 @@ body.loading * {
 
 
 /* =============================================
-   11. CONTENU PRINCIPAL (dashboard)
+   CONTENU PRINCIPAL (dashboard)
    ============================================= */
 
 .main-content {
@@ -230,7 +243,7 @@ body.loading * {
 
 
 /* =============================================
-   12. SURCHARGES BOOTSTRAP – Dropdowns
+   SURCHARGES BOOTSTRAP – Dropdowns
    ============================================= */
 
 .dropdown-menu {
@@ -240,7 +253,7 @@ body.loading * {
 
 
 /* =============================================
-   13. PAGE D'ACCUEIL – Hero
+   PAGE D'ACCUEIL – Hero
    ============================================= */
 
 .hero-budget {
@@ -267,7 +280,7 @@ body.loading * {
 
 
 /* =============================================
-   14. PAGE D'ACCUEIL – Cards (valeurs)
+   PAGE D'ACCUEIL – Cards (valeurs)
    ============================================= */
 
 .ark-card {
@@ -282,7 +295,7 @@ body.loading * {
 
 
 /* =============================================
-   15. PAGE D'ACCUEIL – Footer
+   PAGE D'ACCUEIL – Footer
    ============================================= */
 
 .home_footer a,
@@ -292,7 +305,7 @@ body.loading * {
 
 
 /* =============================================
-   16. PAGE LOGIN
+   PAGE LOGIN
    ============================================= */
 
 .login-container {
@@ -332,7 +345,7 @@ body.loading * {
 
 
 /* =============================================
-   17. COMPOSANT – Profil arrondi
+   COMPOSANT – Profil arrondi
    ============================================= */
 
 .profile-rounded {
@@ -357,7 +370,7 @@ body.loading * {
 
 
 /* =============================================
-   18. VUE MOBILE – Budget
+   VUE MOBILE – Budget
    ============================================= */
 
 .mobile-list {
@@ -409,7 +422,7 @@ body.loading * {
 
 
 /* =============================================
-   19. ACCESSIBILITÉ
+   ACCESSIBILITÉ
    ============================================= */
 
 /* Skip link (lien d'évitement) */
@@ -453,7 +466,7 @@ body.loading * {
 
 
 /* =============================================
-   20. RESPONSIVE – Desktop (≥ 992px)
+   RESPONSIVE – Desktop (≥ 992px)
    ============================================= */
 
 @media (min-width: 992px) {
@@ -502,7 +515,7 @@ body.loading * {
 
 
 /* =============================================
-   21. RESPONSIVE – Tablette & mobile (< 992px)
+   RESPONSIVE – Tablette & mobile (< 992px)
    ============================================= */
 
 @media (max-width: 991.98px) {
@@ -519,7 +532,7 @@ body.loading * {
 
 
 /* =============================================
-   22. RESPONSIVE – Mobile uniquement (< 768px)
+   RESPONSIVE – Mobile uniquement (< 768px)
    ============================================= */
 
 @media (max-width: 767.98px) {
