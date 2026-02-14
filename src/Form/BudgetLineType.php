@@ -5,10 +5,9 @@ namespace App\Form;
 use App\Entity\Budget;
 use App\Entity\BudgetLine;
 use App\Entity\Category;
-use App\Entity\Transaction;
+use Assert\File;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
@@ -16,6 +15,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class BudgetLineType extends AbstractType
 {
@@ -95,6 +95,15 @@ class BudgetLineType extends AbstractType
                 'label' => 'Ajouter une pièce-jointe',
                 'required' => false,
                 'mapped' => false,
+                'constraints' => [
+                    new Assert\File([
+                        'mimeTypes' => ['application/pdf', 'image/jpeg', 'image/png'],
+                        'mimeTypesMessage' => 'Format non autorisé.',
+                    ])
+                ],
+                'attr' => [
+                    'accept' => '.pdf, .jpg, .png',
+                ]
             ])
         ;
     }

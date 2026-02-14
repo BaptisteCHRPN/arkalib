@@ -24,7 +24,8 @@ final class MemberBudgetLineController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
-        Organization $organization
+        Organization $organization,
+        BudgetLine $budgetLine,
     ): Response
     {
         // Fetch current budget et check organization's owner
@@ -52,6 +53,11 @@ final class MemberBudgetLineController extends AbstractController
             if($attachment) {
                 $nameFile = $budgetLineName . '-' . date('YmdHis') . '.' . $attachment->getClientOriginalExtension();
                 $attachment->move($this->getParameter('budget_file'), $nameFile);
+
+                if($budgetLine->getAttachment()) {
+                    unlink($this->getParameter('budget_file') .  '/' . $budgetLine->getAttachment());
+                }
+                
                 $budgetLine->setAttachment($nameFile);
             }
 
@@ -109,6 +115,11 @@ final class MemberBudgetLineController extends AbstractController
             if($attachment) {
                 $nameFile = $budgetLineName . '-' . date('YmdHis') . '.' . $attachment->getClientOriginalExtension();
                 $attachment->move($this->getParameter('budget_file'), $nameFile);
+
+                if($budgetLine->getAttachment()) {
+                    unlink($this->getParameter('budget_file') .  '/' . $budgetLine->getAttachment());
+                }
+                
                 $budgetLine->setAttachment($nameFile);
             }
             
