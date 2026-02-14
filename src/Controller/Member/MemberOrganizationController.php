@@ -89,24 +89,25 @@ final class MemberOrganizationController extends AbstractController
         ]);
     }
 
-    #[Route('/{organizationSlug}/settings', name: 'app_member_organization_show', methods: ['GET'])]
-    public function show(
-        #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
-        Organization $organization
-        ): Response
-    {
+    // #[Route('/{organizationSlug}/settings', name: 'app_member_organization_show', methods: ['GET'])]
+    // public function show(
+    //     #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
+    //     Organization $organization
+    //     ): Response
+    // {
         
-        if(!$organization->getUsers()->contains($this->getUser())) {
-            throw $this->createAccessDeniedException();
-        }
+    //     if(!$organization->getUsers()->contains($this->getUser())) {
+    //         throw $this->createAccessDeniedException();
+    //     }
 
-        return $this->render('member/organization/show.html.twig', [
-            'organization' => $organization,
-        ]);
-    }
+    //     return $this->render('member/organization/show.html.twig', [
+    //         'organization' => $organization,
+    //     ]);
+    // }
 
-    #[Route('/{id}/edit', name: 'app_member_organization_edit', methods: ['GET', 'POST'])]
+    #[Route('/{organizationSlug}/edit', name: 'app_member_organization_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request,
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
         Organization $organization,
         EntityManagerInterface $entityManager,
         Security $security,
