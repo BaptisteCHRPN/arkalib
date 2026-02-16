@@ -10,6 +10,8 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 class UserType extends AbstractType
 {
@@ -17,19 +19,31 @@ class UserType extends AbstractType
     {
         $builder
             ->add('email', EmailType::class, [
-                'label' => 'Adresse e-mail'
+                'label' => 'Adresse e-mail <span class="text-danger">*</span>',
+                'label_html' => true,
             ])
             // ->add('password')
             ->add('firstname', null, [
-                'label' => 'Prénom'
+                'label' => 'Prénom<span class="text-danger">*</span>',
+                'label_html' => true,
             ])
             ->add('lastname', null, [
-                'label' => 'Nom'
+                'label' => 'Nom<span class="text-danger">*</span>',
+                'label_html' => true,
             ])
             ->add('picture', FileType::class, [
                 'label' => 'Avatar',
                 'required' => false,
-                'mapped' => false
+                'mapped' => false,
+                'constraints' => [
+                    new Assert\File([
+                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/avif'],
+                        'mimeTypesMessage' => 'Format non autorisé.',
+                    ])
+                ],
+                'attr' => [
+                    'accept' => '.jpg, .png, .avif',
+                ]
             ])
         ;
     }

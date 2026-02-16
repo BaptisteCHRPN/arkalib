@@ -25,7 +25,7 @@ final class MemberBudgetLineController extends AbstractController
         EntityManagerInterface $entityManager,
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
         Organization $organization,
-        BudgetLine $budgetLine,
+        // BudgetLine $budgetLine,
     ): Response
     {
         // Fetch current budget et check organization's owner
