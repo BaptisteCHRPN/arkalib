@@ -25,7 +25,8 @@ class BudgetLineType extends AbstractType
         
         $builder
             ->add('name', TextType::class, [
-                'label' => 'Nom de la ligne',
+                'label' => 'Nom de la ligne<span class="text-danger">*</span>',
+                'label_html' => true,
                 'attr' => [
                     'placeholder' => 'Ex: Loyer, subventions...',
                     'class' => 'form-control'
