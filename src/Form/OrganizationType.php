@@ -9,6 +9,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class OrganizationType extends AbstractType
 {
@@ -34,6 +35,15 @@ class OrganizationType extends AbstractType
                 'label' => 'Logo de l\'organisation',
                 'required' => false,
                 'mapped' => false,
+                'constraints' => [
+                    new Assert\File([
+                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/avif'],
+                        'mimeTypesMessage' => 'Format non autorisé.',
+                    ])
+                ],
+                'attr' => [
+                    'accept' => '.jpg, .png, .avif',
+                ]
             ])
         ;
     }
