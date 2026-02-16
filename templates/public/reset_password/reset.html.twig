@@ -3,10 +3,37 @@
 {% block title %}Mot de passe oublié{% endblock %}
 
 {% block body %}
-    <h1>Réinitialisez votre mot de passe</h1>
+    <div class="login-container">
+        <div class="login-card">
+            <h1 class="login-title">Nouveau mot de passe</h1>
 
-    {{ form_start(resetForm) }}
-        {{ form_row(resetForm.plainPassword) }}
-        <button class="btn btn-primary">Confirmer</button>
-    {{ form_end(resetForm) }}
+            {{ form_start(resetForm) }}
+
+                <div class="mb-3">
+                    {{ form_label(resetForm.plainPassword.first, 'Nouveau mot de passe', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(resetForm.plainPassword.first, {
+                        'attr': {
+                            'class': 'form-control login-input',
+                            'placeholder': 'Nouveau mot de passe'
+                        }
+                    }) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(resetForm.plainPassword.second, 'Confirmer le mot de passe', {'label_attr': {'class': 'form-label fw-semibold'}}) }}
+                    {{ form_widget(resetForm.plainPassword.second, {
+                        'attr': {
+                            'class': 'form-control login-input',
+                            'placeholder': 'Confirmer le mot de passe'
+                        }
+                    }) }}
+                </div>
+
+                {{ form_errors(resetForm.plainPassword) }}
+
+                <button type="submit" class="w-100 btn btn-primary login-button">Confirmer</button>
+
+            {{ form_end(resetForm) }}
+        </div>
+    </div>
 {% endblock %}
