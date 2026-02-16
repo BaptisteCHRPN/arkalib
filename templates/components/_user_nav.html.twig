@@ -47,7 +47,7 @@
             {% if app.user.picture %}
             <img src="{{ path('user_avatar_upload', {nameFile: app.user.picture}) }}" alt="">
             {% else %}
-            {{ app.user.firstname|first }}{{ app.user.lastname|first }} 
+            {{ app.user.firstname|first|capitalize }}{{ app.user.lastname|first|capitalize }} 
             {% endif %}
         </a>
         <ul class="dropdown-menu dropdown-menu-end text-small shadow">
