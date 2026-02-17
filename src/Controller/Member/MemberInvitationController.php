@@ -107,4 +107,23 @@ final class MemberInvitationController extends AbstractController
         $this->addFlash('info', 'Créez votre compte pour rejoindre l\'organisation.');
         return $this->redirectToRoute('app_register');
     }
+
+    #[IsGranted('ROLE_USER')]
+    #[Route('/{organizationSlug}/invitations', name: 'app_invitation_list')]
+    public function list(
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
+        Organization $organization,
+    ): Response {
+        $user = $this->getUser();
+        if (!$organization->getUsers()->contains($user)) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $invitations = $organization->getInvitations();
+
+        return $this->render('member/invitation/list.html.twig', [
+            'organization' => $organization,
+            'invitations' => $invitations,
+        ]);
+    }
 }
