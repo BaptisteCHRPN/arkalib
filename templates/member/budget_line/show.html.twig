@@ -1,46 +1,138 @@
 {% extends 'user_base.html.twig' %}
 
-{% block title %}BudgetLine{% endblock %}
+{% block title %}
+	{{ budget_line.name }}
+{% endblock %}
 
 {% block body %}
-    <h1>BudgetLine</h1>
+	<div
+		class="container-fluid px-4 py-4">
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ budget_line.id }}</td>
-            </tr>
-            <tr>
-                <th>Name</th>
-                <td>{{ budget_line.name }}</td>
-            </tr>
-            <tr>
-                <th>Is_expense</th>
-                <td>{{ budget_line.isExpense ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>Descrption</th>
-                <td>{{ budget_line.descrption }}</td>
-            </tr>
-            <tr>
-                <th>Amount</th>
-                <td>{{ budget_line.amount }}</td>
-            </tr>
-            <tr>
-                <th>Created_at</th>
-                <td>{{ budget_line.createdAt ? budget_line.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Is_active</th>
-                <td>{{ budget_line.isActive ? 'Yes' : 'No' }}</td>
-            </tr>
-        </tbody>
-    </table>
+		{# Breadcrumb #}
+		<nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_dashboard') }}">Tableau de bord</a>
+				</li>
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}">
+						{{ organization.name|title }}
+					</a>
+				</li>
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">
+						{{ budget.name|title }}
+					</a>
+				</li>
+				<li class="breadcrumb-item active text-secondary" aria-current="page">
+					{{ budget_line.name }}
+				</li>
+			</ol>
+		</nav>
 
-    <a href="{{ path('app_admin_budget_line_index') }}">back to list</a>
+		{# Header #}
+		<div class="row mb-4">
+			<div class="col-12">
+				<h1 class="dashboard-title">{{ budget_line.name }}</h1>
+			</div>
+		</div>
 
-    <a href="{{ path('app_admin_budget_line_edit', {'id': budget_line.id}) }}">edit</a>
+		<div class="row justify-content-center">
+			<div class="col-12 col-lg-10 col-xl-8">
+				<div class="card shadow-sm border-0">
+					<div class="card-body p-4">
+						<table class="table table-borderless mb-0">
+							<tbody>
+								<tr>
+									<th class="text-muted w-25">Nom</th>
+									<td>{{ budget_line.name }}</td>
+								</tr>
+								<tr>
+									<th class="text-muted">Type</th>
+									<td>
+										{% if budget_line.isExpense %}
+											<span class="badge bg-danger bg-opacity-25 text-danger">Dépense</span>
+										{% else %}
+											<span class="badge bg-success bg-opacity-25 text-success">Recette</span>
+										{% endif %}
+									</td>
+								</tr>
+								<tr>
+									<th class="text-muted">Description</th>
+									<td>
+										{% if budget_line.descrption %}
+											{{ budget_line.descrption }}
+										{% else %}
+											<span class="text-secondary fst-italic small">Aucune description</span>
+										{% endif %}
+									</td>
+								</tr>
+								<tr>
+									<th class="text-muted">Pièce-jointe</th>
+									<td>
+										{% if budget_line.attachment %}
+											{% set extension = budget_line.attachment|split('.')|last|lower %}
 
-    {{ include('admin_budget_line/_delete_form.html.twig') }}
+											{% if extension == 'pdf' %}
+												<div class="border rounded" style="height: 500px;">
+													<iframe src="{{ path('budget_file_upload', {nameFile: budget_line.attachment}) }}" width="100%" height="100%" style="border: none;"></iframe>
+												</div>
+												<a href="{{ path('budget_file_upload', {nameFile: budget_line.attachment}) }}" target="_blank" class="btn btn-sm btn-outline-secondary mt-2">
+													{{ ux_icon('mdi:open-in-new', {'class': 'me-1'}) }}Ouvrir dans un nouvel onglet
+												</a>
+
+											{% elseif extension in ['jpg', 'jpeg', 'png', 'gif', 'webp'] %}
+												<img src="{{ path('budget_file_upload', {nameFile: budget_line.attachment}) }}" alt="Pièce jointe" class="img-fluid rounded" style="max-height: 400px;">
+
+											{% endif %}
+										{% else %}
+											<span class="text-secondary fst-italic small">Aucune pièce-jointe</span>
+										{% endif %}
+									</td>
+								</tr>
+								<tr>
+									<th class="text-muted">Montant</th>
+									<td>
+										<span class="fw-bold {% if budget_line.isExpense %}text-danger{% else %}text-success{% endif %}">
+											{{ budget_line.isExpense ? '-' : '+' }}
+											{{ budget_line.amount|number_format(2, ',', ' ') }}
+											€
+										</span>
+									</td>
+								</tr>
+								<tr>
+									<th class="text-muted">Créé le</th>
+									<td>{{ budget_line.createdAt ? budget_line.createdAt|date('d/m/Y à H:i') : '—' }}</td>
+								</tr>
+								{# comming soon #}
+								{# <tr>
+								                                <th class="text-muted">Statut</th>
+								                                <td>
+								                                    {% if budget_line.isActive %}
+								                                        <span class="badge bg-success bg-opacity-25 text-success">Actif</span>
+								                                    {% else %}
+								                                        <span class="badge bg-secondary bg-opacity-25 text-secondary">Inactif</span>
+								                                    {% endif %}
+								                                </td>
+								                            </tr> #}
+							</tbody>
+						</table>
+					</div>
+
+					<div class="card-footer bg-transparent border-top d-flex justify-content-between align-items-center px-4 py-3">
+						<a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-outline-secondary">
+							{{ ux_icon('mdi:arrow-left', {'class': 'me-1'}) }}Retour
+						</a>
+						<div class="d-flex gap-2">
+							<a href="{{ path('app_member_budget_line_edit', {'id': budget_line.id, 'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary">
+								{{ ux_icon('mdi:pencil', {'class': 'me-1'}) }}Modifier
+							</a>
+							{{ include('member/budget_line/_delete_form.html.twig', {'budgetLine': budget_line}) }}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
 {% endblock %}

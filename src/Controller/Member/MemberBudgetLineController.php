@@ -26,8 +26,7 @@ final class MemberBudgetLineController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
         Organization $organization,
         // BudgetLine $budgetLine,
-    ): Response
-    {
+    ): Response {
         // Fetch current budget et check organization's owner
         $budget = $entityManager->getRepository(Budget::class)->findOneBy([
             'slug' => $budgetSlug,
@@ -50,14 +49,14 @@ final class MemberBudgetLineController extends AbstractController
 
             $attachment = $form->get('attachment')->getData();
             $budgetLineName = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $budgetLine->getName()), '-'));
-            if($attachment) {
+            if ($attachment) {
                 $nameFile = $budgetLineName . '-' . date('YmdHis') . '.' . $attachment->getClientOriginalExtension();
                 $attachment->move($this->getParameter('budget_file'), $nameFile);
 
-                if($budgetLine->getAttachment()) {
+                if ($budgetLine->getAttachment()) {
                     unlink($this->getParameter('budget_file') .  '/' . $budgetLine->getAttachment());
                 }
-                
+
                 $budgetLine->setAttachment($nameFile);
             }
 
@@ -65,12 +64,12 @@ final class MemberBudgetLineController extends AbstractController
 
             $entityManager->flush();
 
-            if($budgetLine->isExpense() === false){
+            if ($budgetLine->isExpense() === false) {
                 $this->addFlash('success', 'La recette à été créée avec succès !');
             } else {
                 $this->addFlash('success', 'La dépense à été créée avec succès !');
             }
-            
+
             return $this->redirectToRoute('app_membre_budget_show', [
                 'organizationSlug' => $organization->getSlug(),
                 'budgetSlug' => $budget->getSlug(),
@@ -85,21 +84,27 @@ final class MemberBudgetLineController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_budget_line_show', methods: ['GET'])]
-    public function show(BudgetLine $budgetLine): Response
-    {
+    #[Route('/{organizationSlug}/{budgetSlug}/{id}', name: 'app_budget_line_show', methods: ['GET'])]
+    public function show(
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
+        Organization $organization,
+        #[MapEntity(mapping: ['budgetSlug' => 'slug'])]
+        Budget $budget,
+        BudgetLine $budgetLine,
+    ): Response {
         return $this->render('member/budget_line/show.html.twig', [
+            'budget' => $budget,
             'budget_line' => $budgetLine,
+            'organization' => $organization,
         ]);
     }
 
     #[Route('/{id}/edit', name: 'app_member_budget_line_edit', methods: ['GET', 'POST'])]
     public function edit(
-        Request $request, 
-        BudgetLine $budgetLine, 
+        Request $request,
+        BudgetLine $budgetLine,
         EntityManagerInterface $entityManager
-        ): Response
-    {
+    ): Response {
         $budget = $budgetLine->getBudget();
         $organization = $budget->getOrganization();
 
@@ -112,19 +117,19 @@ final class MemberBudgetLineController extends AbstractController
 
             $attachment = $form->get('attachment')->getData();
             $budgetLineName = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $budgetLine->getName()), '-'));
-            if($attachment) {
+            if ($attachment) {
                 $nameFile = $budgetLineName . '-' . date('YmdHis') . '.' . $attachment->getClientOriginalExtension();
                 $attachment->move($this->getParameter('budget_file'), $nameFile);
 
-                if($budgetLine->getAttachment()) {
+                if ($budgetLine->getAttachment()) {
                     unlink($this->getParameter('budget_file') .  '/' . $budgetLine->getAttachment());
                 }
-                
+
                 $budgetLine->setAttachment($nameFile);
             }
-            
+
             $entityManager->flush();
-            if($budgetLine->isExpense() === false){
+            if ($budgetLine->isExpense() === false) {
                 $this->addFlash('success', 'La recette à été modifiée avec succès !');
             } else {
                 $this->addFlash('success', 'La dépense à été modifiée avec succès !');
@@ -146,18 +151,17 @@ final class MemberBudgetLineController extends AbstractController
 
     #[Route('/{id}/delete', name: 'app_soft_delete_budget_line', methods: ['POST'])]
     public function softDelete(
-        Request $request, 
-        BudgetLine $budgetLine, 
+        Request $request,
+        BudgetLine $budgetLine,
         EntityManagerInterface $entityManager
-        ) : Response 
-    {
+    ): Response {
         $budget = $budgetLine->getBudget();
         $organization = $budget->getOrganization();
 
         if ($this->isCsrfTokenValid('delete' . $budgetLine->getId(), $request->getPayload()->getString('_token'))) {
             $budgetLine->setIsActive(false);
             $entityManager->flush();
-            if($budgetLine->isExpense() === false){
+            if ($budgetLine->isExpense() === false) {
                 $this->addFlash('success', 'La recette à été suprimée avec succès !');
             } else {
                 $this->addFlash('success', 'La dépense à été suprimée avec succès !');
@@ -169,5 +173,4 @@ final class MemberBudgetLineController extends AbstractController
             'budgetSlug' => $budget->getSlug(),
         ], Response::HTTP_SEE_OTHER);
     }
-
 }
