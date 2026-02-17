@@ -1,0 +1,102 @@
+{% extends 'user_base.html.twig' %}
+
+{% block title %}Invitations - {{ organization.name }}{% endblock %}
+
+{% block body %}
+    {# Breadcrumb #}
+    <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{{ path('app_dashboard') }}">Tableau de bord</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{{ path('app_organization_budgets', { organizationSlug: organization.slug }) }}">{{ organization.name|title }}</a>
+            </li>
+            <li class="breadcrumb-item active text-secondary" aria-current="page">
+                Invitations
+            </li>
+        </ol>
+    </nav>
+
+    {# En-tête #}
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div>
+                    <h1 class="h3 mb-1">Invitations</h1>
+                    <p class="text-secondary mb-0">
+                        <small>
+                            {{ invitations|length }} invitation{{ invitations|length > 1 ? 's' : '' }} envoyée{{ invitations|length > 1 ? 's' : '' }}
+                        </small>
+                    </p>
+                </div>
+                <a class="btn btn-primary btn-sm" href="{{ path('app_invitation_send', { organizationSlug: organization.slug }) }}">
+                    Inviter un membre
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {# Liste des invitations #}
+    <div class="container-fluid px-0">
+        {% if invitations is not empty %}
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th scope="col" class="ps-4">Email</th>
+                                    <th scope="col">Invité par</th>
+                                    <th scope="col" class="text-center">Statut</th>
+                                    <th scope="col">Envoyée le</th>
+                                    <th scope="col">Expire le</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for invitation in invitations %}
+                                    <tr>
+                                        <td class="ps-4">
+                                            <span class="fw-semibold">{{ invitation.email }}</span>
+                                        </td>
+                                        <td>
+                                            {% if invitation.invitedBy.firstname %}
+                                                {{ invitation.invitedBy.firstname }} {{ invitation.invitedBy.lastname ?? '' }}
+                                            {% else %}
+                                                {{ invitation.invitedBy.email }}
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center">
+                                            {% if invitation.status == 'accepted' %}
+                                                <span class="badge rounded-pill bg-success">Acceptée</span>
+                                            {% elseif invitation.expired %}
+                                                <span class="badge rounded-pill bg-secondary">Expirée</span>
+                                            {% else %}
+                                                <span class="badge rounded-pill bg-warning">En attente</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ invitation.createdAt|date('d/m/Y H:i') }}</td>
+                                        <td>{{ invitation.expiresAt|date('d/m/Y H:i') }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="card shadow-sm">
+                <div class="card-body text-center py-5">
+                    <div class="mb-3">
+                        <i class="bi bi-envelope" style="font-size: 3rem; color: #adb5bd;"></i>
+                    </div>
+                    <h5 class="text-secondary mb-3">Aucune invitation envoyée</h5>
+                    <p class="text-secondary mb-4">Invitez des membres à rejoindre {{ organization.name|title }}.</p>
+                    <a class="btn btn-primary" href="{{ path('app_invitation_send', { organizationSlug: organization.slug }) }}">
+                        Inviter un membre
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

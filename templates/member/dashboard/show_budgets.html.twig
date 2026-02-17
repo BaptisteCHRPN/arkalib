@@ -45,17 +45,27 @@
 				</div>
 
 				{# Actions #}
-				<div class="d-flex gap-2">
-					<a href="{{ path('app_member_organization_edit', {'organizationSlug': organization.slug, 'organizationId': organization.id}) }}" class="btn btn-outline-secondary btn-sm">
-						{{ ux_icon('icon-park-solid:setting') }}
-						<span class="ms-1">Paramètres</span>
-					</a>
-					<a class="btn btn-primary btn-sm" href="{{ path('app_member_budget_new', {'organizationId': organization.id}) }}">
-						Nouveau budget
-					</a>
-					<a class="btn btn-primary btn-sm" href="{{ path('app_invitation_send', {'organizationSlug': organization.slug}) }}">
-						Inviter un nouveau membre
-					</a>
+				<div
+					class="d-flex flex-column gap-2">
+					{# Ligne 1 : Paramètres + Nouveau budget #}
+					<div class="d-flex gap-2">
+						<a href="{{ path('app_member_organization_edit', {'organizationSlug': organization.slug, 'organizationId': organization.id}) }}" class="btn btn-outline-secondary btn-sm">
+							{{ ux_icon('icon-park-solid:setting') }}
+							<span class="ms-1">Paramètres</span>
+						</a>
+						<a class="btn btn-primary btn-sm" href="{{ path('app_member_budget_new', {'organizationId': organization.id}) }}">
+							Nouveau budget
+						</a>
+					</div>
+					{# Ligne 2 : Membres & invitations #}
+					<div class="btn-group btn-group-sm">
+						<a class="btn btn-outline-primary" href="{{ path('app_invitation_send', {'organizationSlug': organization.slug}) }}">
+							Inviter un membre
+						</a>
+						<a class="btn btn-outline-primary" href="{{ path('app_invitation_list', {'organizationSlug': organization.slug}) }}">
+							Invitations envoyées
+						</a>
+					</div>
 				</div>
 			</div>
 		</div>
