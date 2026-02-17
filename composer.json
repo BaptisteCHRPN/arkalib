@@ -40,6 +40,7 @@
         "symfony/twig-bundle": "7.4.*",
         "symfony/ux-icons": "^2.31",
         "symfony/ux-live-component": "^2.32",
+        "symfony/ux-toggle-password": "^2.32",
         "symfony/ux-turbo": "^2.32",
         "symfony/validator": "7.4.*",
         "symfony/web-link": "7.4.*",
