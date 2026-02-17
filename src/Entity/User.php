@@ -56,9 +56,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $picture = null;
 
+    /**
+     * @var Collection<int, Invitation>
+     */
+    #[ORM\OneToMany(targetEntity: Invitation::class, mappedBy: 'invited_by')]
+    private Collection $invitations;
+
     public function __construct()
     {
         $this->organizations = new ArrayCollection();
+        $this->invitations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -131,7 +138,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __serialize(): array
     {
         $data = (array) $this;
-        $data["\0".self::class."\0password"] = hash('crc32c', $this->password);
+        $data["\0" . self::class . "\0password"] = hash('crc32c', $this->password);
 
         return $data;
     }
@@ -186,11 +193,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->organizations;
     }
 
+    public function addOrganization(Organization $organization): self
+    {
+        if (!$this->organizations->contains($organization)) {
+            $this->organizations->add($organization);
+            $organization->addUser($this);
+        }
+        return $this;
+    }
+
     public function removeOrganization(Organization $organization): self
-{
-    $this->organizations->removeElement($organization);
-    return $this;
-}
+    {
+        $this->organizations->removeElement($organization);
+        return $this;
+    }
 
     public function getProfilePicture(): ?string
     {
@@ -212,6 +228,36 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPicture(?string $picture): static
     {
         $this->picture = $picture;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Invitation>
+     */
+    public function getInvitations(): Collection
+    {
+        return $this->invitations;
+    }
+
+    public function addInvitation(Invitation $invitation): static
+    {
+        if (!$this->invitations->contains($invitation)) {
+            $this->invitations->add($invitation);
+            $invitation->setInvitedBy($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInvitation(Invitation $invitation): static
+    {
+        if ($this->invitations->removeElement($invitation)) {
+            // set the owning side to null (unless already changed)
+            if ($invitation->getInvitedBy() === $this) {
+                $invitation->setInvitedBy(null);
+            }
+        }
 
         return $this;
     }

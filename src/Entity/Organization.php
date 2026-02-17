@@ -47,12 +47,19 @@ class Organization
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $picture = null;
 
+    /**
+     * @var Collection<int, Invitation>
+     */
+    #[ORM\OneToMany(targetEntity: Invitation::class, mappedBy: 'organisation')]
+    private Collection $invitations;
+
     public function __construct()
     {
         $this->budgets = new ArrayCollection();
         $this->users = new ArrayCollection();
         $this->created_at = new \DateTimeImmutable();
         $this->is_active = true;
+        $this->invitations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -189,6 +196,36 @@ class Organization
     public function setPicture(?string $picture): static
     {
         $this->picture = $picture;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Invitation>
+     */
+    public function getInvitations(): Collection
+    {
+        return $this->invitations;
+    }
+
+    public function addInvitation(Invitation $invitation): static
+    {
+        if (!$this->invitations->contains($invitation)) {
+            $this->invitations->add($invitation);
+            $invitation->setOrganisation($this);
+        }
+
+        return $this;
+    }
+
+    public function removeInvitation(Invitation $invitation): static
+    {
+        if ($this->invitations->removeElement($invitation)) {
+            // set the owning side to null (unless already changed)
+            if ($invitation->getOrganisation() === $this) {
+                $invitation->setOrganisation(null);
+            }
+        }
 
         return $this;
     }

@@ -1,0 +1,19 @@
+<h2>Vous êtes invité(e) !</h2>
+
+<p>
+    <strong>{{ inviterName }}</strong> vous invite à rejoindre
+    l'organisation <strong>« {{ invitation.organisation.name }} »</strong>
+    sur Arkalib.
+</p>
+
+<p>
+    <a href="{{ acceptUrl }}"
+       style="display:inline-block; padding:12px 24px; background:#4F46E5;
+              color:#fff; text-decoration:none; border-radius:6px;">
+        Accepter l'invitation
+    </a>
+</p>
+
+<p style="color:#666; font-size:0.9em;">
+    Ce lien expire le {{ invitation.expiresAt|date('d/m/Y à H:i') }}.
+</p>
