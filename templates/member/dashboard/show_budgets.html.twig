@@ -15,12 +15,12 @@
 		</ol>
 	</nav>
 
-	{# En-tête de l'organisation #}
+	{# header #}
 	<div class="card shadow-sm mb-4">
 		<div class="card-body">
 			<div
 				class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-				{# Info organisation #}
+				{# Organization informations #}
 				<div class="d-flex align-items-center gap-3">
 					<span class="profile-rounded me-3">
 						{% if organization.picture %}
@@ -45,9 +45,7 @@
 				</div>
 
 				{# Actions #}
-				<div
-					class="d-flex flex-column gap-2">
-					{# Ligne 1 : Paramètres + Nouveau budget #}
+				<div class="d-flex flex-column gap-2">
 					<div class="d-flex gap-2">
 						<a href="{{ path('app_member_organization_edit', {'organizationSlug': organization.slug, 'organizationId': organization.id}) }}" class="btn btn-outline-secondary btn-sm">
 							{{ ux_icon('icon-park-solid:setting') }}
@@ -57,7 +55,6 @@
 							Nouveau budget
 						</a>
 					</div>
-					{# Ligne 2 : Membres & invitations #}
 					<div class="btn-group btn-group-sm">
 						<a class="btn btn-outline-primary" href="{{ path('app_invitation_send', {'organizationSlug': organization.slug}) }}">
 							Inviter un membre
@@ -71,7 +68,7 @@
 		</div>
 	</div>
 
-	{# Section des budgets #}
+	{# Budgets section #}
 	<div class="container-fluid px-0">
 		<h2 class="h5 mb-3 text-secondary">Budget{{ budgets|length > 1 ? 's' : '' }}
 			de l'organisation</h2>
@@ -135,5 +132,78 @@
 				</div>
 			</div>
 		{% endif %}
+
 	</div>
+	{# Members section #}
+	<div class="container-fluid px-0 mt-4">
+		<h2 class="h5 mb-3 text-secondary">
+			Membre{{ users|length > 1 ? 's' : '' }}
+			de l'organisation
+		</h2>
+
+		{% if users is not empty %}
+			<div class="card shadow-sm">
+				<div class="card-body p-0">
+					<div class="table-responsive">
+						<table class="table table-hover align-middle mb-0">
+							<thead class="table-light">
+								<tr>
+									<th scope="col" class="ps-4">Membre</th>
+									<th scope="col">Email</th>
+									<th scope="col" class="text-center">Statut</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for user in users %}
+									<tr>
+										<td class="ps-4">
+											<div class="d-flex align-items-center">
+												<span class="d-inline-flex align-items-center justify-content-center rounded-circle me-3 flex-shrink-0" style="width: 36px; height: 36px; font-size: 0.8rem; background: #e9ecef; color: #495057;">
+													{% if user.picture %}
+														<img src="{{ path('user_avatar_upload', {nameFile: user.picture}) }}" alt="" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+													{% else %}
+														{{ user.firstname|first|capitalize }}{{ user.lastname|first|capitalize }}
+													{% endif %}
+												</span>
+												<div>
+													<h6 class="mb-0 fw-semibold">
+														{{ user.firstname }}
+														{{ user.lastname }}
+													</h6>
+												</div>
+											</div>
+										</td>
+										<td>
+											<span class="text-secondary">{{ user.email }}</span>
+										</td>
+										<td class="text-center">
+											{% if user.isVerified %}
+												<span class="badge rounded-pill bg-success">Actif</span>
+											{% else %}
+												<span class="badge rounded-pill bg-warning">En attente</span>
+											{% endif %}
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		{% else %}
+			<div class="card shadow-sm">
+				<div class="card-body text-center py-5">
+					<div class="mb-3">
+						<i class="bi bi-people" style="font-size: 3rem; color: #adb5bd;"></i>
+					</div>
+					<h5 class="text-secondary mb-3">Aucun membre</h5>
+					<p class="text-secondary mb-4">Invitez des collaborateurs à rejoindre cette organisation.</p>
+					<a class="btn btn-primary" href="{{ path('app_invitation_send', {'organizationSlug': organization.slug}) }}">
+						Inviter un membre
+					</a>
+				</div>
+			</div>
+		{% endif %}
+	</div>
+</div>
 {% endblock %}
