@@ -6,32 +6,118 @@
 {# Navbar Sidebar #}
 <nav class="offcanvas offcanvas-start" tabindex="-1" id="sidebarNav" data-bs-backdrop="false">
     <div class="d-flex flex-column flex-shrink-0 p-3 bg-secondary vh-100 sidebar-nav">
-        {# Logo and closure button on the same line #}
-        <div class="sidebar-header-row">
+
+        {# Logo and closure button #}
+        <div class="sidebar-header-row mb-4">
             <a class="navbar-brand fs-2 fw-bold text-white text-decoration-none d-flex align-items-center" href="{{ path('app_home') }}">
                 <img class="img-logo me-2" src="{{ asset('img/logo.svg') }}" alt="Logo d'Arkalib" style="height: 40px;">
                 ARKALIB
             </a>
             <button type="button" class="btn-close btn-close-white" id="navbarClose" aria-label="Close"></button>
         </div>
-        
-        <div class="offcanvas-body p-0">
+
+        {# Navigation principale #}
+        <div class="offcanvas-body p-0 d-flex flex-column">
             <ul class="nav nav-pills flex-column mb-auto">
-                <li class="nav-item">
-                    <a href="{{ path('app_dashboard') }}" class="nav-link text-white" aria-current="page">
+
+                {# Dashboard #}
+                <li class="nav-item mb-1">
+                    <a href="{{ path('app_dashboard') }}" class="nav-link text-white rounded-3 py-2 px-3 {% if app.request.attributes.get('_route') == 'app_dashboard' %}active bg-white bg-opacity-10{% endif %}">
                         {{ ux_icon('streamline:dashboard-circle', {'class': 'text-light stroke-3 me-2'}) }}
                         Tableau de bord
                     </a>
                 </li>
+
+                {# Organisations #}
+                {% if app.user.organizations is not empty %}
+                    <li class="nav-item mt-4 mb-2">
+                        <div class="d-flex align-items-center justify-content-between px-3">
+                            <span class="text-light opacity-50 small text-uppercase fw-semibold" style="letter-spacing: 0.05em;">
+                                Mes organisations
+                            </span>
+                            <a href="{{ path('app_membre_organization_new') }}" class="text-light opacity-50" title="Nouvelle organisation">
+                                {{ ux_icon('ic:round-plus', {'class': 'text-light', 'style': 'width: 18px; height: 18px;'}) }}
+                            </a>
+                        </div>
+                    </li>
+                    {% for organization in app.user.organizations %}
+                        <li class="nav-item mb-1">
+                            <a href="{{ path('app_organization_budgets', { organizationSlug: organization.slug }) }}"
+                               class="nav-link text-white rounded-3 py-2 px-3 d-flex align-items-center
+                                      {% if app.request.attributes.get('organizationSlug') == organization.slug %}active bg-white bg-opacity-10{% endif %}">
+                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle me-2 flex-shrink-0"
+                                      style="width: 30px; height: 30px; font-size: 0.75rem; background: rgba(255,255,255,0.15); color: #fff;">
+                                    {% if organization.picture %}
+                                        <img src="{{ path('organization_logo_upload', {nameFile: organization.picture}) }}" alt="logo"
+                                             style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
+                                    {% else %}
+                                        {{ organization.name|first|capitalize }}
+                                    {% endif %}
+                                </span>
+                                <span class="text-truncate">{{ organization.name|title }}</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                {% else %}
+                    <li class="nav-item mt-4 mb-2">
+                        <div class="px-3">
+                            <span class="text-light opacity-50 small text-uppercase fw-semibold" style="letter-spacing: 0.05em;">
+                                Mes organisations
+                            </span>
+                        </div>
+                    </li>
+                    <li class="nav-item mb-1">
+                        <a href="{{ path('app_membre_organization_new') }}" class="nav-link text-white opacity-75 py-2 px-3 d-flex align-items-center">
+                            {{ ux_icon('ic:round-plus', {'class': 'me-2', 'style': 'width: 18px; height: 18px;'}) }}
+                            <span class="small">Créer une organisation</span>
+                        </a>
+                    </li>
+                {% endif %}
+
+                {# Admin #}
                 {% if is_granted('ROLE_ADMIN') %}
-                <li class="nav-item">
-                    <a href="{{ path('app_back_office') }}" class="nav-link text-danger" aria-current="page">
-                        {{ ux_icon('eos-icons:admin-outlined', {'class': 'text-danger stroke-3 me-2'}) }}
-                        Back Office
-                    </a>
-                </li>
+                    <li class="nav-item mt-4 mb-2">
+                        <div class="px-3">
+                            <span class="text-light opacity-50 small text-uppercase fw-semibold" style="letter-spacing: 0.05em;">
+                                Administration
+                            </span>
+                        </div>
+                    </li>
+                    <li class="nav-item mb-1">
+                        <a href="{{ path('app_back_office') }}" class="nav-link text-danger rounded-3 py-2 px-3">
+                            {{ ux_icon('eos-icons:admin-outlined', {'class': 'text-danger stroke-3 me-2'}) }}
+                            Back Office
+                        </a>
+                    </li>
                 {% endif %}
             </ul>
+
+            {# Footer sidebar #}
+            <div class="border-top border-light border-opacity-25 pt-3 mt-3">
+                <a href="{{ path('app_member_user_edit', {'id': app.user.id}) }}"
+                   class="d-flex align-items-center text-white text-decoration-none rounded-3 p-2"
+                   style="transition: background 0.2s;"
+                   onmouseover="this.style.background='rgba(255,255,255,0.1)'"
+                   onmouseout="this.style.background='transparent'">
+                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
+                          style="width: 36px; height: 36px; font-size: 0.8rem; background: rgba(255,255,255,0.15); color: #fff;">
+                        {% if app.user.picture %}
+                            <img src="{{ path('user_avatar_upload', {nameFile: app.user.picture}) }}" alt=""
+                                 style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                        {% else %}
+                            {{ app.user.firstname|first|capitalize }}{{ app.user.lastname|first|capitalize }}
+                        {% endif %}
+                    </span>
+                    <div class="ms-2 overflow-hidden">
+                        <div class="small fw-semibold text-truncate">
+                            {{ app.user.firstname }} {{ app.user.lastname }}
+                        </div>
+                        <div class="small opacity-50 text-truncate">
+                            {{ app.user.email }}
+                        </div>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
 </nav>
@@ -42,12 +128,12 @@
         Bonjour {{ app.user.firstname }} !
     </h2>
     <div class="dropdown ms-auto me-4">
-        <a href="#" class="profile-rounded text-light d-inline-flex align-items-center justify-content-center text-decoration-none" 
+        <a href="#" class="profile-rounded text-light d-inline-flex align-items-center justify-content-center text-decoration-none"
            data-bs-toggle="dropdown" aria-expanded="false">
             {% if app.user.picture %}
-            <img src="{{ path('user_avatar_upload', {nameFile: app.user.picture}) }}" alt="">
+                <img src="{{ path('user_avatar_upload', {nameFile: app.user.picture}) }}" alt="">
             {% else %}
-            {{ app.user.firstname|first|capitalize }}{{ app.user.lastname|first|capitalize }} 
+                {{ app.user.firstname|first|capitalize }}{{ app.user.lastname|first|capitalize }}
             {% endif %}
         </a>
         <ul class="dropdown-menu dropdown-menu-end text-small shadow">
