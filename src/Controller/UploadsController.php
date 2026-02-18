@@ -42,4 +42,15 @@ final class UploadsController extends AbstractController
         return new BinaryFileResponse($pathFile);
     }
 
+    #[Route('/uploads/transaction_file/{nameFile}', name: 'transaction_file_upload')]
+    public function transactionFile(string $nameFile): Response
+    {
+        $pathFile = $this->getParameter('transaction_file') . '/' . $nameFile;
+
+        if (!file_exists($pathFile)) {
+            throw $this->createNotFoundException('Fichié non trouvé');
+        }
+        return new BinaryFileResponse($pathFile);
+    }
+
 }

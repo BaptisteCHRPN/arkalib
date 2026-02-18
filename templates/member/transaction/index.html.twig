@@ -1,47 +1,140 @@
-{% extends 'base.html.twig' %}
-
-{% block title %}Transaction index{% endblock %}
-
+{% extends 'user_base.html.twig' %}
+{% block title %}Transactions — {{ budget.name }}{% endblock %}
 {% block body %}
-    <h1>Transaction index</h1>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Id</th>
-                <th>Date</th>
-                <th>Amount</th>
-                <th>Payment_method</th>
-                <th>Created_at</th>
-                <th>Comment</th>
-                <th>Is_active</th>
-                <th>Reference</th>
-                <th>actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% for transaction in transactions %}
-            <tr>
-                <td>{{ transaction.id }}</td>
-                <td>{{ transaction.date ? transaction.date|date('Y-m-d') : '' }}</td>
-                <td>{{ transaction.amount }}</td>
-                <td>{{ transaction.paymentMethod }}</td>
-                <td>{{ transaction.createdAt ? transaction.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-                <td>{{ transaction.comment }}</td>
-                <td>{{ transaction.isActive ? 'Yes' : 'No' }}</td>
-                <td>{{ transaction.reference }}</td>
-                <td>
-                    <a href="{{ path('app_transaction_show', {'id': transaction.id}) }}">show</a>
-                    <a href="{{ path('app_transaction_edit', {'id': transaction.id}) }}">edit</a>
-                </td>
-            </tr>
-        {% else %}
-            <tr>
-                <td colspan="9">no records found</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+    {# Breadcrumb #}
+    <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{{ path('app_dashboard') }}">Tableau de bord</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}">{{ organization.name|title }}</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">{{ budget.name|title }}</a>
+            </li>
+            <li class="breadcrumb-item active text-secondary" aria-current="page">Transactions</li>
+        </ol>
+    </nav>
 
-    <a href="{{ path('app_transaction_new') }}">Create new</a>
+    {# Header #}
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div>
+                    <h1 class="h3 mb-1">Transactions — {{ budget.name|title }}</h1>
+                    <p class="text-secondary mb-0">
+                        <small>{{ transactions|length }} transaction{{ transactions|length > 1 ? 's' : '' }}</small>
+                    </p>
+                </div>
+                <div>
+                    <a href="{{ path('app_member_transaction_new', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-primary btn-sm">
+                        {{ ux_icon('mdi:plus', {'class': 'me-1'}) }}
+                        Nouvelle transaction
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Table #}
+    {% if transactions is not empty %}
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col" class="ps-4">Date</th>
+                                <th scope="col">Référence</th>
+                                <th scope="col">Montant</th>
+                                <th scope="col">Ligne budgétaire</th>
+                                <th scope="col">Catégorie</th>
+                                <th scope="col">Moyen de paiement</th>
+                                <th scope="col">Commentaire</th>
+                                <th scope="col" class="text-center">Active</th>
+                                <th scope="col" class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for transaction in transactions %}
+                                <tr>
+                                    <td class="ps-4 fw-semibold">
+                                        {{ transaction.date ? transaction.date|date('d/m/Y') : '—' }}
+                                    </td>
+                                    <td>
+                                        <span>{{ transaction.reference ?? '—' }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-semibold">{{ transaction.amount|number_format(2, ',', ' ') }} €</span>
+                                    </td>
+                                    <td>
+                                        {% if transaction.budgetLine is not empty %}
+                                            {% for line in transaction.budgetLine %}
+                                                <span class="badge bg-light text-dark border">{{ line.name }}</span>
+                                            {% endfor %}
+                                        {% else %}
+                                            <span class="text-secondary">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if transaction.budgetLine is not empty %}
+                                            {% for line in transaction.budgetLine %}
+                                                {% if line.category %}
+                                                    <span class="badge bg-light text-dark border">{{ line.category.name }}</span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            <span class="text-secondary">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><span class="fst-italic">{{ transaction.paymentMethod ?? '—' }}</span></td>
+                                    <td>
+                                        {% if transaction.comment %}
+                                            <span title="{{ transaction.comment }}">
+                                                {{ transaction.comment|length > 30 ? transaction.comment|slice(0, 30) ~ '…' : transaction.comment }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-secondary">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">
+                                        {% if transaction.isActive %}
+                                            <span class="badge rounded-pill bg-success">Oui</span>
+                                        {% else %}
+                                            <span class="badge rounded-pill bg-secondary">Non</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <a href="{{ path('app_member_transaction_show', {'id': transaction.id, 'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-sm btn-outline-secondary">
+                                            Voir
+                                        </a>
+                                        <a href="{{ path('app_member_transaction_edit', {'id': transaction.id, 'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-sm btn-outline-primary">
+                                            Éditer
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="card shadow-sm">
+            <div class="card-body text-center py-5">
+                <div class="mb-3">
+                    <i class="bi bi-inbox" style="font-size: 3rem; color: #adb5bd;"></i>
+                </div>
+                <h5 class="text-secondary mb-3">Aucune transaction trouvée</h5>
+                <p class="text-secondary mb-4">Commencez par créer votre première transaction pour ce budget.</p>
+                <a href="{{ path('app_member_transaction_new', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-primary">
+                    {{ ux_icon('mdi:plus', {'class': 'me-1'}) }}
+                    Nouvelle transaction
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
 {% endblock %}

@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+{% extends 'user_base.html.twig' %}
 
 {% block title %}Transaction{% endblock %}
 
@@ -42,9 +42,9 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_transaction_index') }}">back to list</a>
+    <a href="{{ path('app_member_transaction_index', {'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug}) }}">back to list</a>
 
-    <a href="{{ path('app_transaction_edit', {'id': transaction.id}) }}">edit</a>
+    <a href="{{ path('app_member_transaction_edit', {'id': transaction.id, 'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug}) }}">edit</a>
 
-    {{ include('transaction/_delete_form.html.twig') }}
+    {{ include('member/transaction/_delete_form.html.twig') }}
 {% endblock %}
