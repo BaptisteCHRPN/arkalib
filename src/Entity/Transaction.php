@@ -43,6 +43,9 @@ class Transaction
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $reference = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $attachment = null;
+
     public function __construct()
     {
         $this->budget_line = new ArrayCollection();
@@ -159,6 +162,18 @@ class Transaction
     public function setReference(?string $reference): static
     {
         $this->reference = $reference;
+
+        return $this;
+    }
+
+    public function getAttachment(): ?string
+    {
+        return $this->attachment;
+    }
+
+    public function setAttachment(?string $attachment): static
+    {
+        $this->attachment = $attachment;
 
         return $this;
     }
