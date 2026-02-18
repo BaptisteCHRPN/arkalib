@@ -13,4 +13,10 @@ final class HomeController extends AbstractController
     {
         return $this->render('public/home/index.html.twig');
     }
+
+    #[Route('/a-porpos', name: 'app_about')]
+    public function about(): Response
+    {
+        return $this->render('public/about.html.twig');
+    }
 }

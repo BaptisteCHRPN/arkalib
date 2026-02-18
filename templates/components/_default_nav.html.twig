@@ -24,7 +24,7 @@
           <a class="nav-link fs-5 ps-3 pe-3" href="{{ path('app_contact') }}" {% if app.request.attributes.get('_route') == 'app_contact' %}aria-current="page"{% endif %}>Contact</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link me-4 fs-5" href="#" {% if app.request.attributes.get('_route') == 'app_about' %}aria-current="page"{% endif %}>À propos</a>
+          <a class="nav-link me-4 fs-5" href="{{ path('app_about') }}" {% if app.request.attributes.get('_route') == 'app_about' %}aria-current="page"{% endif %}>À propos</a>
         </li>
         {% if app.user %}
           <li class="nav-item me-3">

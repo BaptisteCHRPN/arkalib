@@ -77,6 +77,12 @@
 			</a>
 		</div>
 		<div class="mt-2">
+			<a href="{{ path('app_member_transaction_index', { 'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug }) }}" class="btn btn-outline-primary">
+					{{ ux_icon('hugeicons:transaction', {'class': 'me-2'}) }}
+					Voir les transactions
+				</a>
+		</div>
+		<div class="mt-2">
 			<a href="{{ path('app_membre_actuel_budget_show', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary w-100">{{ ux_icon('tabler:arrows-diff', {'class': 'me-2'}) }}Prévu vs Réel</a>
 		</div>
 	</div>
