@@ -10,6 +10,7 @@ parameters:
     organization_logo: '%kernel.project_dir%/uploads/organization_logo'
     user_avatar: '%kernel.project_dir%/uploads/avatars'
     budget_file: '%kernel.project_dir%/uploads/budget_line_attachments'
+    transaction_file: '%kernel.project_dir%/uploads/transaction_attachments'
 services:
     # default configuration for services in *this* file
     _defaults:
