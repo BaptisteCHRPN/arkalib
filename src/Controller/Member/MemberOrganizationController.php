@@ -5,15 +5,16 @@ namespace App\Controller\Member;
 use App\Entity\Budget;
 use App\Entity\Organization;
 use App\Form\OrganizationType;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\OrganizationRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 // This controller is  accessible by connected users
 final class MemberOrganizationController extends AbstractController
@@ -29,7 +30,7 @@ final class MemberOrganizationController extends AbstractController
     //         'organizations' => $organizations,
     //     ]);
     // }
-
+    #[IsGranted('ROLE_USER')]
     #[Route('/organisation/new', name: 'app_membre_organization_new', methods: ['GET', 'POST'])]
     public function new(Request $request, EntityManagerInterface $entityManager, Security $security, SluggerInterface $slugger): Response
     {
@@ -71,6 +72,7 @@ final class MemberOrganizationController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/{organizationSlug}/budgets', name: 'app_organization_budgets')]
     public function showBudgets(
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
@@ -107,6 +109,7 @@ final class MemberOrganizationController extends AbstractController
     //     ]);
     // }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/{organizationSlug}/edit', name: 'app_member_organization_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request,
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
@@ -154,6 +157,7 @@ final class MemberOrganizationController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/organization/{id}', name: 'app_member_organization_delete', methods: ['POST'])]
     public function delete(Request $request, Organization $organization, EntityManagerInterface $entityManager): Response
     {
