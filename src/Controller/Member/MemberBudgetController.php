@@ -4,21 +4,22 @@ namespace App\Controller\Member;
 
 use App\Entity\Budget;
 use App\Entity\BudgetLine;
-use App\Form\BudgetType;
 use App\Entity\Organization;
-use App\Repository\BudgetRepository;
+use App\Form\BudgetType;
 use App\Repository\BudgetLineRepository;
+use App\Repository\BudgetRepository;
 use App\Service\BudgetCalculatorService;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 final class MemberBudgetController extends AbstractController
-{
+{   #[IsGranted('ROLE_USER')]
     #[Route('/budget/new/{organizationId}', name: 'app_member_budget_new', methods: ['GET', 'POST'])]
     public function new(int $organizationId, Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
@@ -60,6 +61,7 @@ final class MemberBudgetController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/budget/{organizationSlug}/{budgetSlug}', name: 'app_membre_budget_show', methods: ['GET'])]
     public function show(
         BudgetCalculatorService $budgetCalculatorService,
@@ -117,6 +119,7 @@ final class MemberBudgetController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/budget-realise/{organizationSlug}/{budgetSlug}', name: 'app_membre_actuel_budget_show', methods: ['GET'])]
     public function showActuelBudget(
         BudgetLineRepository $budgetLineRepository,

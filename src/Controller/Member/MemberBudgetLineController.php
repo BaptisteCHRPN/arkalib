@@ -6,15 +6,17 @@ use App\Entity\Budget;
 use App\Entity\BudgetLine;
 use App\Entity\Organization;
 use App\Form\BudgetLineType;
-use App\Service\BudgetCalculatorServie;
 use App\Repository\BudgetLineRepository;
+use App\Service\BudgetCalculatorServie;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_USER')]
 #[Route('/member/budgetline')]
 final class MemberBudgetLineController extends AbstractController
 {
