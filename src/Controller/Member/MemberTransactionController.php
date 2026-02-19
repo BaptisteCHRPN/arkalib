@@ -4,19 +4,21 @@ namespace App\Controller\Member;
 
 use App\Entity\Budget;
 use App\Entity\BudgetLine;
-use App\Entity\Transaction;
 use App\Entity\Organization;
+use App\Entity\Transaction;
 use App\Form\TransactionType;
-use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\TransactionRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Bridge\Doctrine\Attribute\MapEntity;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 final class MemberTransactionController extends AbstractController
 {
+    #[IsGranted('ROLE_USER')]
     #[Route('/budget/{organizationSlug}/{budgetSlug}/transaction', name: 'app_member_transaction_index', methods: ['GET'])]
     public function index(
         TransactionRepository $transactionRepository,
@@ -30,6 +32,7 @@ final class MemberTransactionController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/budget/{organizationSlug}/{budgetSlug}/transaction/new', name: 'app_member_transaction_new', methods: ['GET', 'POST'])]
     public function new(
         Request $request,
@@ -75,6 +78,7 @@ final class MemberTransactionController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/budget/{organizationSlug}/{budgetSlug}/transaction/{id}', name: 'app_member_transaction_show', methods: ['GET'])]
     public function show(
         Transaction $transaction,
@@ -88,6 +92,7 @@ final class MemberTransactionController extends AbstractController
         ]);
     }
 
+#[IsGranted('ROLE_USER')]
     #[Route('/budget/{organizationSlug}/{budgetSlug}/transaction/{id}/edit', name: 'app_member_transaction_edit', methods: ['GET', 'POST'])]
     public function edit(
         Request $request,
@@ -132,6 +137,7 @@ final class MemberTransactionController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_USER')]
     #[Route('/budget/{organizationSlug}/{budgetSlug}/transaction/{id}', name: 'app_member_transaction_delete', methods: ['POST'])]
     public function delete(
         Request $request,
