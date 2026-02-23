@@ -17,14 +17,14 @@ class OrganizationType extends AbstractType
     {
         $builder
             ->add('name', null, [
-                'label' => 'Nom de l\'oraginsation'
+                'label' => 'Nom de l\'organisation'
             ])
             // ->add('created_at', null, [
             //     'widget' => 'single_text',
             // ])
             // ->add('is_active')
             ->add('description', null, [
-                'label' => 'Présentatiopn rapide'
+                'label' => 'Présentation rapide'
             ])
             // ->add('users', EntityType::class, [
             //     'class' => User::class,

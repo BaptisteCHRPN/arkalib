@@ -20,7 +20,7 @@ class CategoryType extends AbstractType
             ->add('name', TextType::class, [
                 'label' => 'Nom de la catégorie',
                 'attr' => [
-                    'placeholder' => 'Ex: Salaire, Loyer, Alimentation...',
+                    'placeholder' => 'Ex: Salaire, Loyer, Cotisations...',
                     'class' => 'form-control'
                 ],
                 'required' => true
