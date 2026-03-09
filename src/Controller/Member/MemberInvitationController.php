@@ -54,6 +54,8 @@ final class MemberInvitationController extends AbstractController
             'organization' => $organization,
         ]);
     }
+
+    #[IsGranted('ROLE_USER')]
     #[Route('/invitation/{token}', name: 'app_invitation_accept')]
     public function accept(
         string $token,
