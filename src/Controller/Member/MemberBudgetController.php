@@ -21,7 +21,12 @@ use Symfony\Component\String\Slugger\SluggerInterface;
 final class MemberBudgetController extends AbstractController
 {   #[IsGranted('ROLE_USER')]
     #[Route('/budget/new/{organizationId}', name: 'app_member_budget_new', methods: ['GET', 'POST'])]
-    public function new(int $organizationId, Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    public function new(
+        int $organizationId, 
+        Request $request, 
+        EntityManagerInterface $entityManager, 
+        SluggerInterface $slugger
+    ): Response
     {
         $organization = $entityManager->getRepository(Organization::class)->find($organizationId);
 
@@ -90,7 +95,7 @@ final class MemberBudgetController extends AbstractController
             fn($line) => !$line->isExpense() && $line->isActive()
         );
 
-        // Calcul toal budget lines active
+        // Calcul total budget lines active
         $sumExpenses = $budgetCalculatorService->sumTotalExpenses($budget);
         $sumIncomes = $budgetCalculatorService->sumTotalIncomes($budget);
         $balanceBudget = $budgetCalculatorService->balanceBudget($budget);

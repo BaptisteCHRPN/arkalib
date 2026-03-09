@@ -5,7 +5,8 @@ namespace App\Service;
 use App\Entity\Budget;
 use App\Repository\BudgetLineRepository;
 
-class BudgetCalculatorService {
+class BudgetCalculatorService
+{
     public function __construct(
         private BudgetLineRepository $budgetLineRepository
     ) {}
@@ -22,12 +23,9 @@ class BudgetCalculatorService {
 
     public function BalanceBudget(Budget $budget): float
     {
-            $incomes = $this->budgetLineRepository->sumIncomesBudget($budget);
-            $expenses =  $this->budgetLineRepository->sumExpensesBudget($budget);
+        $incomes = $this->budgetLineRepository->sumIncomesBudget($budget);
+        $expenses =  $this->budgetLineRepository->sumExpensesBudget($budget);
 
-            return $incomes - $expenses;
+        return $incomes - $expenses;
     }
-
-
-
 }
