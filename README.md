@@ -81,12 +81,12 @@ En développement, il est recommandé d'utiliser **Mailpit** ou **Mailtrap** pou
 
 ---
 
-## 📄 Licence
+## Licence
 
 Ce projet est développé dans le cadre d'un diplôme professionnel de développeur web. Tous droits réservés.
 
 ---
 
-## 👤 Auteur
+## Auteur
 
 **Baptiste CHERPIN** — [cherpinb@gmail.com](mailto:cherpinb@gmail.com)
