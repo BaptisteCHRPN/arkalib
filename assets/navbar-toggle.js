@@ -40,19 +40,19 @@ document.addEventListener('turbo:load', function() {
         }
         
         // RÉACTIVER LES TRANSITIONS APRÈS UN COURT DÉLAI
-        setTimeout(() => {
-            sidebar.style.transition = '';
-            body.style.transition = '';
-        }, 50);
+    //     setTimeout(() => {
+    //         sidebar.style.transition = '';
+    //         body.style.transition = '';
+    //     }, 50);
     }
 
     // ⭐ APPELER L'INITIALISATION (ne pas commenter !)
     initNavbarState();
     
     // Retirer la classe loading après l'initialisation
-    setTimeout(() => {
-        document.body.classList.remove('loading');
-    }, 100);
+    // setTimeout(() => {
+    //     document.body.classList.remove('loading');
+    // }, 100);
 
     // Réinitialiser l'état lors du redimensionnement de la fenêtre
     let resizeTimer;
