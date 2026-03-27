@@ -1,0 +1,6 @@
+<form method="post" action="{{ path('app_member_user_delete_picture', {id: app.user.id}) }}">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete-picture' ~ app.user.id) }}">
+    <button type="submit" class="btn btn-sm btn-outline-danger mt-2">
+        Supprimer la photo
+    </button>
+</form>

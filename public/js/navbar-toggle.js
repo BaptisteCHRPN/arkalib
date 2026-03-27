@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return window.innerWidth < 992;
     }
 
-    // Initialiser l'état au chargement SANS animation
+    // Initialiser l'état au chargement sans animation
     function initNavbarState() {
         // DÉSACTIVER LES TRANSITIONS TEMPORAIREMENT
         sidebar.style.transition = 'none';
@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 50);
     }
 
-    // ⭐ APPELER L'INITIALISATION (ne pas commenter !)
+    // APPELER L'INITIALISATION (ne pas commenter !)
     initNavbarState();
     
     // Retirer la classe loading après l'initialisation
