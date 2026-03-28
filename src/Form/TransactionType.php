@@ -2,8 +2,10 @@
 
 namespace App\Form;
 
+use App\Entity\Budget;
 use App\Entity\BudgetLine;
 use App\Entity\Transaction;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
@@ -15,6 +17,8 @@ class TransactionType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $budget = $options['budget'];
+
         $builder
             ->add('date', null, [
                 'label' => 'Date de la transaction',
@@ -35,6 +39,12 @@ class TransactionType extends AbstractType
                 'label' => 'Recettes ou dépenses correspondantes',
                 'label_html' => true,
                 'class' => BudgetLine::class,
+                'query_builder' => function (EntityRepository $er) use ($budget) {
+                    return $er->createQueryBuilder('bl')
+                        ->where('bl.budget = :budget')
+                        ->setParameter('budget', $budget)
+                        ->orderBy('bl.name', 'ASC');
+                },
                 'choice_label' => function(BudgetLine $budgetLine) {
                     return $budgetLine->getName() . ' - ' . number_format($budgetLine->getAmount(),2 , ',', ' ') . ' €';
                 },
@@ -65,6 +75,8 @@ class TransactionType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Transaction::class,
+            'budget' => null,
         ]);
+        $resolver->setAllowedTypes('budget', ['null', Budget::class]);
     }
 }
