@@ -56,7 +56,6 @@ final class MemberUserController extends AbstractController
     }
 
     #[Route('/{id}/delete-picture', name: 'app_member_user_delete_picture', methods: ['GET'])]
-
     public function deletePicture(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
         if ($user->getPicture()) {
