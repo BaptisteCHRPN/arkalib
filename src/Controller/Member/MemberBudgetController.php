@@ -8,6 +8,7 @@ use App\Entity\Organization;
 use App\Form\BudgetType;
 use App\Repository\BudgetLineRepository;
 use App\Repository\BudgetRepository;
+use App\Repository\OrganizationRepository;
 use App\Service\BudgetCalculatorService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -19,15 +20,15 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 final class MemberBudgetController extends AbstractController
-{   #[IsGranted('ROLE_USER')]
+{
+    #[IsGranted('ROLE_USER')]
     #[Route('/budget/new/{organizationId}', name: 'app_member_budget_new', methods: ['GET', 'POST'])]
     public function new(
-        int $organizationId, 
-        Request $request, 
-        EntityManagerInterface $entityManager, 
+        int $organizationId,
+        Request $request,
+        EntityManagerInterface $entityManager,
         SluggerInterface $slugger
-    ): Response
-    {
+    ): Response {
         $organization = $entityManager->getRepository(Organization::class)->find($organizationId);
 
         if (!$organization) {
@@ -195,6 +196,72 @@ final class MemberBudgetController extends AbstractController
             'balance_budget' => $balanceBudget,
             'expensesByCategory' => $expensesByCategory,
             'incomesByCategory' => $incomesByCategory,
+        ]);
+    }
+
+    #[IsGranted('ROLE_USER')]
+    #[Route('/duplication-budget/{organizationSlug}/{budgetSlug}', name: 'app_membre_duplicate_budget', methods: ['GET', 'POST'])]
+    public function duplicateBudget(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        SluggerInterface $slugger,
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
+        string $budgetSlug
+    ): Response {
+        $budget = $entityManager->getRepository(Budget::class)->findOneBy([
+            'slug' => $budgetSlug,
+            'organization' => $organization,
+        ]);
+
+        if (!$budget) {
+            throw $this->createNotFoundException('Le budget demandé n\'existe pas');
+        }
+
+        if (!$organization->getUsers()->contains($this->getUser())) {
+            throw $this->createAccessDeniedException('Vous n\'êtes pas membre de cette organisation');
+        }
+
+        // On pré-remplit le nouveau budget avec les valeurs de l'original
+        $newBudget = new Budget();
+        $newBudget->setName('Copie de ' . $budget->getName());
+        $newBudget->setStartDate($budget->getStartDate());
+        $newBudget->setEndDate($budget->getEndDate());
+        $newBudget->setOrganization($organization);
+        $newBudget->setIsActive(true);
+        $newBudget->setIsClosed(false);
+
+        $form = $this->createForm(BudgetType::class, $newBudget);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $slug = $slugger->slug(sprintf('%s-%s', $newBudget->getName(), $organization->getSlug()))->lower();
+            $newBudget->setSlug($slug);
+
+            foreach ($budget->getBudgetLine() as $line) {
+                $newLine = new BudgetLine();
+                $newLine->setName($line->getName());
+                $newLine->setAmount($line->getAmount());
+                $newLine->setIsExpense($line->isExpense());
+                $newLine->setIsActive($line->isActive());
+                $newLine->setCategory($line->getCategory());
+                $newLine->setBudget($newBudget);
+                $entityManager->persist($newLine);
+            }
+
+            $entityManager->persist($newBudget);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Le budget a été dupliqué avec succès !');
+
+            return $this->redirectToRoute('app_organization_budgets', [
+                'organizationSlug' => $organization->getSlug(),
+            ], Response::HTTP_SEE_OTHER);
+        }
+
+        return $this->render('member/budget/duplicate.html.twig', [
+            'form' => $form,
+            'budget' => $budget,
+            'organization' => $organization,
         ]);
     }
 }

@@ -110,6 +110,9 @@
 											<a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationId': organization.id, 'organizationSlug': organization.slug}) }}" class="btn btn-sm btn-primary px-3">
 												Ouvrir
 											</a>
+											<a href="{{ path('app_membre_duplicate_budget', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-sm btn-outline-secondary px-3">
+        										Dupliquer
+    										</a>
 										</td>
 									</tr>
 								{% endfor %}
