@@ -151,6 +151,25 @@ final class MemberBudgetLineController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/delete-attachment', name: 'app_member_budget_line_delete_attachment', methods: ['GET'])]
+    public function deleteAttachment(
+        Request $request,
+        BudgetLine $budgetLine,
+        EntityManagerInterface $entityManager
+    ): Response {
+        if ($budgetLine->getAttachment()) {
+            $filePath = $this->getParameter('budget_file') . '/' . $budgetLine->getAttachment();
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+            $budgetLine->setAttachment(null);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_member_budget_line_edit', ['id' => $budgetLine->getId()], Response::HTTP_SEE_OTHER);
+    }
+
+
     #[Route('/{id}/delete', name: 'app_soft_delete_budget_line', methods: ['POST'])]
     public function softDelete(
         Request $request,
