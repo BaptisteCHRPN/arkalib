@@ -1,129 +1,541 @@
 {% extends 'user_base.html.twig' %}
 
 {% block title %}
-	{{ organization.name|title }}
-	|
-	{{ budget.name|capitalize }}
+	{{ organization.name|title }} | {{ budget.name|capitalize }} - Prévu vs Réel
 {% endblock %}
 
 {% block body %}
+<div class="budget-view">
 
-<div class="container mt-4">
-    <h2>Budget {{ budget.name }} - Vue prévisionnelle-réelle</h2>
-    <p class="text-muted">Du {{ budget.startDate|date('d/m/Y') }} au {{ budget.endDate|date('d/m/Y') }}</p>
-    
-    <button class="btn btn-primary float-end mb-3">Vue prévisionnelle</button> {# A transformer en lien #}
-    
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Catégorie</th>
-                <th>Prévisionnel</th>
-                <th>Réel</th>
-                <th>Écart</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {# Section RECETTES #}
-            {% set currentParent = null %}
-            {% for income in incomesByCategory %}
-                {# En-tête de catégorie parente #}
-                {% if currentParent != income.parent_name %}
-                    <tr class="table-light">
-                        <td colspan="5" class="fw-bold">
-                            {{ income.parent_name ?? 'Recettes' }}
-                        </td>
-                    </tr>
-                    {% set currentParent = income.parent_name %}
-                {% endif %}
-                
-                {# Calcul de l'écart #}
-                {% set real = income.real_total ?? 0 %}
-                {% set ecart = real - income.total %}
-                
-                {# Ligne de sous-catégorie #}
-                <tr>
-                    <td class="ps-4">{{ income.name }}</td>
-                    <td class="text-success">+ {{ income.total|number_format(2, ',', ' ') }} €</td>
-                    <td class="text-success">+ {{ real|number_format(2, ',', ' ') }} €</td>
-                    <td class="{% if ecart >= 0 %}text-success{% else %}text-danger{% endif %}">
-                        {{ ecart >= 0 ? '+' : '' }} {{ ecart|number_format(2, ',', ' ') }} €
-                    </td>
-                    <td class="text-center">
-                        <button class="btn btn-sm btn-link">↓</button>
-                    </td>
-                </tr>
-            {% endfor %}
-            
-            {# Ligne TOTAL RECETTES #}
-            {% set ecartIncomes = sum_real_incomes - sum_incomes %}
-            <tr class="table-success fw-bold">
-                <td>Recettes</td>
-                <td>+ {{ sum_incomes|number_format(2, ',', ' ') }} €</td>
-                <td>+ {{ sum_real_incomes|number_format(2, ',', ' ') }} €</td>
-                <td class="{% if ecartIncomes >= 0 %}text-success{% else %}text-danger{% endif %}">
-                    {{ ecartIncomes >= 0 ? '+' : '' }} {{ ecartIncomes|number_format(2, ',', ' ') }} €
-                </td>
-                <td></td>
-            </tr>
-            
-            {# Section DÉPENSES #}
-            {% set currentParent = null %}
-            {% for expense in expensesByCategory %}
-                {# En-tête de catégorie parente #}
-                {% if currentParent != expense.parent_name %}
-                    <tr class="table-light">
-                        <td colspan="5" class="fw-bold">
-                            {{ expense.parent_name ?? 'Dépenses' }}
-                        </td>
-                    </tr>
-                    {% set currentParent = expense.parent_name %}
-                {% endif %}
-                
-                {# Calcul de l'écart (pour dépenses, un écart positif = on a dépensé moins que prévu) #}
-                {% set real = expense.real_total ?? 0 %}
-                {% set ecart = expense.total - real %}
-                
-                {# Ligne de sous-catégorie #}
-                <tr>
-                    <td class="ps-4">{{ expense.name }}</td>
-                    <td class="text-danger">- {{ expense.total|number_format(2, ',', ' ') }} €</td>
-                    <td class="text-danger">- {{ real|number_format(2, ',', ' ') }} €</td>
-                    <td class="{% if ecart >= 0 %}text-success{% else %}text-danger{% endif %}">
-                        {{ ecart >= 0 ? '+' : '' }} {{ ecart|number_format(2, ',', ' ') }} €
-                    </td>
-                    <td class="text-center">
-                        <button class="btn btn-sm btn-link">↓</button>
-                    </td>
-                </tr>
-            {% endfor %}
-            
-            {# Ligne TOTAL DÉPENSES #}
-            {% set ecartExpenses = sum_expenses - sum_real_expenses %}
-            <tr class="table-danger fw-bold">
-                <td>Dépenses</td>
-                <td>- {{ sum_expenses|number_format(2, ',', ' ') }} €</td>
-                <td>- {{ sum_real_expenses|number_format(2, ',', ' ') }} €</td>
-                <td class="{% if ecartExpenses >= 0 %}text-success{% else %}text-danger{% endif %}">
-                    {{ ecartExpenses >= 0 ? '+' : '' }} {{ ecartExpenses|number_format(2, ',', ' ') }} €
-                </td>
-                <td></td>
-            </tr>
-            
-            {# Ligne SOLDE FINAL #}
-            {% set ecartBalance = real_balance - balance_budget %}
-            <tr class="table-primary fw-bold">
-                <td>Solde</td>
-                <td>{{ balance_budget|number_format(2, ',', ' ') }} €</td>
-                <td>{{ real_balance|number_format(2, ',', ' ') }} €</td>
-                <td class="{% if ecartBalance >= 0 %}text-success{% else %}text-danger{% endif %}">
-                    {{ ecartBalance >= 0 ? '+' : '' }} {{ ecartBalance|number_format(2, ',', ' ') }} €
-                </td>
-                <td></td>
-            </tr>
-        </tbody>
-    </table>
+	{# Breadcrumb #}
+	<nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_dashboard') }}">Tableau de bord</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_organization_budgets', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">{{ organization.name|title }}</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">{{ budget.name|title }}</a>
+			</li>
+			<li class="breadcrumb-item active" aria-current="page">Prévu vs Réel</li>
+		</ol>
+	</nav>
+
+	{# Header #}
+	<div class="card shadow-sm mb-4">
+		<div class="card-body">
+			<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3">
+				<div>
+					<h1 class="dashboard-title mb-2">
+						{{ ux_icon('tabler:arrows-diff', {'class': 'me-2'}) }}
+						{{ budget.name|title }} — Prévu vs Réel
+					</h1>
+					<p class="text-secondary mb-0">
+						{{ ux_icon('mdi:calendar-range', {'class': 'me-2'}) }}
+						Du {{ budget.startDate|date('d/m/Y') }} au {{ budget.endDate|date('d/m/Y') }}
+					</p>
+				</div>
+				<div class="mt-3 mt-md-0 text-center">
+					{% set ecartBalance = real_balance - balance_budget %}
+					<span class="badge bg-{% if ecartBalance > 0 %}success{% elseif ecartBalance < 0 %}danger{% else %}secondary{% endif %} fs-5 px-3 py-2">
+						{{ ecartBalance >= 0 ? '+' : '' }}{{ ecartBalance|number_format(2, ',', ' ') }} €
+					</span>
+					<div class="text-center text-secondary small mt-1">Écart global</div>
+				</div>
+			</div>
+
+			{# Navigation buttons #}
+			<div class="d-flex flex-wrap gap-2">
+				<a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-outline-primary">
+					{{ ux_icon('mdi:table', {'class': 'me-2'}) }}
+					Vue prévisionnelle
+				</a>
+				<a href="{{ path('app_member_transaction_index', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-outline-primary">
+					{{ ux_icon('hugeicons:transaction', {'class': 'me-2'}) }}
+					Voir les transactions
+				</a>
+			</div>
+		</div>
+	</div>
+
+	{# Summary cards #}
+	<div class="row mb-4">
+		{# Recettes card #}
+		<div class="col-md-4 mb-3">
+			<div class="card border-success h-100">
+				<div class="card-header bg-success bg-opacity-10 border-success border-opacity-25">
+					<h2 class="h6 mb-0 text-success fw-bold">
+						{{ ux_icon('mdi:arrow-up-circle', {'class': 'me-2'}) }}Recettes
+					</h2>
+				</div>
+				<div class="card-body">
+					<div class="d-flex justify-content-between mb-2">
+						<span class="text-secondary small">Prévisionnel</span>
+						<span class="fw-bold text-success">+ {{ sum_incomes|number_format(2, ',', ' ') }} €</span>
+					</div>
+					<div class="d-flex justify-content-between mb-3">
+						<span class="text-secondary small">Réalisé</span>
+						<span class="fw-bold text-success">+ {{ sum_real_incomes|number_format(2, ',', ' ') }} €</span>
+					</div>
+					{% set ecartIncomes = sum_real_incomes - sum_incomes %}
+					<hr class="my-2">
+					<div class="d-flex justify-content-between align-items-center">
+						<span class="small fw-medium">Écart</span>
+						<span class="badge bg-{% if ecartIncomes >= 0 %}success{% else %}danger{% endif %}">
+							{{ ecartIncomes >= 0 ? '+' : '' }}{{ ecartIncomes|number_format(2, ',', ' ') }} €
+						</span>
+					</div>
+					{% if sum_incomes > 0 %}
+						{% set pctIncomes = (sum_real_incomes / sum_incomes * 100)|round %}
+						<div class="mt-2">
+							<div class="d-flex justify-content-between small text-secondary mb-1">
+								<span>Taux de réalisation</span>
+								<span>{{ pctIncomes }} %</span>
+							</div>
+							<div class="progress" style="height: 6px;">
+								<div class="progress-bar bg-{% if pctIncomes >= 100 %}success{% elseif pctIncomes >= 50 %}warning{% else %}secondary{% endif %}"
+									role="progressbar"
+									style="width: {{ min(pctIncomes, 100) }}%"
+									aria-valuenow="{{ pctIncomes }}" aria-valuemin="0" aria-valuemax="100">
+								</div>
+							</div>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+
+		{# Dépenses card #}
+		<div class="col-md-4 mb-3">
+			<div class="card border-danger h-100">
+				<div class="card-header bg-danger bg-opacity-10 border-danger border-opacity-25">
+					<h2 class="h6 mb-0 text-danger fw-bold">
+						{{ ux_icon('mdi:arrow-down-circle', {'class': 'me-2'}) }}Dépenses
+					</h2>
+				</div>
+				<div class="card-body">
+					<div class="d-flex justify-content-between mb-2">
+						<span class="text-secondary small">Prévisionnel</span>
+						<span class="fw-bold text-danger">- {{ sum_expenses|number_format(2, ',', ' ') }} €</span>
+					</div>
+					<div class="d-flex justify-content-between mb-3">
+						<span class="text-secondary small">Réalisé</span>
+						<span class="fw-bold text-danger">- {{ sum_real_expenses|number_format(2, ',', ' ') }} €</span>
+					</div>
+					{% set ecartExpenses = sum_expenses - sum_real_expenses %}
+					<hr class="my-2">
+					<div class="d-flex justify-content-between align-items-center">
+						<span class="small fw-medium">Écart</span>
+						<span class="badge bg-{% if ecartExpenses >= 0 %}success{% else %}danger{% endif %}">
+							{{ ecartExpenses >= 0 ? '+' : '' }}{{ ecartExpenses|number_format(2, ',', ' ') }} €
+						</span>
+					</div>
+					{% if sum_expenses > 0 %}
+						{% set pctExpenses = (sum_real_expenses / sum_expenses * 100)|round %}
+						<div class="mt-2">
+							<div class="d-flex justify-content-between small text-secondary mb-1">
+								<span>Taux de consommation</span>
+								<span>{{ pctExpenses }} %</span>
+							</div>
+							<div class="progress" style="height: 6px;">
+								<div class="progress-bar bg-{% if pctExpenses <= 100 %}success{% elseif pctExpenses <= 110 %}warning{% else %}danger{% endif %}"
+									role="progressbar"
+									style="width: {{ min(pctExpenses, 100) }}%"
+									aria-valuenow="{{ pctExpenses }}" aria-valuemin="0" aria-valuemax="100">
+								</div>
+							</div>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+
+		{# Solde card #}
+		<div class="col-md-4 mb-3">
+			{% set ecartBalance = real_balance - balance_budget %}
+			<div class="card border-{% if ecartBalance > 0 %}success{% elseif ecartBalance < 0 %}danger{% else %}secondary{% endif %} h-100">
+				<div class="card-header bg-{% if ecartBalance > 0 %}success{% elseif ecartBalance < 0 %}danger{% else %}secondary{% endif %} bg-opacity-10 border-opacity-25">
+					<h2 class="h6 mb-0 fw-bold text-{% if ecartBalance > 0 %}success{% elseif ecartBalance < 0 %}danger{% else %}secondary{% endif %}">
+						{{ ux_icon('mdi:piggy-bank', {'class': 'me-2'}) }}Solde
+					</h2>
+				</div>
+				<div class="card-body">
+					<div class="d-flex justify-content-between mb-2">
+						<span class="text-secondary small">Prévisionnel</span>
+						<span class="fw-bold {% if balance_budget > 0 %}text-success{% elseif balance_budget < 0 %}text-danger{% else %}text-secondary{% endif %}">
+							{{ balance_budget >= 0 ? '+' : '' }}{{ balance_budget|number_format(2, ',', ' ') }} €
+						</span>
+					</div>
+					<div class="d-flex justify-content-between mb-3">
+						<span class="text-secondary small">Réalisé</span>
+						<span class="fw-bold {% if real_balance > 0 %}text-success{% elseif real_balance < 0 %}text-danger{% else %}text-secondary{% endif %}">
+							{{ real_balance >= 0 ? '+' : '' }}{{ real_balance|number_format(2, ',', ' ') }} €
+						</span>
+					</div>
+					<hr class="my-2">
+					<div class="d-flex justify-content-between align-items-center">
+						<span class="small fw-medium">Écart</span>
+						<span class="badge bg-{% if ecartBalance >= 0 %}success{% else %}danger{% endif %} fs-6 px-3 py-2">
+							{{ ecartBalance >= 0 ? '+' : '' }}{{ ecartBalance|number_format(2, ',', ' ') }} €
+						</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	{# Section Recettes #}
+	<div class="card shadow-sm mb-4">
+		<div class="card-header bg-success bg-opacity-10 border-success border-opacity-25">
+			<div class="d-flex justify-content-between align-items-center">
+				<h2 class="h5 mb-0 text-success">
+					{{ ux_icon('mdi:arrow-up-circle', {'class': 'me-2'}) }}Recettes
+				</h2>
+				<span class="badge bg-success">{{ incomesByCategory|length }} catégorie(s)</span>
+			</div>
+		</div>
+		<div class="card-body p-0">
+			{% if incomesByCategory|length > 0 %}
+				{# Desktop table #}
+				<div class="d-none d-md-block">
+					<div class="table-responsive">
+						<table class="table table-hover mb-0">
+							<thead class="table-light">
+								<tr>
+									<th style="width: 30%">Catégorie</th>
+									<th class="text-end" style="width: 18%">Prévisionnel</th>
+									<th class="text-end" style="width: 18%">Réalisé</th>
+									<th class="text-end" style="width: 18%">Écart</th>
+									<th style="width: 16%">Réalisation</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% set currentParent = null %}
+								{% for income in incomesByCategory %}
+									{% if currentParent != income.parent_name %}
+										<tr class="table-light">
+											<td colspan="5" class="fw-bold text-secondary small py-2 ps-3">
+												{{ ux_icon('mdi:folder', {'class': 'me-1'}) }}
+												{{ income.parent_name ?? 'Recettes' }}
+											</td>
+										</tr>
+										{% set currentParent = income.parent_name %}
+									{% endif %}
+
+									{% set real = income.real_total ?? 0 %}
+									{% set ecart = real - income.total %}
+									{% set pct = income.total > 0 ? (real / income.total * 100)|round : 0 %}
+
+									<tr>
+										<td class="ps-4 align-middle">{{ income.name }}</td>
+										<td class="text-end align-middle text-success fw-medium">
+											+ {{ income.total|number_format(2, ',', ' ') }} €
+										</td>
+										<td class="text-end align-middle text-success fw-medium">
+											+ {{ real|number_format(2, ',', ' ') }} €
+										</td>
+										<td class="text-end align-middle">
+											<span class="badge bg-{% if ecart >= 0 %}success{% else %}danger{% endif %} bg-opacity-25 text-{% if ecart >= 0 %}success{% else %}danger{% endif %}">
+												{{ ecart >= 0 ? '+' : '' }}{{ ecart|number_format(2, ',', ' ') }} €
+											</span>
+										</td>
+										<td class="align-middle">
+											<div class="d-flex align-items-center gap-2">
+												<div class="progress flex-grow-1" style="height: 6px;">
+													<div class="progress-bar bg-{% if pct >= 100 %}success{% elseif pct >= 50 %}warning{% else %}secondary{% endif %}"
+														role="progressbar"
+														style="width: {{ min(pct, 100) }}%"
+														aria-valuenow="{{ pct }}" aria-valuemin="0" aria-valuemax="100">
+													</div>
+												</div>
+												<small class="text-secondary text-nowrap">{{ pct }} %</small>
+											</div>
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+							<tfoot class="table-success">
+								{% set ecartTotalIncomes = sum_real_incomes - sum_incomes %}
+								<tr class="fw-bold">
+									<td class="ps-3">Total des recettes</td>
+									<td class="text-end text-success">+ {{ sum_incomes|number_format(2, ',', ' ') }} €</td>
+									<td class="text-end text-success">+ {{ sum_real_incomes|number_format(2, ',', ' ') }} €</td>
+									<td class="text-end">
+										<span class="badge bg-{% if ecartTotalIncomes >= 0 %}success{% else %}danger{% endif %}">
+											{{ ecartTotalIncomes >= 0 ? '+' : '' }}{{ ecartTotalIncomes|number_format(2, ',', ' ') }} €
+										</span>
+									</td>
+									<td></td>
+								</tr>
+							</tfoot>
+						</table>
+					</div>
+				</div>
+
+				{# Mobile cards #}
+				<div class="d-md-none">
+					{% set currentParent = null %}
+					{% for income in incomesByCategory %}
+						{% if currentParent != income.parent_name %}
+							<div class="bg-light px-3 py-2 border-bottom">
+								<span class="small fw-bold text-secondary">
+									{{ ux_icon('mdi:folder', {'class': 'me-1'}) }}
+									{{ income.parent_name ?? 'Recettes' }}
+								</span>
+							</div>
+							{% set currentParent = income.parent_name %}
+						{% endif %}
+
+						{% set real = income.real_total ?? 0 %}
+						{% set ecart = real - income.total %}
+						{% set pct = income.total > 0 ? (real / income.total * 100)|round : 0 %}
+
+						<div class="p-3 border-bottom bg-white">
+							<div class="d-flex justify-content-between align-items-start mb-2">
+								<span class="fw-medium ps-2">{{ income.name }}</span>
+								<span class="badge bg-{% if ecart >= 0 %}success{% else %}danger{% endif %}">
+									{{ ecart >= 0 ? '+' : '' }}{{ ecart|number_format(2, ',', ' ') }} €
+								</span>
+							</div>
+							<div class="row g-2 small text-secondary ps-2 mb-2">
+								<div class="col-6">
+									Prévisionnel : <span class="text-success fw-medium">+ {{ income.total|number_format(2, ',', ' ') }} €</span>
+								</div>
+								<div class="col-6">
+									Réalisé : <span class="text-success fw-medium">+ {{ real|number_format(2, ',', ' ') }} €</span>
+								</div>
+							</div>
+							<div class="d-flex align-items-center gap-2 ps-2">
+								<div class="progress flex-grow-1" style="height: 5px;">
+									<div class="progress-bar bg-{% if pct >= 100 %}success{% elseif pct >= 50 %}warning{% else %}secondary{% endif %}"
+										role="progressbar" style="width: {{ min(pct, 100) }}%">
+									</div>
+								</div>
+								<small class="text-secondary text-nowrap">{{ pct }} %</small>
+							</div>
+						</div>
+					{% endfor %}
+
+					<div class="bg-success bg-opacity-10 p-3">
+						{% set ecartTotalIncomes = sum_real_incomes - sum_incomes %}
+						<div class="d-flex justify-content-between align-items-center">
+							<span class="fw-bold">Total recettes</span>
+							<span class="badge bg-{% if ecartTotalIncomes >= 0 %}success{% else %}danger{% endif %}">
+								{{ ecartTotalIncomes >= 0 ? '+' : '' }}{{ ecartTotalIncomes|number_format(2, ',', ' ') }} €
+							</span>
+						</div>
+						<div class="d-flex justify-content-between small text-secondary mt-1">
+							<span>Prévu : + {{ sum_incomes|number_format(2, ',', ' ') }} €</span>
+							<span>Réel : + {{ sum_real_incomes|number_format(2, ',', ' ') }} €</span>
+						</div>
+					</div>
+				</div>
+
+			{% else %}
+				<div class="text-center py-5">
+					{{ ux_icon('mdi:inbox', {'class': 'text-secondary', 'style': 'font-size: 3rem;'}) }}
+					<p class="text-secondary mt-3 mb-0">Aucune recette enregistrée</p>
+				</div>
+			{% endif %}
+		</div>
+	</div>
+
+	{# Section Dépenses #}
+	<div class="card shadow-sm mb-4">
+		<div class="card-header bg-danger bg-opacity-10 border-danger border-opacity-25">
+			<div class="d-flex justify-content-between align-items-center">
+				<h2 class="h5 mb-0 text-danger">
+					{{ ux_icon('mdi:arrow-down-circle', {'class': 'me-2'}) }}Dépenses
+				</h2>
+				<span class="badge bg-danger">{{ expensesByCategory|length }} catégorie(s)</span>
+			</div>
+		</div>
+		<div class="card-body p-0">
+			{% if expensesByCategory|length > 0 %}
+				{# Desktop table #}
+				<div class="d-none d-md-block">
+					<div class="table-responsive">
+						<table class="table table-hover mb-0">
+							<thead class="table-light">
+								<tr>
+									<th style="width: 30%">Catégorie</th>
+									<th class="text-end" style="width: 18%">Prévisionnel</th>
+									<th class="text-end" style="width: 18%">Réalisé</th>
+									<th class="text-end" style="width: 18%">Écart</th>
+									<th style="width: 16%">Consommation</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% set currentParent = null %}
+								{% for expense in expensesByCategory %}
+									{% if currentParent != expense.parent_name %}
+										<tr class="table-light">
+											<td colspan="5" class="fw-bold text-secondary small py-2 ps-3">
+												{{ ux_icon('mdi:folder', {'class': 'me-1'}) }}
+												{{ expense.parent_name ?? 'Dépenses' }}
+											</td>
+										</tr>
+										{% set currentParent = expense.parent_name %}
+									{% endif %}
+
+									{% set real = expense.real_total ?? 0 %}
+									{% set ecart = expense.total - real %}
+									{% set pct = expense.total > 0 ? (real / expense.total * 100)|round : 0 %}
+
+									<tr {% if pct > 110 %}class="table-danger bg-opacity-10"{% endif %}>
+										<td class="ps-4 align-middle">{{ expense.name }}</td>
+										<td class="text-end align-middle text-danger fw-medium">
+											- {{ expense.total|number_format(2, ',', ' ') }} €
+										</td>
+										<td class="text-end align-middle text-danger fw-medium">
+											- {{ real|number_format(2, ',', ' ') }} €
+										</td>
+										<td class="text-end align-middle">
+											<span class="badge bg-{% if ecart >= 0 %}success{% else %}danger{% endif %} bg-opacity-25 text-{% if ecart >= 0 %}success{% else %}danger{% endif %}">
+												{{ ecart >= 0 ? '+' : '' }}{{ ecart|number_format(2, ',', ' ') }} €
+											</span>
+										</td>
+										<td class="align-middle">
+											<div class="d-flex align-items-center gap-2">
+												<div class="progress flex-grow-1" style="height: 6px;">
+													<div class="progress-bar bg-{% if pct <= 100 %}success{% elseif pct <= 110 %}warning{% else %}danger{% endif %}"
+														role="progressbar"
+														style="width: {{ min(pct, 100) }}%"
+														aria-valuenow="{{ pct }}" aria-valuemin="0" aria-valuemax="100">
+													</div>
+												</div>
+												<small class="{% if pct > 110 %}text-danger fw-bold{% else %}text-secondary{% endif %} text-nowrap">
+													{% if pct > 110 %}{{ ux_icon('mdi:alert', {'class': 'me-1'}) }}{% endif %}
+													{{ pct }} %
+												</small>
+											</div>
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+							<tfoot class="table-danger bg-opacity-10">
+								{% set ecartTotalExpenses = sum_expenses - sum_real_expenses %}
+								<tr class="fw-bold">
+									<td class="ps-3">Total des dépenses</td>
+									<td class="text-end text-danger">- {{ sum_expenses|number_format(2, ',', ' ') }} €</td>
+									<td class="text-end text-danger">- {{ sum_real_expenses|number_format(2, ',', ' ') }} €</td>
+									<td class="text-end">
+										<span class="badge bg-{% if ecartTotalExpenses >= 0 %}success{% else %}danger{% endif %}">
+											{{ ecartTotalExpenses >= 0 ? '+' : '' }}{{ ecartTotalExpenses|number_format(2, ',', ' ') }} €
+										</span>
+									</td>
+									<td></td>
+								</tr>
+							</tfoot>
+						</table>
+					</div>
+				</div>
+
+				{# Mobile cards #}
+				<div class="d-md-none">
+					{% set currentParent = null %}
+					{% for expense in expensesByCategory %}
+						{% if currentParent != expense.parent_name %}
+							<div class="bg-light px-3 py-2 border-bottom">
+								<span class="small fw-bold text-secondary">
+									{{ ux_icon('mdi:folder', {'class': 'me-1'}) }}
+									{{ expense.parent_name ?? 'Dépenses' }}
+								</span>
+							</div>
+							{% set currentParent = expense.parent_name %}
+						{% endif %}
+
+						{% set real = expense.real_total ?? 0 %}
+						{% set ecart = expense.total - real %}
+						{% set pct = expense.total > 0 ? (real / expense.total * 100)|round : 0 %}
+
+						<div class="p-3 border-bottom bg-white {% if pct > 110 %}border-start border-danger border-3{% endif %}">
+							<div class="d-flex justify-content-between align-items-start mb-2">
+								<span class="fw-medium ps-2">{{ expense.name }}</span>
+								<span class="badge bg-{% if ecart >= 0 %}success{% else %}danger{% endif %}">
+									{{ ecart >= 0 ? '+' : '' }}{{ ecart|number_format(2, ',', ' ') }} €
+								</span>
+							</div>
+							<div class="row g-2 small text-secondary ps-2 mb-2">
+								<div class="col-6">
+									Prévisionnel : <span class="text-danger fw-medium">- {{ expense.total|number_format(2, ',', ' ') }} €</span>
+								</div>
+								<div class="col-6">
+									Réalisé : <span class="text-danger fw-medium">- {{ real|number_format(2, ',', ' ') }} €</span>
+								</div>
+							</div>
+							<div class="d-flex align-items-center gap-2 ps-2">
+								<div class="progress flex-grow-1" style="height: 5px;">
+									<div class="progress-bar bg-{% if pct <= 100 %}success{% elseif pct <= 110 %}warning{% else %}danger{% endif %}"
+										role="progressbar" style="width: {{ min(pct, 100) }}%">
+									</div>
+								</div>
+								<small class="{% if pct > 110 %}text-danger fw-bold{% else %}text-secondary{% endif %} text-nowrap">
+									{% if pct > 110 %}{{ ux_icon('mdi:alert', {'class': 'me-1'}) }}{% endif %}
+									{{ pct }} %
+								</small>
+							</div>
+						</div>
+					{% endfor %}
+
+					<div class="bg-danger bg-opacity-10 p-3">
+						{% set ecartTotalExpenses = sum_expenses - sum_real_expenses %}
+						<div class="d-flex justify-content-between align-items-center">
+							<span class="fw-bold">Total dépenses</span>
+							<span class="badge bg-{% if ecartTotalExpenses >= 0 %}success{% else %}danger{% endif %}">
+								{{ ecartTotalExpenses >= 0 ? '+' : '' }}{{ ecartTotalExpenses|number_format(2, ',', ' ') }} €
+							</span>
+						</div>
+						<div class="d-flex justify-content-between small text-secondary mt-1">
+							<span>Prévu : - {{ sum_expenses|number_format(2, ',', ' ') }} €</span>
+							<span>Réel : - {{ sum_real_expenses|number_format(2, ',', ' ') }} €</span>
+						</div>
+					</div>
+				</div>
+
+			{% else %}
+				<div class="text-center py-5">
+					{{ ux_icon('mdi:inbox', {'class': 'text-secondary', 'style': 'font-size: 3rem;'}) }}
+					<p class="text-secondary mt-3 mb-0">Aucune dépense enregistrée</p>
+				</div>
+			{% endif %}
+		</div>
+	</div>
+
+	{# Solde final #}
+	{% set ecartBalance = real_balance - balance_budget %}
+	<div class="card shadow-sm border-{% if ecartBalance > 0 %}success{% elseif ecartBalance < 0 %}danger{% else %}secondary{% endif %} mb-4">
+		<div class="card-body">
+			<div class="row align-items-center">
+				<div class="col-md-3">
+					<h2 class="h5 mb-0 fw-bold">
+						{{ ux_icon('mdi:piggy-bank', {'class': 'me-2 text-secondary'}) }}
+						Solde final
+					</h2>
+				</div>
+				<div class="col-md-3 text-center">
+					<div class="small text-secondary">Prévisionnel</div>
+					<div class="h5 mb-0 fw-bold {% if balance_budget > 0 %}text-success{% elseif balance_budget < 0 %}text-danger{% else %}text-secondary{% endif %}">
+						{{ balance_budget >= 0 ? '+' : '' }}{{ balance_budget|number_format(2, ',', ' ') }} €
+					</div>
+				</div>
+				<div class="col-md-3 text-center">
+					<div class="small text-secondary">Réalisé</div>
+					<div class="h5 mb-0 fw-bold {% if real_balance > 0 %}text-success{% elseif real_balance < 0 %}text-danger{% else %}text-secondary{% endif %}">
+						{{ real_balance >= 0 ? '+' : '' }}{{ real_balance|number_format(2, ',', ' ') }} €
+					</div>
+				</div>
+				<div class="col-md-3 text-center">
+					<div class="small text-secondary">Écart</div>
+					<span class="badge bg-{% if ecartBalance >= 0 %}success{% else %}danger{% endif %} fs-6 px-3 py-2">
+						{{ ecartBalance >= 0 ? '+' : '' }}{{ ecartBalance|number_format(2, ',', ' ') }} €
+					</span>
+				</div>
+			</div>
+		</div>
+	</div>
+
 </div>
-
 {% endblock %}
