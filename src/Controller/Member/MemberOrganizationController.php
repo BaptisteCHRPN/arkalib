@@ -37,7 +37,7 @@ final class MemberOrganizationController extends AbstractController
         $organization = new Organization();
         $form = $this->createForm(OrganizationType::class, $organization);
         $form->handleRequest($request);
-        $user = $this->getUser();      
+        $user = $this->getUser();
 
         if ($form->isSubmitted() && $form->isValid()) {
 
@@ -47,9 +47,9 @@ final class MemberOrganizationController extends AbstractController
 
             // If picture is submit
             $picture = $form->get('picture')->getData();
-            if($picture) {
+            if ($picture) {
                 // define file name
-                $nameFile = date('YmdHis') . '-' . rand(1000,9999) . '.' . $picture->getClientOriginalExtension();
+                $nameFile = date('YmdHis') . '-' . rand(1000, 9999) . '.' . $picture->getClientOriginalExtension();
                 // save file in project
                 // organization_logo is defined in service.yaml
                 $picture->move($this->getParameter('organization_logo'), $nameFile);
@@ -58,7 +58,7 @@ final class MemberOrganizationController extends AbstractController
             }
 
             $organization->addUser($user);
-        
+
             $entityManager->persist($organization);
             $entityManager->flush();
             $this->addFlash('success', 'L\'organisation à été créée avec succès !');
@@ -77,12 +77,11 @@ final class MemberOrganizationController extends AbstractController
     public function showBudgets(
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
         Organization $organization
-    ): Response
-    {
+    ): Response {
         $budgets = $organization->getBudgets();
         $users = $organization->getUsers();
 
-        if(!$organization->getUsers()->contains($this->getUser())) {
+        if (!$organization->getUsers()->contains($this->getUser())) {
             throw $this->createAccessDeniedException();
         }
 
@@ -93,31 +92,36 @@ final class MemberOrganizationController extends AbstractController
         ]);
     }
 
-    // #[Route('/{organizationSlug}/settings', name: 'app_member_organization_show', methods: ['GET'])]
-    // public function show(
-    //     #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
-    //     Organization $organization
-    //     ): Response
-    // {
-        
-    //     if(!$organization->getUsers()->contains($this->getUser())) {
-    //         throw $this->createAccessDeniedException();
-    //     }
+    #[IsGranted('ROLE_USER')]
+    #[Route('/{organizationSlug}/delete-picture', name: 'app_member_organization_delete_picture', methods: ['GET'])]
+    public function deletePicture(
+        Request $request,
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
+        Organization $organization,
+        EntityManagerInterface $entityManager
+    ): Response {
+        if ($organization->getPicture()) {
+            $filePath = $this->getParameter('organization_logo') . '/' . $organization->getPicture();
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+            $organization->setPicture(null);
+            $entityManager->flush();
+        }
 
-    //     return $this->render('member/organization/show.html.twig', [
-    //         'organization' => $organization,
-    //     ]);
-    // }
+        return $this->redirectToRoute('app_member_organization_edit', ['organizationSlug' => $organization->getSlug()], Response::HTTP_SEE_OTHER);
+    }
+
 
     #[IsGranted('ROLE_USER')]
     #[Route('/{organizationSlug}/edit', name: 'app_member_organization_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request,
+    public function edit(
+        Request $request,
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
         Organization $organization,
         EntityManagerInterface $entityManager,
         Security $security,
-    ): Response
-    {
+    ): Response {
         $form = $this->createForm(OrganizationType::class, $organization);
         $form->handleRequest($request);
         $budgets = $organization->getBudgets();
@@ -164,13 +168,13 @@ final class MemberOrganizationController extends AbstractController
         if ($this->isCsrfTokenValid('delete' . $organization->getId(), $request->getPayload()->getString('_token'))) {
 
             if ($organization->getPicture()) {
-            unlink($this->getParameter('organization_logo') . '/' . $organization->getPicture());
+                unlink($this->getParameter('organization_logo') . '/' . $organization->getPicture());
             }
 
             foreach ($organization->getUsers() as $user) {
                 $organization->removeUser($user);
             }
-            
+
             $entityManager->remove($organization);
             $entityManager->flush();
             $this->addFlash('success', 'L\'organisation à été supprimée avec succès !');
