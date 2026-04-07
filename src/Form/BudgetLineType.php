@@ -42,7 +42,7 @@ class BudgetLineType extends AbstractType
                     'Recette' => false
                 ]
             ])
-            ->add('descrption', TextareaType::class, [
+            ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'required' => false,
                 'attr' => [
