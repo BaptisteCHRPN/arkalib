@@ -1,13 +1,53 @@
 {% extends 'user_base.html.twig' %}
 
-{% block title %}Edit organization{% endblock %}
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ asset('css/back-office.css') }}">
+{% endblock %}
+
+{% block title %}Modifier – {{ organization.name }}{% endblock %}
 
 {% block body %}
-    <h1>Edit organization</h1>
+	<div class="container py-4 py-md-5">
 
-    {{ include('admin/organization/_form.html.twig', {'button_label': 'Update'}) }}
+		{# ─── Breadcrumb ─── #}
+		<nav aria-label="breadcrumb" class="mb-3">
+			<ol class="breadcrumb mb-0 small">
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_back_office') }}">Administration</a>
+				</li>
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_admin_organization_index') }}">Organisations</a>
+				</li>
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_admin_organization_show', {'id': organization.id}) }}">{{ organization.name }}</a>
+				</li>
+				<li class="breadcrumb-item active" aria-current="page">Modifier</li>
+			</ol>
+		</nav>
 
-    <a href="{{ path('app_admin_organization_index') }}">back to list</a>
+		{# ─── Header ─── #}
+		<div class="mb-4">
+			<h1 class="fw-bold fs-2 mb-0">Modifier l'organisation</h1>
+		</div>
 
-    {{ include('admin/organization/_delete_form.html.twig') }}
+		{# ─── Form Card ─── #}
+		<div class="card admin-table-card shadow-sm">
+			<div class="card-header">
+				<span class="fw-semibold text-dark">{{ organization.name }}</span>
+			</div>
+			<div class="card-body p-4">
+				{{ include('admin/organization/_form.html.twig', {'button_label': 'Enregistrer'}) }}
+			</div>
+		</div>
+
+		{# ─── Footer ─── #}
+		<div class="d-flex justify-content-between align-items-center mt-3 px-1">
+			<a href="{{ path('app_admin_organization_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+				{{ ux_icon('lucide:arrow-left', { width: '14', height: '14' }) }}
+				Retour à la liste
+			</a>
+			{{ include('admin/organization/_delete_form.html.twig') }}
+		</div>
+
+	</div>
 {% endblock %}

@@ -1,46 +1,121 @@
 {% extends 'user_base.html.twig' %}
 
-{% block title %}BudgetLine{% endblock %}
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ asset('css/back-office.css') }}">
+{% endblock %}
+
+{% block title %}{{ budget_line.name }}{% endblock %}
 
 {% block body %}
-    <h1>BudgetLine</h1>
+	<div class="container py-4 py-md-5">
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ budget_line.id }}</td>
-            </tr>
-            <tr>
-                <th>Name</th>
-                <td>{{ budget_line.name }}</td>
-            </tr>
-            <tr>
-                <th>Is_expense</th>
-                <td>{{ budget_line.isExpense ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>Descrption</th>
-                <td>{{ budget_line.descrption }}</td>
-            </tr>
-            <tr>
-                <th>Amount</th>
-                <td>{{ budget_line.amount }}</td>
-            </tr>
-            <tr>
-                <th>Created_at</th>
-                <td>{{ budget_line.createdAt ? budget_line.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Is_active</th>
-                <td>{{ budget_line.isActive ? 'Yes' : 'No' }}</td>
-            </tr>
-        </tbody>
-    </table>
+		{# ─── Breadcrumb ─── #}
+		<nav aria-label="breadcrumb" class="mb-3">
+			<ol class="breadcrumb mb-0 small">
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_back_office') }}">Administration</a>
+				</li>
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_admin_budget_line_index') }}">Lignes budgétaires</a>
+				</li>
+				<li class="breadcrumb-item active" aria-current="page">{{ budget_line.name }}</li>
+			</ol>
+		</nav>
 
-    <a href="{{ path('app_admin_budget_line_index') }}">back to list</a>
+		{# ─── Header ─── #}
+		<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
+			<div class="d-flex align-items-center gap-3">
+				<div class="profile-rounded text-light d-inline-flex align-items-center justify-content-center" style="width:48px;height:48px;font-size:1.1rem;">
+					{{ budget_line.name|first|upper }}
+				</div>
+				<div>
+					<h1 class="fw-bold fs-2 mb-1">{{ budget_line.name }}</h1>
+					<p class="text-secondary mb-0">{{ budget_line.budget ? budget_line.budget.name : '—' }}</p>
+				</div>
+			</div>
+			<a href="{{ path('app_admin_budget_line_edit', {'id': budget_line.id}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+				{{ ux_icon('lucide:edit', { width: '14', height: '14' }) }}
+				Modifier
+			</a>
+		</div>
 
-    <a href="{{ path('app_admin_budget_line_edit', {'id': budget_line.id}) }}">edit</a>
+		{# ─── Detail Card ─── #}
+		<div class="card admin-table-card shadow-sm">
+			<div class="card-header">
+				<span class="fw-semibold text-dark">Informations de la ligne budgétaire</span>
+			</div>
+			<div class="table-responsive">
+				<table class="table admin-table mb-0">
+					<tbody>
+						<tr>
+							<th class="text-secondary fw-normal" style="width:220px;">ID</th>
+							<td>
+								<span class="badge badge-id">#{{ budget_line.id }}</span>
+							</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Nom</th>
+							<td class="fw-medium text-dark">{{ budget_line.name }}</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Type</th>
+							<td>
+								{% if budget_line.isExpense %}
+									<span class="badge rounded-pill px-2 py-1 badge-unverified">Dépense</span>
+								{% else %}
+									<span class="badge rounded-pill px-2 py-1 badge-verified">Recette</span>
+								{% endif %}
+							</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Montant</th>
+							<td class="fw-medium text-dark">{{ budget_line.amount ? budget_line.amount|number_format(2, ',', ' ') ~ ' €' : '—' }}</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Description</th>
+							<td class="text-secondary">{{ budget_line.descrption ?? '—' }}</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Budget</th>
+							<td class="text-secondary">{{ budget_line.budget ? budget_line.budget.name : '—' }}</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Catégorie</th>
+							<td class="text-secondary">{{ budget_line.category ? budget_line.category.name : '—' }}</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Statut</th>
+							<td>
+								{% if budget_line.isActive %}
+									<span class="badge rounded-pill px-2 py-1 badge-verified">
+										{{ ux_icon('lucide:check', { width: '12', height: '12', class: 'me-1' }) }}
+										Active
+									</span>
+								{% else %}
+									<span class="badge rounded-pill px-2 py-1 badge-unverified">
+										{{ ux_icon('lucide:x', { width: '12', height: '12', class: 'me-1' }) }}
+										Inactive
+									</span>
+								{% endif %}
+							</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Créée le</th>
+							<td class="text-secondary">{{ budget_line.createdAt ? budget_line.createdAt|date('d/m/Y') : '—' }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
 
-    {{ include('admin/budget_line/_delete_form.html.twig') }}
+		{# ─── Footer ─── #}
+		<div class="d-flex justify-content-between align-items-center mt-3 px-1">
+			<a href="{{ path('app_admin_budget_line_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+				{{ ux_icon('lucide:arrow-left', { width: '14', height: '14' }) }}
+				Retour à la liste
+			</a>
+			{{ include('admin/budget_line/_delete_form.html.twig') }}
+		</div>
+
+	</div>
 {% endblock %}
