@@ -1,4 +1,4 @@
-<form method="post" action="{{ path('app_transaction_delete', {'id': transaction.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
-    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ transaction.id) }}">
-    <button class="btn">Delete</button>
+<form method="post" action="{{ path('app_admin_transaction_delete', {'id': transaction.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
+	<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ transaction.id) }}">
+	<button class="btn btn-sm btn-danger rounded-pill px-3 d-inline-flex align-items-center gap-2">Supprimer la transaction</button>
 </form>

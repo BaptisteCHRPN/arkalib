@@ -1,50 +1,111 @@
 {% extends 'user_base.html.twig' %}
 
-{% block title %}Transaction{% endblock %}
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ asset('css/back-office.css') }}">
+{% endblock %}
+
+{% block title %}Transaction #{{ transaction.id }}{% endblock %}
 
 {% block body %}
-    <h1>Transaction</h1>
+	<div class="container py-4 py-md-5">
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ transaction.id }}</td>
-            </tr>
-            <tr>
-                <th>Date</th>
-                <td>{{ transaction.date ? transaction.date|date('Y-m-d') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Amount</th>
-                <td>{{ transaction.amount }}</td>
-            </tr>
-            <tr>
-                <th>Payment_method</th>
-                <td>{{ transaction.paymentMethod }}</td>
-            </tr>
-            <tr>
-                <th>Created_at</th>
-                <td>{{ transaction.createdAt ? transaction.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Comment</th>
-                <td>{{ transaction.comment }}</td>
-            </tr>
-            <tr>
-                <th>Is_active</th>
-                <td>{{ transaction.isActive ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>Reference</th>
-                <td>{{ transaction.reference }}</td>
-            </tr>
-        </tbody>
-    </table>
+		{# ─── Breadcrumb ─── #}
+		<nav aria-label="breadcrumb" class="mb-3">
+			<ol class="breadcrumb mb-0 small">
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_back_office') }}">Administration</a>
+				</li>
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_admin_transaction_index') }}">Transactions</a>
+				</li>
+				<li class="breadcrumb-item active" aria-current="page">#{{ transaction.id }}</li>
+			</ol>
+		</nav>
 
-    <a href="{{ path('app_admin_transaction_index') }}">back to list</a>
+		{# ─── Header ─── #}
+		<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
+			<div class="d-flex align-items-center gap-3">
+				<div class="profile-rounded text-light d-inline-flex align-items-center justify-content-center" style="width:48px;height:48px;font-size:1.1rem;">
+					{{ ux_icon('lucide:receipt', { width: '20', height: '20' }) }}
+				</div>
+				<div>
+					<h1 class="fw-bold fs-2 mb-1">Transaction #{{ transaction.id }}</h1>
+					<p class="text-secondary mb-0">{{ transaction.date ? transaction.date|date('d/m/Y') : '—' }}</p>
+				</div>
+			</div>
+			<a href="{{ path('app_admin_transaction_edit', {'id': transaction.id}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+				{{ ux_icon('lucide:edit', { width: '14', height: '14' }) }}
+				Modifier
+			</a>
+		</div>
 
-    <a href="{{ path('app_admin_transaction_edit', {'id': transaction.id}) }}">edit</a>
+		{# ─── Detail Card ─── #}
+		<div class="card admin-table-card shadow-sm">
+			<div class="card-header">
+				<span class="fw-semibold text-dark">Informations de la transaction</span>
+			</div>
+			<div class="table-responsive">
+				<table class="table admin-table mb-0">
+					<tbody>
+						<tr>
+							<th class="text-secondary fw-normal" style="width:220px;">ID</th>
+							<td>
+								<span class="badge badge-id">#{{ transaction.id }}</span>
+							</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Date</th>
+							<td class="text-secondary">{{ transaction.date ? transaction.date|date('d/m/Y') : '—' }}</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Montant</th>
+							<td class="fw-medium text-dark">{{ transaction.amount ? transaction.amount|number_format(2, ',', ' ') ~ ' €' : '—' }}</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Moyen de paiement</th>
+							<td class="text-secondary">{{ transaction.paymentMethod ?? '—' }}</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Référence</th>
+							<td class="text-secondary">{{ transaction.reference ?? '—' }}</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Commentaire</th>
+							<td class="text-secondary">{{ transaction.comment ?? '—' }}</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Statut</th>
+							<td>
+								{% if transaction.isActive %}
+									<span class="badge rounded-pill px-2 py-1 badge-verified">
+										{{ ux_icon('lucide:check', { width: '12', height: '12', class: 'me-1' }) }}
+										Active
+									</span>
+								{% else %}
+									<span class="badge rounded-pill px-2 py-1 badge-unverified">
+										{{ ux_icon('lucide:x', { width: '12', height: '12', class: 'me-1' }) }}
+										Inactive
+									</span>
+								{% endif %}
+							</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Créée le</th>
+							<td class="text-secondary">{{ transaction.createdAt ? transaction.createdAt|date('d/m/Y') : '—' }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
 
-    {{ include('admin/transaction/_delete_form.html.twig') }}
+		{# ─── Footer ─── #}
+		<div class="d-flex justify-content-between align-items-center mt-3 px-1">
+			<a href="{{ path('app_admin_transaction_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+				{{ ux_icon('lucide:arrow-left', { width: '14', height: '14' }) }}
+				Retour à la liste
+			</a>
+			{{ include('admin/transaction/_delete_form.html.twig') }}
+		</div>
+
+	</div>
 {% endblock %}
