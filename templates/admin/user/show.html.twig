@@ -1,46 +1,121 @@
 {% extends 'user_base.html.twig' %}
 
-{% block title %}User{% endblock %}
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ asset('css/back-office.css') }}">
+{% endblock %}
+
+{% block title %}{{ user.firstname }} {{ user.lastname }}{% endblock %}
 
 {% block body %}
-    <h1>User</h1>
+	<div class="container py-4 py-md-5">
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ user.id }}</td>
-            </tr>
-            <tr>
-                <th>Email</th>
-                <td>{{ user.email }}</td>
-            </tr>
-            <tr>
-                <th>Roles</th>
-                <td>{{ user.roles ? user.roles|json_encode : '' }}</td>
-            </tr>
-            <tr>
-                <th>Password</th>
-                <td>{{ user.password }}</td>
-            </tr>
-            <tr>
-                <th>IsVerified</th>
-                <td>{{ user.isVerified ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>Firstname</th>
-                <td>{{ user.firstname }}</td>
-            </tr>
-            <tr>
-                <th>Lastname</th>
-                <td>{{ user.lastname }}</td>
-            </tr>
-        </tbody>
-    </table>
+		{# ─── Breadcrumb ─── #}
+		<nav aria-label="breadcrumb" class="mb-3">
+			<ol class="breadcrumb mb-0 small">
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_back_office') }}">Administration</a>
+				</li>
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_user_index') }}">Utilisateurs</a>
+				</li>
+				<li class="breadcrumb-item active" aria-current="page">{{ user.firstname }} {{ user.lastname }}</li>
+			</ol>
+		</nav>
 
-    <a href="{{ path('app_user_index') }}">back to list</a>
+		{# ─── Header ─── #}
+		<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
+			<div class="d-flex align-items-center gap-3">
+				<div class="profile-rounded text-light d-inline-flex align-items-center justify-content-center" style="width:48px;height:48px;font-size:1.1rem;">
+					{% if user.picture %}
+						<img src="{{ path('user_avatar_upload', {nameFile: user.picture}) }}" alt="">
+					{% else %}
+						{{ user.firstname|first }}{{ user.lastname|first }}
+					{% endif %}
+				</div>
+				<div>
+					<h1 class="fw-bold fs-2 mb-1">{{ user.firstname }} {{ user.lastname }}</h1>
+					<p class="text-secondary mb-0">{{ user.email }}</p>
+				</div>
+			</div>
+			<a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+				{{ ux_icon('lucide:edit', { width: '14', height: '14' }) }}
+				Modifier
+			</a>
+		</div>
 
-    <a href="{{ path('app_user_edit', {'id': user.id}) }}">edit</a>
+		{# ─── Detail Card ─── #}
+		<div class="card admin-table-card shadow-sm">
+			<div class="card-header">
+				<span class="fw-semibold text-dark">Informations du compte</span>
+			</div>
+			<div class="table-responsive">
+				<table class="table admin-table mb-0">
+					<tbody>
+						<tr>
+							<th class="text-secondary fw-normal" style="width:220px;">ID</th>
+							<td>
+								<span class="badge badge-id">#{{ user.id }}</span>
+							</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Prénom</th>
+							<td class="fw-medium text-dark">{{ user.firstname }}</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Nom</th>
+							<td class="fw-medium text-dark">{{ user.lastname }}</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Email</th>
+							<td>
+								<span class="text-secondary">{{ user.email }}</span>
+							</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Rôles</th>
+							<td>
+								{% for role in user.roles %}
+									{% if role == 'ROLE_ADMIN' %}
+										<span class="badge rounded-pill px-2 py-1 badge-role-admin">Admin</span>
+									{% elseif role == 'ROLE_SUPER_ADMIN' %}
+										<span class="badge rounded-pill px-2 py-1 badge-role-superadmin">Super Admin</span>
+									{% elseif role == 'ROLE_USER' %}
+										<span class="badge rounded-pill px-2 py-1 badge-role-user">Utilisateur</span>
+									{% else %}
+										<span class="badge rounded-pill px-2 py-1 badge-id">{{ role }}</span>
+									{% endif %}
+								{% endfor %}
+							</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Compte vérifié</th>
+							<td>
+								{% if user.isVerified %}
+									<span class="badge rounded-pill px-2 py-1 badge-verified">
+										{{ ux_icon('lucide:check', { width: '12', height: '12', class: 'me-1' }) }}
+										Vérifié
+									</span>
+								{% else %}
+									<span class="badge rounded-pill px-2 py-1 badge-unverified">
+										{{ ux_icon('lucide:x', { width: '12', height: '12', class: 'me-1' }) }}
+										Non vérifié
+									</span>
+								{% endif %}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
 
-    {{ include('user/_delete_form.html.twig') }}
+		{# ─── Footer ─── #}
+		<div class="d-flex justify-content-between align-items-center mt-3 px-1">
+			<a href="{{ path('app_user_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+				{{ ux_icon('lucide:arrow-left', { width: '14', height: '14' }) }}
+				Retour à la liste
+			</a>
+			{{ include('admin/user/_delete_form.html.twig') }}
+		</div>
+
+	</div>
 {% endblock %}
