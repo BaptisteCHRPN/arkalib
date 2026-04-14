@@ -55,7 +55,7 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_user_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'app_admin_user_show', methods: ['GET'])]
     public function show(User $user): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
@@ -98,7 +98,7 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_user_delete', methods: ['POST'])]
+    #[Route('/{id}', name: 'app_admin_user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
