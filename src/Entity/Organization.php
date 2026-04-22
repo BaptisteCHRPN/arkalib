@@ -7,10 +7,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Trait\TraceableTrait;
 
 #[ORM\Entity(repositoryClass: OrganizationRepository::class)]
 class Organization
 {
+    use TraceableTrait;
+    
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -18,9 +21,6 @@ class Organization
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
-
-    #[ORM\Column]
-    private \DateTimeImmutable $created_at;
 
     #[ORM\Column]
     private bool $is_active;
@@ -57,7 +57,6 @@ class Organization
     {
         $this->budgets = new ArrayCollection();
         $this->users = new ArrayCollection();
-        $this->created_at = new \DateTimeImmutable();
         $this->is_active = true;
         $this->invitations = new ArrayCollection();
     }
@@ -77,24 +76,6 @@ class Organization
         $this->name = $name;
 
         return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
-    {
-        $this->created_at = $created_at;
-
-        return $this;
-    }
-
-    #[ORM\PrePersist]
-    public function setCreatedAtAutomatically(): void
-    {
-        $this->created_at = new \DateTimeImmutable();
     }
 
     public function isActive(): ?bool
