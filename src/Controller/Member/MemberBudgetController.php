@@ -199,6 +199,72 @@ final class MemberBudgetController extends AbstractController
         ]);
     }
 
+    #[IsGranted('Role_user')]
+    #[Route('/budget/{organizationSlug}/{budgetSlug}/close', name: 'app_member_budget_close', methods: ['POST'])]
+    public function closeBudget(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
+        string $budgetSlug
+    ): Response {
+        $budget = $entityManager->getRepository(Budget::class)->findOneBy([
+            'slug' => $budgetSlug,
+            'organization' => $organization,
+        ]);
+
+        if (!$budget) {
+            throw $this->createNotFoundException('Budget non trouvé');
+        }
+
+        if (!$organization->getUsers()->contains($this->getUser())) {
+            throw $this->createAccessDeniedException('Vous n\'êtes pas membre de cette organisation');
+        }
+
+        if ($this->isCsrfTokenValid('close' . $budget->getId(), $request->getPayload()->getString('_token'))) {
+            $budget->setIsClosed(true);
+            $entityManager->flush();
+            $this->addFlash('success', 'Le budget a été clôturé. Il est maintenant en lecture seule.');
+        }
+
+        return $this->redirectToRoute('app_membre_budget_show', [
+            'organizationSlug' => $organization->getSlug(),
+            'budgetSlug' => $budget->getSlug(),
+        ], Response::HTTP_SEE_OTHER);
+    }
+
+    #[IsGranted('ROLE_USER')]
+    #[Route('/budget/{organizationSlug}/{budgetSlug}/reopen', name: 'app_member_budget_reopen', methods: ['POST'])]
+    public function reopenBudget(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
+        string $budgetSlug
+    ): Response {
+        $budget = $entityManager->getRepository(Budget::class)->findOneBy([
+            'slug' => $budgetSlug,
+            'organization' => $organization,
+        ]);
+
+        if (!$budget) {
+            throw $this->createNotFoundException('Budget non trouvé');
+        }
+
+        if (!$organization->getUsers()->contains($this->getUser())) {
+            throw $this->createAccessDeniedException('Vous n\'êtes pas membre de cette organisation');
+        }
+
+        if ($this->isCsrfTokenValid('reopen' . $budget->getId(), $request->getPayload()->getString('_token'))) {
+            $budget->setIsClosed(false);
+            $entityManager->flush();
+            $this->addFlash('success', 'Le budget a été réouvert. Les modifications sont à nouveau possibles.');
+        }
+
+        return $this->redirectToRoute('app_membre_budget_show', [
+            'organizationSlug' => $organization->getSlug(),
+            'budgetSlug' => $budget->getSlug(),
+        ], Response::HTTP_SEE_OTHER);
+    }
+
     #[IsGranted('ROLE_USER')]
     #[Route('/duplication-budget/{organizationSlug}/{budgetSlug}', name: 'app_membre_duplicate_budget', methods: ['GET', 'POST'])]
     public function duplicateBudget(
