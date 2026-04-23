@@ -6,10 +6,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\Trait\TraceableTrait;
 
 #[ORM\Entity(repositoryClass: BudgetLineRepository::class)]
 class BudgetLine
 {
+    use TraceableTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -26,9 +29,6 @@ class BudgetLine
 
     #[ORM\Column]
     private ?float $amount = null;
-
-    #[ORM\Column]
-    private ?\DateTimeImmutable $created_at;
 
     #[ORM\Column]
     private ?bool $is_active = null;
@@ -53,7 +53,6 @@ class BudgetLine
     public function __construct()
     {
         $this->transactions = new ArrayCollection();
-        $this->created_at = new \DateTimeImmutable();
         $this->is_active = true;
     }
 
@@ -103,17 +102,6 @@ class BudgetLine
     public function setAmount(float $amount): static
     {
         $this->amount = $amount;
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeImmutable
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeImmutable $created_at): static
-    {
-        $this->created_at = $created_at;
         return $this;
     }
 

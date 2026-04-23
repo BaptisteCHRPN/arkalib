@@ -1,13 +1,53 @@
 {% extends 'user_base.html.twig' %}
 
-{% block title %}Edit User{% endblock %}
+{% block stylesheets %}
+	<link rel="stylesheet" href="{{ asset('css/back-office.css') }}">
+{% endblock %}
+
+{% block title %}Modifier – {{ user.firstname }} {{ user.lastname }}{% endblock %}
 
 {% block body %}
-    <h1>Edit User</h1>
+	<div class="container py-4 py-md-5">
 
-    {{ include('admin/user/_form.html.twig', {'button_label': 'Update'}) }}
+		{# ─── Breadcrumb ─── #}
+		<nav aria-label="breadcrumb" class="mb-3">
+			<ol class="breadcrumb mb-0 small">
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_back_office') }}">Administration</a>
+				</li>
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_user_index') }}">Utilisateurs</a>
+				</li>
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_admin_user_show', {'id': user.id}) }}">{{ user.firstname }} {{ user.lastname }}</a>
+				</li>
+				<li class="breadcrumb-item active" aria-current="page">Modifier</li>
+			</ol>
+		</nav>
 
-    <a href="{{ path('app_user_index') }}">back to list</a>
+		{# ─── Header ─── #}
+		<div class="mb-4">
+			<h1 class="fw-bold fs-2 mb-0">Modifier l'utilisateur</h1>
+		</div>
 
-    {{ include('admin/user/_delete_form.html.twig') }}
+		{# ─── Form Card ─── #}
+		<div class="card admin-table-card shadow-sm">
+			<div class="card-header">
+				<span class="fw-semibold text-dark">{{ user.firstname }} {{ user.lastname }}</span>
+			</div>
+			<div class="card-body p-4">
+				{{ include('admin/user/_form.html.twig', {'button_label': 'Enregistrer'}) }}
+			</div>
+		</div>
+
+		{# ─── Footer ─── #}
+		<div class="d-flex justify-content-between align-items-center mt-3 px-1">
+			<a href="{{ path('app_user_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+				{{ ux_icon('lucide:arrow-left', { width: '14', height: '14' }) }}
+				Retour à la liste
+			</a>
+			{{ include('admin/user/_delete_form.html.twig') }}
+		</div>
+
+	</div>
 {% endblock %}

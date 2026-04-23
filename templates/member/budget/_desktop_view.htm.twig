@@ -31,10 +31,10 @@
 					</p>
 				</div>
 				<div class="mt-3 mt-md-0">
-					<span class="badge bg-{% if balance_budget > 0 %}success{% elseif balance_budget < 0 %}danger{% else %}secondary{% endif %} fs-5 px-3 py-2">
-						{% if balance_budget > 0 %}+
+					<span class="badge bg-{% if balanceBudget > 0 %}success{% elseif balanceBudget < 0 %}danger{% else %}secondary{% endif %} fs-5 px-3 py-2">
+						{% if balanceBudget > 0 %}+
 						{% endif %}
-						{{ balance_budget|number_format(2, ',', ' ') }}
+						{{ balanceBudget|number_format(2, ',', ' ') }}
 						€
 					</span>
 					<div class="text-center text-secondary small mt-1">Balance</div>
@@ -69,7 +69,7 @@
 					<h3 class="h5 text-secondary mb-2">Total Recettes</h3>
 					<p class="h4 text-success mb-0 fw-bold">
 						+
-						{{ sum_incomes|number_format(2, ',', ' ') }}
+						{{ sumIncomes|number_format(2, ',', ' ') }}
 						€
 					</p>
 				</div>
@@ -82,21 +82,21 @@
 					<h3 class="h5 text-secondary mb-2">Total Dépenses</h3>
 					<p class="h4 text-danger mb-0 fw-bold">
 						-
-						{{ sum_expenses|number_format(2, ',', ' ') }}
+						{{ sumExpenses|number_format(2, ',', ' ') }}
 						€
 					</p>
 				</div>
 			</div>
 		</div>
 		<div class="col-md-4 mb-3">
-			<div class="card border-{% if balance_budget > 0 %}success{% elseif balance_budget < 0 %}danger{% else %}secondary{% endif %} h-100">
+			<div class="card border-{% if balanceBudget > 0 %}success{% elseif balanceBudget < 0 %}danger{% else %}secondary{% endif %} h-100">
 				<div class="card-body text-center">
 					{{ ux_icon('mdi:piggy-bank', {'class': '{% if balance_budget > 0 %}text-success{% elseif balance_budget < 0 %}text-danger{% else %}text-secondary{% endif %} fs-1 mb-2'}) }}
 					<h3 class="h5 text-secondary mb-2">Solde</h3>
-					<p class="h4 {% if balance_budget > 0 %}text-success{% elseif balance_budget < 0 %}text-danger{% else %}text-secondary{% endif %} mb-0 fw-bold">
-						{% if balance_budget > 0 %}+
+					<p class="h4 {% if balanceBudget > 0 %}text-success{% elseif balanceBudget < 0 %}text-danger{% else %}text-secondary{% endif %} mb-0 fw-bold">
+						{% if balanceBudget > 0 %}+
 						{% endif %}
-						{{ balance_budget|number_format(2, ',', ' ') }}
+						{{ balanceBudget|number_format(2, ',', ' ') }}
 						€
 					</p>
 				</div>
@@ -203,7 +203,7 @@
 									<td colspan="3" class="text-end fw-bold">Total des recettes :</td>
 									<td class="text-end fw-bold text-success">
 										+
-										{{ sum_incomes|number_format(2, ',', ' ') }}
+										{{ sumIncomes|number_format(2, ',', ' ') }}
 										€
 									</td>
 									<td></td>
@@ -325,7 +325,7 @@
 									<td colspan="3" class="text-end fw-bold">Total des dépenses :</td>
 									<td class="text-end fw-bold text-danger">
 										-
-										{{ sum_expenses|number_format(2, ',', ' ') }}
+										{{ sumExpenses|number_format(2, ',', ' ') }}
 										€
 									</td>
 									<td></td>
