@@ -42,14 +42,22 @@ final class MemberCategoryController extends AbstractController
     #[IsGranted('ROLE_USER')]
     #[Route('/organizations/{organizationSlug}/budgets/{budgetSlug}/categories/new', name: 'app_category_new', methods: ['GET', 'POST'])]
     public function new(
-    #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
-    #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
-    Request $request,
-    EntityManagerInterface $entityManager
-    ): Response {        
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
+        #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
+        Request $request,
+        EntityManagerInterface $entityManager
+    ): Response {
         // Check if current budget is owned by organization
         if ($budget->getOrganization()->getId() !== $organization->getId()) {
             throw $this->createAccessDeniedException('Ce budget n\'appartient pas à cette organisation');
+        }
+
+        if ($budget->isClosed()) {
+            $this->addFlash('warning', 'Ce budget est clôturé. Impossible de créer une catégorie.');
+            return $this->redirectToRoute('app_membre_budget_show', [
+                'organizationSlug' => $organization->getSlug(),
+                'budgetSlug' => $budget->getSlug(),
+            ], Response::HTTP_SEE_OTHER);
         }
 
         $category = new Category();
@@ -58,7 +66,7 @@ final class MemberCategoryController extends AbstractController
         $form = $this->createForm(CategoryType::class, $category, [
             'budget' => $budget
         ]);
-        
+
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -68,9 +76,9 @@ final class MemberCategoryController extends AbstractController
             $this->addFlash('success', 'La catégorie à été créée avec succès !');
 
             return $this->redirectToRoute('app_membre_budget_show', [
-            'organizationSlug' => $organization->getSlug(),
-            'budgetSlug' => $budget->getSlug()
-        ]);
+                'organizationSlug' => $organization->getSlug(),
+                'budgetSlug' => $budget->getSlug()
+            ]);
         }
 
         return $this->render('/member/category/new.html.twig', [
@@ -78,6 +86,4 @@ final class MemberCategoryController extends AbstractController
             'budget' => $budget,
         ]);
     }
-
-
 }
