@@ -38,7 +38,7 @@
 					</p>
 				</div>
 				<div class="mt-3 mt-md-0 text-center">
-					{% set ecartBalance = real_balance - balance_budget %}
+					{% set ecartBalance = realBalance - balanceBudget %}
 					<span class="badge bg-{% if ecartBalance > 0 %}success{% elseif ecartBalance < 0 %}danger{% else %}secondary{% endif %} fs-5 px-3 py-2">
 						{{ ecartBalance >= 0 ? '+' : '' }}{{ ecartBalance|number_format(2, ',', ' ') }} €
 					</span>
@@ -73,13 +73,13 @@
 				<div class="card-body">
 					<div class="d-flex justify-content-between mb-2">
 						<span class="text-secondary small">Prévisionnel</span>
-						<span class="fw-bold text-success">+ {{ sum_incomes|number_format(2, ',', ' ') }} €</span>
+						<span class="fw-bold text-success">+ {{ sumIncomes|number_format(2, ',', ' ') }} €</span>
 					</div>
 					<div class="d-flex justify-content-between mb-3">
 						<span class="text-secondary small">Réalisé</span>
-						<span class="fw-bold text-success">+ {{ sum_real_incomes|number_format(2, ',', ' ') }} €</span>
+						<span class="fw-bold text-success">+ {{ sumRealIncomes|number_format(2, ',', ' ') }} €</span>
 					</div>
-					{% set ecartIncomes = sum_real_incomes - sum_incomes %}
+					{% set ecartIncomes = sumRealIncomes - sumIncomes %}
 					<hr class="my-2">
 					<div class="d-flex justify-content-between align-items-center">
 						<span class="small fw-medium">Écart</span>
@@ -87,8 +87,8 @@
 							{{ ecartIncomes >= 0 ? '+' : '' }}{{ ecartIncomes|number_format(2, ',', ' ') }} €
 						</span>
 					</div>
-					{% if sum_incomes > 0 %}
-						{% set pctIncomes = (sum_real_incomes / sum_incomes * 100)|round %}
+					{% if sumIncomes > 0 %}
+						{% set pctIncomes = (sumRealIncomes / sumIncomes * 100)|round %}
 						<div class="mt-2">
 							<div class="d-flex justify-content-between small text-secondary mb-1">
 								<span>Taux de réalisation</span>
@@ -118,13 +118,13 @@
 				<div class="card-body">
 					<div class="d-flex justify-content-between mb-2">
 						<span class="text-secondary small">Prévisionnel</span>
-						<span class="fw-bold text-danger">- {{ sum_expenses|number_format(2, ',', ' ') }} €</span>
+						<span class="fw-bold text-danger">- {{ sumExpenses|number_format(2, ',', ' ') }} €</span>
 					</div>
 					<div class="d-flex justify-content-between mb-3">
 						<span class="text-secondary small">Réalisé</span>
-						<span class="fw-bold text-danger">- {{ sum_real_expenses|number_format(2, ',', ' ') }} €</span>
+						<span class="fw-bold text-danger">- {{ sumRealExpenses|number_format(2, ',', ' ') }} €</span>
 					</div>
-					{% set ecartExpenses = sum_expenses - sum_real_expenses %}
+					{% set ecartExpenses = sumExpenses - sumRealExpenses %}
 					<hr class="my-2">
 					<div class="d-flex justify-content-between align-items-center">
 						<span class="small fw-medium">Écart</span>
@@ -132,8 +132,8 @@
 							{{ ecartExpenses >= 0 ? '+' : '' }}{{ ecartExpenses|number_format(2, ',', ' ') }} €
 						</span>
 					</div>
-					{% if sum_expenses > 0 %}
-						{% set pctExpenses = (sum_real_expenses / sum_expenses * 100)|round %}
+					{% if sumExpenses > 0 %}
+						{% set pctExpenses = (sumRealExpenses / sumExpenses * 100)|round %}
 						<div class="mt-2">
 							<div class="d-flex justify-content-between small text-secondary mb-1">
 								<span>Taux de consommation</span>
@@ -154,7 +154,7 @@
 
 		{# Solde card #}
 		<div class="col-md-4 mb-3">
-			{% set ecartBalance = real_balance - balance_budget %}
+			{% set ecartBalance = realBalance - balanceBudget %}
 			<div class="card border-{% if ecartBalance > 0 %}success{% elseif ecartBalance < 0 %}danger{% else %}secondary{% endif %} h-100">
 				<div class="card-header bg-{% if ecartBalance > 0 %}success{% elseif ecartBalance < 0 %}danger{% else %}secondary{% endif %} bg-opacity-10 border-opacity-25">
 					<h2 class="h6 mb-0 fw-bold text-{% if ecartBalance > 0 %}success{% elseif ecartBalance < 0 %}danger{% else %}secondary{% endif %}">
@@ -164,14 +164,14 @@
 				<div class="card-body">
 					<div class="d-flex justify-content-between mb-2">
 						<span class="text-secondary small">Prévisionnel</span>
-						<span class="fw-bold {% if balance_budget > 0 %}text-success{% elseif balance_budget < 0 %}text-danger{% else %}text-secondary{% endif %}">
-							{{ balance_budget >= 0 ? '+' : '' }}{{ balance_budget|number_format(2, ',', ' ') }} €
+						<span class="fw-bold {% if balanceBudget > 0 %}text-success{% elseif balanceBudget < 0 %}text-danger{% else %}text-secondary{% endif %}">
+							{{ balanceBudget >= 0 ? '+' : '' }}{{ balanceBudget|number_format(2, ',', ' ') }} €
 						</span>
 					</div>
 					<div class="d-flex justify-content-between mb-3">
 						<span class="text-secondary small">Réalisé</span>
-						<span class="fw-bold {% if real_balance > 0 %}text-success{% elseif real_balance < 0 %}text-danger{% else %}text-secondary{% endif %}">
-							{{ real_balance >= 0 ? '+' : '' }}{{ real_balance|number_format(2, ',', ' ') }} €
+						<span class="fw-bold {% if realBalance > 0 %}text-success{% elseif realBalance < 0 %}text-danger{% else %}text-secondary{% endif %}">
+							{{ realBalance >= 0 ? '+' : '' }}{{ realBalance|number_format(2, ',', ' ') }} €
 						</span>
 					</div>
 					<hr class="my-2">
@@ -257,11 +257,11 @@
 								{% endfor %}
 							</tbody>
 							<tfoot class="table-success">
-								{% set ecartTotalIncomes = sum_real_incomes - sum_incomes %}
+								{% set ecartTotalIncomes = sumRealIncomes - sumIncomes %}
 								<tr class="fw-bold">
 									<td class="ps-3">Total des recettes</td>
-									<td class="text-end text-success">+ {{ sum_incomes|number_format(2, ',', ' ') }} €</td>
-									<td class="text-end text-success">+ {{ sum_real_incomes|number_format(2, ',', ' ') }} €</td>
+									<td class="text-end text-success">+ {{ sumIncomes|number_format(2, ',', ' ') }} €</td>
+									<td class="text-end text-success">+ {{ sumRealIncomes|number_format(2, ',', ' ') }} €</td>
 									<td class="text-end">
 										<span class="badge bg-{% if ecartTotalIncomes >= 0 %}success{% else %}danger{% endif %}">
 											{{ ecartTotalIncomes >= 0 ? '+' : '' }}{{ ecartTotalIncomes|number_format(2, ',', ' ') }} €
@@ -319,7 +319,7 @@
 					{% endfor %}
 
 					<div class="bg-success bg-opacity-10 p-3">
-						{% set ecartTotalIncomes = sum_real_incomes - sum_incomes %}
+						{% set ecartTotalIncomes = sumRealIncomes - sumIncomes %}
 						<div class="d-flex justify-content-between align-items-center">
 							<span class="fw-bold">Total recettes</span>
 							<span class="badge bg-{% if ecartTotalIncomes >= 0 %}success{% else %}danger{% endif %}">
@@ -327,8 +327,8 @@
 							</span>
 						</div>
 						<div class="d-flex justify-content-between small text-secondary mt-1">
-							<span>Prévu : + {{ sum_incomes|number_format(2, ',', ' ') }} €</span>
-							<span>Réel : + {{ sum_real_incomes|number_format(2, ',', ' ') }} €</span>
+							<span>Prévu : + {{ sumIncomes|number_format(2, ',', ' ') }} €</span>
+							<span>Réel : + {{ sumRealIncomes|number_format(2, ',', ' ') }} €</span>
 						</div>
 					</div>
 				</div>
@@ -416,11 +416,11 @@
 								{% endfor %}
 							</tbody>
 							<tfoot class="table-danger bg-opacity-10">
-								{% set ecartTotalExpenses = sum_expenses - sum_real_expenses %}
+								{% set ecartTotalExpenses = sumExpenses - sumRealExpenses %}
 								<tr class="fw-bold">
 									<td class="ps-3">Total des dépenses</td>
-									<td class="text-end text-danger">- {{ sum_expenses|number_format(2, ',', ' ') }} €</td>
-									<td class="text-end text-danger">- {{ sum_real_expenses|number_format(2, ',', ' ') }} €</td>
+									<td class="text-end text-danger">- {{ sumExpenses|number_format(2, ',', ' ') }} €</td>
+									<td class="text-end text-danger">- {{ sumRealExpenses|number_format(2, ',', ' ') }} €</td>
 									<td class="text-end">
 										<span class="badge bg-{% if ecartTotalExpenses >= 0 %}success{% else %}danger{% endif %}">
 											{{ ecartTotalExpenses >= 0 ? '+' : '' }}{{ ecartTotalExpenses|number_format(2, ',', ' ') }} €
@@ -481,7 +481,7 @@
 					{% endfor %}
 
 					<div class="bg-danger bg-opacity-10 p-3">
-						{% set ecartTotalExpenses = sum_expenses - sum_real_expenses %}
+						{% set ecartTotalExpenses = sumExpenses - sumRealExpenses %}
 						<div class="d-flex justify-content-between align-items-center">
 							<span class="fw-bold">Total dépenses</span>
 							<span class="badge bg-{% if ecartTotalExpenses >= 0 %}success{% else %}danger{% endif %}">
@@ -489,8 +489,8 @@
 							</span>
 						</div>
 						<div class="d-flex justify-content-between small text-secondary mt-1">
-							<span>Prévu : - {{ sum_expenses|number_format(2, ',', ' ') }} €</span>
-							<span>Réel : - {{ sum_real_expenses|number_format(2, ',', ' ') }} €</span>
+							<span>Prévu : - {{ sumExpenses|number_format(2, ',', ' ') }} €</span>
+							<span>Réel : - {{ sumRealExpenses|number_format(2, ',', ' ') }} €</span>
 						</div>
 					</div>
 				</div>
@@ -505,7 +505,7 @@
 	</div>
 
 	{# Solde final #}
-	{% set ecartBalance = real_balance - balance_budget %}
+	{% set ecartBalance = realBalance - balanceBudget %}
 	<div class="card shadow-sm border-{% if ecartBalance > 0 %}success{% elseif ecartBalance < 0 %}danger{% else %}secondary{% endif %} mb-4">
 		<div class="card-body">
 			<div class="row align-items-center">
@@ -517,14 +517,14 @@
 				</div>
 				<div class="col-md-3 text-center">
 					<div class="small text-secondary">Prévisionnel</div>
-					<div class="h5 mb-0 fw-bold {% if balance_budget > 0 %}text-success{% elseif balance_budget < 0 %}text-danger{% else %}text-secondary{% endif %}">
-						{{ balance_budget >= 0 ? '+' : '' }}{{ balance_budget|number_format(2, ',', ' ') }} €
+					<div class="h5 mb-0 fw-bold {% if balanceBudget > 0 %}text-success{% elseif balanceBudget < 0 %}text-danger{% else %}text-secondary{% endif %}">
+						{{ balanceBudget >= 0 ? '+' : '' }}{{ balanceBudget|number_format(2, ',', ' ') }} €
 					</div>
 				</div>
 				<div class="col-md-3 text-center">
 					<div class="small text-secondary">Réalisé</div>
-					<div class="h5 mb-0 fw-bold {% if real_balance > 0 %}text-success{% elseif real_balance < 0 %}text-danger{% else %}text-secondary{% endif %}">
-						{{ real_balance >= 0 ? '+' : '' }}{{ real_balance|number_format(2, ',', ' ') }} €
+					<div class="h5 mb-0 fw-bold {% if realBalance > 0 %}text-success{% elseif realBalance < 0 %}text-danger{% else %}text-secondary{% endif %}">
+						{{ realBalance >= 0 ? '+' : '' }}{{ realBalance|number_format(2, ',', ' ') }} €
 					</div>
 				</div>
 				<div class="col-md-3 text-center">
