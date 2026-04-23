@@ -27,7 +27,7 @@
 				<span class="fw-medium">Total Recettes :</span>
 			</div>
 			<span class="fw-bold text-success">+
-				{{ sum_incomes|number_format(0, ',', ' ') }}
+				{{ sumIncomes|number_format(0, ',', ' ') }}
 				€</span>
 		</div>
 
@@ -38,20 +38,20 @@
 				<span class="fw-medium">Total Dépenses :</span>
 			</div>
 			<span class="fw-bold text-danger">-
-				{{ sum_expenses|number_format(0, ',', ' ') }}
+				{{ sumExpenses|number_format(0, ',', ' ') }}
 				€</span>
 		</div>
 
 		{# Balance #}
-		<div class="d-flex justify-content-between align-items-center bg-white border border-{% if balance_budget > 0 %}success{% elseif balance_budget < 0 %}danger{% else %}secondary{% endif %} border-opacity-25 rounded p-3 mb-3">
+		<div class="d-flex justify-content-between align-items-center bg-white border border-{% if balanceBudget > 0 %}success{% elseif balanceBudget < 0 %}danger{% else %}secondary{% endif %} border-opacity-25 rounded p-3 mb-3">
 			<div class="d-flex align-items-center">
-				{{ ux_icon('mdi:piggy-bank', {'class': '{% if balance_budget > 0 %}text-success{% elseif balance_budget < 0 %}text-danger{% else %}text-secondary{% endif %} fs-5 me-2'}) }}
+				{{ ux_icon('mdi:piggy-bank', {'class': '{% if balanceBudget > 0 %}text-success{% elseif balanceBudget < 0 %}text-danger{% else %}text-secondary{% endif %} fs-5 me-2'}) }}
 				<span class="fw-medium">Solde :</span>
 			</div>
-			<span class="fw-bold {% if balance_budget > 0 %}text-success{% elseif balance_budget < 0 %}text-danger{% else %}text-secondary{% endif %}">
-				{% if balance_budget > 0 %}+
+			<span class="fw-bold {% if balanceBudget > 0 %}text-success{% elseif balanceBudget < 0 %}text-danger{% else %}text-secondary{% endif %}">
+				{% if balanceBudget > 0 %}+
 				{% endif %}
-				{{ balance_budget|number_format(0, ',', ' ') }}
+				{{ balanceBudget|number_format(0, ',', ' ') }}
 				€
 			</span>
 		</div>
@@ -162,7 +162,7 @@
 				<div class="d-flex justify-content-between align-items-center">
 					<span class="fw-bold">Total des recettes :</span>
 					<span class="fw-bold text-success">+
-						{{ sum_incomes|number_format(2, ',', ' ') }}
+						{{ sumIncomes|number_format(2, ',', ' ') }}
 						€</span>
 				</div>
 			</div>
@@ -253,7 +253,7 @@
 				<div class="d-flex justify-content-between align-items-center">
 					<span class="fw-bold">Total des dépenses :</span>
 					<span class="fw-bold text-danger">-
-						{{ sum_expenses|number_format(2, ',', ' ') }}
+						{{ sumExpenses|number_format(2, ',', ' ') }}
 						€</span>
 				</div>
 			</div>
