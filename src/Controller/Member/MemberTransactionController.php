@@ -44,6 +44,14 @@ final class MemberTransactionController extends AbstractController
         $form = $this->createForm(TransactionType::class, $transaction, ['budget' => $budget]);
         $form->handleRequest($request);
 
+        if ($budget->isClosed()) {
+            $this->addFlash('warning', 'Ce budget est clôturé. Impossible d\'ajouter une transaction.');
+            return $this->redirectToRoute('app_membre_budget_show', [
+                'organizationSlug' => $organization->getSlug(),
+                'budgetSlug' => $budget->getSlug(),
+            ], Response::HTTP_SEE_OTHER);
+        }
+
         if ($form->isSubmitted() && $form->isValid()) {
 
             $attachment = $form->get('attachment')->getData();
@@ -92,7 +100,7 @@ final class MemberTransactionController extends AbstractController
         ]);
     }
 
-#[IsGranted('ROLE_USER')]
+    #[IsGranted('ROLE_USER')]
     #[Route('/budget/{organizationSlug}/{budgetSlug}/transaction/{id}/edit', name: 'app_member_transaction_edit', methods: ['GET', 'POST'])]
     public function edit(
         Request $request,
@@ -103,6 +111,15 @@ final class MemberTransactionController extends AbstractController
     ): Response {
         $form = $this->createForm(TransactionType::class, $transaction, ['budget' => $budget]);
         $form->handleRequest($request);
+
+        if ($budget->isClosed()) {
+            $this->addFlash('warning', 'Ce budget est clôturé. Impossible de modifier une transaction.');
+            return $this->redirectToRoute('app_member_transaction_index', [
+                'organizationSlug' => $organization->getSlug(),
+                'budgetSlug' => $budget->getSlug(),
+            ], Response::HTTP_SEE_OTHER);
+        }
+
 
         if ($form->isSubmitted() && $form->isValid()) {
 
@@ -146,6 +163,15 @@ final class MemberTransactionController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
     ): Response {
+
+        if ($budget->isClosed()) {
+            $this->addFlash('warning', 'Ce budget est clôturé. Impossible de supprimer une transaction.');
+            return $this->redirectToRoute('app_member_transaction_index', [
+                'organizationSlug' => $organization->getSlug(),
+                'budgetSlug' => $budget->getSlug(),
+            ], Response::HTTP_SEE_OTHER);
+        }
+
         if ($this->isCsrfTokenValid('delete' . $transaction->getId(), $request->getPayload()->getString('_token'))) {
             $entityManager->remove($transaction);
             $entityManager->flush();
