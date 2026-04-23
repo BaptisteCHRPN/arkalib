@@ -35,6 +35,14 @@ final class MemberBudgetLineController extends AbstractController
             'organization' => $organization
         ]);
 
+        if ($budget->isClosed()) {
+            $this->addFlash('warning', 'Ce budget est clôturé. Impossible d\'ajouter une ligne budgétaire.');
+            return $this->redirectToRoute('app_membre_budget_show', [
+                'organizationSlug' => $organization->getSlug(),
+                'budgetSlug' => $budget->getSlug(),
+            ], Response::HTTP_SEE_OTHER);
+        }
+
         if (!$budget) {
             throw $this->createNotFoundException('Budget non trouvé dans cette organisation');
         }
@@ -110,6 +118,14 @@ final class MemberBudgetLineController extends AbstractController
         $budget = $budgetLine->getBudget();
         $organization = $budget->getOrganization();
 
+        if ($budget->isClosed()) {
+            $this->addFlash('warning', 'Ce budget est clôturé. Impossible de modifier une ligne budgétaire.');
+            return $this->redirectToRoute('app_membre_budget_show', [
+                'organizationSlug' => $organization->getSlug(),
+                'budgetSlug' => $budget->getSlug(),
+            ], Response::HTTP_SEE_OTHER);
+        }
+
         $form = $this->createForm(BudgetLineType::class, $budgetLine, [
             'budget' => $budget,
         ]);
@@ -178,6 +194,14 @@ final class MemberBudgetLineController extends AbstractController
     ): Response {
         $budget = $budgetLine->getBudget();
         $organization = $budget->getOrganization();
+
+        if ($budget->isClosed()) {
+            $this->addFlash('warning', 'Ce budget est clôturé. Impossible de supprimer une ligne budgétaire.');
+            return $this->redirectToRoute('app_membre_budget_show', [
+                'organizationSlug' => $organization->getSlug(),
+                'budgetSlug' => $budget->getSlug(),
+            ], Response::HTTP_SEE_OTHER);
+        }
 
         if ($this->isCsrfTokenValid('delete' . $budgetLine->getId(), $request->getPayload()->getString('_token'))) {
             $budgetLine->setIsActive(false);
