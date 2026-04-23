@@ -102,14 +102,14 @@ final class MemberBudgetController extends AbstractController
         $balanceBudget = $budgetCalculatorService->balanceBudget($budget);
 
         // Calcul all total even inactive lines
-        $total_expenses_all = 0;
+        $totalExpensesAll = 0;
         foreach ($expenses as $expense) {
-            $total_expenses_all += $expense->getAmount();
+            $totalExpensesAll += $expense->getAmount();
         }
 
-        $total_incomes_all = 0;
+        $totalIncomesAll = 0;
         foreach ($incomes as $income) {
-            $total_incomes_all += $income->getAmount();
+            $totalIncomesAll += $income->getAmount();
         }
 
         return $this->render('member/budget/index.html.twig', [
@@ -117,11 +117,11 @@ final class MemberBudgetController extends AbstractController
             'organization' => $organization,
             'expenses' => $expenses,
             'incomes' => $incomes,
-            'sum_expenses' => $sumExpenses,
-            'sum_incomes' => $sumIncomes,
-            'total_expenses_all' => $total_expenses_all,
-            'total_incomes_all' => $total_incomes_all,
-            'balance_budget' => $balanceBudget,
+            'sumExpenses' => $sumExpenses,
+            'sumIncomes' => $sumIncomes,
+            'totalExpensesAll' => $totalExpensesAll,
+            'totalIncomesAll' => $totalIncomesAll,
+            'balanceBudget' => $balanceBudget,
         ]);
     }
 
@@ -154,14 +154,14 @@ final class MemberBudgetController extends AbstractController
         $sumIncomes = $budgetCalculatorService->sumTotalIncomes($budget);
         $balanceBudget = $budgetCalculatorService->balanceBudget($budget);
 
-        $total_expenses_all = 0;
+        $totalExpensesAll = 0;
         foreach ($expenses as $expense) {
-            $total_expenses_all += $expense->getAmount();
+            $totalExpensesAll += $expense->getAmount();
         }
 
-        $total_incomes_all = 0;
+        $totalIncomesAll = 0;
         foreach ($incomes as $income) {
-            $total_incomes_all += $income->getAmount();
+            $totalIncomesAll += $income->getAmount();
         }
 
         // Sommes par catégorie (avec réel)
@@ -186,14 +186,14 @@ final class MemberBudgetController extends AbstractController
             'organization' => $organization,
             'expenses' => $expenses,
             'incomes' => $incomes,
-            'sum_expenses' => $sumExpenses,
-            'sum_incomes' => $sumIncomes,
-            'sum_real_expenses' => $sumRealExpenses,
-            'sum_real_incomes' => $sumRealIncomes,
-            'real_balance' => $realBalance,
-            'total_expenses_all' => $total_expenses_all,
-            'total_incomes_all' => $total_incomes_all,
-            'balance_budget' => $balanceBudget,
+            'sumExpenses' => $sumExpenses,
+            'sumIncomes' => $sumIncomes,
+            'sumRealExpenses' => $sumRealExpenses,
+            'sumRealIncomes' => $sumRealIncomes,
+            'realBalance' => $realBalance,
+            'totalExpensesAll' => $totalExpensesAll,
+            'totalIncomesAll' => $totalIncomesAll,
+            'balanceBudget' => $balanceBudget,
             'expensesByCategory' => $expensesByCategory,
             'incomesByCategory' => $incomesByCategory,
         ]);

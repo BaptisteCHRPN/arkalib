@@ -1,4 +1,4 @@
 <form method="post" action="{{ path('app_admin_budget_line_delete', {'id': budget_line.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
-    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ budget_line.id) }}">
-    <button class="btn">Delete</button>
+	<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ budget_line.id) }}">
+	<button class="btn btn-sm btn-danger rounded-pill px-3 d-inline-flex align-items-center gap-2">Supprimer la ligne</button>
 </form>
