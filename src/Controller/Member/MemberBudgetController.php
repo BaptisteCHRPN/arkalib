@@ -199,7 +199,7 @@ final class MemberBudgetController extends AbstractController
         ]);
     }
 
-    #[IsGranted('Role_user')]
+    #[IsGranted('ROLE_USER')]
     #[Route('/budget/{organizationSlug}/{budgetSlug}/close', name: 'app_member_budget_close', methods: ['POST'])]
     public function closeBudget(
         Request $request,
