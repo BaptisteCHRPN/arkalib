@@ -17,6 +17,16 @@
 	<hr
 	class="my-3">
 
+	{% if budget.isClosed() %}
+		<div class="alert alert-warning d-flex align-items-center mx-3 mb-3" role="alert">
+			{{ ux_icon('mdi:lock', {'class': 'me-2 fs-5'}) }}
+			<div>
+				<strong>Budget clôturé</strong> — Ce budget est en lecture seule.
+			</div>
+		</div>
+	{% endif %}
+
+
 	{# Summary #}
 	<div
 		class="px-3 mb-3">
@@ -59,23 +69,25 @@
 
 	{# CTA buttons #}
 	<div class="px-3 mb-4">
-		<div class="row g-2">
-			<div class="col-6">
-				<a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary w-100 py-2 small">
-					Ajouter une dépense
+		{% if not budget.isClosed() %}
+			<div class="row g-2">
+				<div class="col-6">
+					<a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary w-100 py-2 small">
+						Ajouter une dépense
+					</a>
+				</div>
+				<div class="col-6">
+					<a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary w-100 py-2 small">
+						Ajouter une recette
+					</a>
+				</div>
+			</div>
+			<div class="mt-2">
+				<a href="{{ path('app_category_new', {'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-outline-primary w-100 py-2 small">
+					Créer une catégorie
 				</a>
 			</div>
-			<div class="col-6">
-				<a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary w-100 py-2 small">
-					Ajouter une recette
-				</a>
-			</div>
-		</div>
-		<div class="mt-2">
-			<a href="{{ path('app_category_new', {'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-outline-primary w-100 py-2 small">
-				Créer une catégorie
-			</a>
-		</div>
+		{% endif %}
 		<div class="mt-2">
 			<a href="{{ path('app_member_transaction_index', { 'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug }) }}" class="btn btn-outline-primary">
 					{{ ux_icon('hugeicons:transaction', {'class': 'me-2'}) }}
@@ -84,6 +96,24 @@
 		</div>
 		<div class="mt-2">
 			<a href="{{ path('app_membre_actuel_budget_show', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary w-100">{{ ux_icon('tabler:arrows-diff', {'class': 'me-2'}) }}Prévu vs Réel</a>
+		</div>
+		<div class="mt-2">
+			{% if budget.isClosed() %}
+				<form method="post" action="{{ path('app_member_budget_reopen', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}">
+					<input type="hidden" name="_token" value="{{ csrf_token('reopen' ~ budget.id) }}">
+					<button type="submit" class="btn btn-outline-success w-100 py-2 small">
+						{{ ux_icon('mdi:lock-open', {'class': 'me-2'}) }}Réouvrir le budget
+					</button>
+				</form>
+			{% else %}
+				<form method="post" action="{{ path('app_member_budget_close', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}"
+					onsubmit="return confirm('Êtes-vous sûr de vouloir clôturer ce budget ?')">
+					<input type="hidden" name="_token" value="{{ csrf_token('close' ~ budget.id) }}">
+					<button type="submit" class="btn btn-outline-danger w-100 py-2 small">
+						{{ ux_icon('mdi:lock', {'class': 'me-2'}) }}Clôturer le budget
+					</button>
+				</form>
+			{% endif %}
 		</div>
 	</div>
 
