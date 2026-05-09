@@ -54,6 +54,10 @@
 						<a class="btn btn-primary btn-sm" href="{{ path('app_member_budget_new', {'organizationId': organization.id}) }}">
 							Nouveau budget
 						</a>
+						<a class="btn btn-danger btn-sm" href="#">
+							{{ ux_icon('mdi:trash-can') }}
+							<span class="ms-1">Corbeille</span>
+						</a>
 					</div>
 					<div class="btn-group btn-group-sm">
 						<a class="btn btn-outline-primary" href="{{ path('app_invitation_send', {'organizationSlug': organization.slug}) }}">
