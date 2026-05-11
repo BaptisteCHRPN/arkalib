@@ -8,12 +8,14 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Trait\TraceableTrait;
+use App\Entity\Trait\SoftDeleteTrait;
 
 #[ORM\Entity(repositoryClass: BudgetRepository::class)]
 #[ORM\UniqueConstraint(name: 'budget_slug_organization', columns: ['slug', 'organization_id'])]
 class Budget
 {
     use TraceableTrait;
+    use SoftDeleteTrait;
     
     #[ORM\Id]
     #[ORM\GeneratedValue]

@@ -8,11 +8,13 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Trait\TraceableTrait;
+use App\Entity\Trait\SoftDeleteTrait;
 
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 class Transaction
 {
     use TraceableTrait;
+    use SoftDeleteTrait;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
