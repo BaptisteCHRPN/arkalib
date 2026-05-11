@@ -28,4 +28,23 @@ class TransactionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function findDeletedByBudget(Budget $budget): array
+    {
+        $this->getEntityManager()->getFilters()->disable('soft_delete');
+
+        $results = $this->createQueryBuilder('t')
+            ->join('t.budget_line', 'bl')
+            ->addSelect('bl')
+            ->where('bl.budget = :budget')
+            ->andWhere('t.deleted_at IS NOT NULL')
+            ->setParameter('budget', $budget)
+            ->orderBy('t.deleted_at', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        $this->getEntityManager()->getFilters()->enable('soft_delete');
+
+        return $results;
+    }
 }

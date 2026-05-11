@@ -24,6 +24,10 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
+        filters:
+            soft_delete:
+                class: App\Doctrine\Filter\SoftDeleteFilter
+                enabled: true
         controller_resolver:
             auto_mapping: false
 
