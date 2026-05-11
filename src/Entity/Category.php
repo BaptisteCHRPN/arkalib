@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Trait\TraceableTrait;
+use App\Entity\Trait\SoftDeleteTrait;
 
 #[ORM\Entity(repositoryClass: CategoryRepository::class)]
 #[ORM\Table(name: 'category', indexes: [
@@ -16,6 +17,7 @@ use App\Entity\Trait\TraceableTrait;
 class Category
 {
     use TraceableTrait;
+    use SoftDeleteTrait;
     
     #[ORM\Id]
     #[ORM\GeneratedValue]
