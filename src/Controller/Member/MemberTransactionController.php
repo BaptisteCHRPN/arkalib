@@ -185,46 +185,4 @@ final class MemberTransactionController extends AbstractController
         ], Response::HTTP_SEE_OTHER);
     }
 
-    #[IsGranted('ROLE_USER')]
-    #[Route('/budget/{organizationSlug}/{budgetSlug}/transaction/{id}/restore', name: 'app_member_transaction_restore', methods: ['POST'])]
-    public function restore(
-        Request $request,
-        Transaction $transaction,
-        EntityManagerInterface $entityManager,
-        SoftDeleteService $softDeleteService,
-        #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
-        #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
-    ): Response {
-        if ($this->isCsrfTokenValid('restore' . $transaction->getId(), $request->getPayload()->getString('_token'))) {
-            $softDeleteService->restore($transaction);
-            $entityManager->flush();
-            $this->addFlash('success', 'La transaction a été restaurée.');
-        }
-
-        return $this->redirectToRoute('app_member_transaction_index', [
-            'organizationSlug' => $organization->getSlug(),
-            'budgetSlug' => $budget->getSlug(),
-        ], Response::HTTP_SEE_OTHER);
-    }
-
-    #[IsGranted('ROLE_USER')]
-    #[Route('/budget/{organizationSlug}/{budgetSlug}/transaction/{id}/hard-delete', name: 'app_member_transaction_hard_delete', methods: ['POST'])]
-    public function hardDelete(
-        Request $request,
-        Transaction $transaction,
-        EntityManagerInterface $entityManager,
-        #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
-        #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
-    ): Response {
-        if ($this->isCsrfTokenValid('hard-delete' . $transaction->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($transaction);
-            $entityManager->flush();
-            $this->addFlash('success', 'La transaction a été supprimée définitivement.');
-        }
-
-        return $this->redirectToRoute('app_member_transaction_index', [
-            'organizationSlug' => $organization->getSlug(),
-            'budgetSlug' => $budget->getSlug(),
-        ], Response::HTTP_SEE_OTHER);
-    }
 }
