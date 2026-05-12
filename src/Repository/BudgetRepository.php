@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Budget;
+use App\Entity\Organization;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -41,5 +42,20 @@ class BudgetRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-// 
+    public function findDeletedByOrganization(Organization $organization): array
+    {
+        $this->getEntityManager()->getFilters()->disable('soft_delete');
+
+        $results = $this->createQueryBuilder('b')
+            ->where('b.organization = :organization')
+            ->andWhere('b.deleted_at IS NOT NULL')
+            ->setParameter('organization', $organization)
+            ->orderBy('b.deleted_at', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        $this->getEntityManager()->getFilters()->enable('soft_delete');
+
+        return $results;
+    }
 }
