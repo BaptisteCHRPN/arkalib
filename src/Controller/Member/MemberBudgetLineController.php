@@ -8,6 +8,7 @@ use App\Entity\Organization;
 use App\Form\BudgetLineType;
 use App\Repository\BudgetLineRepository;
 use App\Service\BudgetCalculatorServie;
+use App\Service\SoftDeleteService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -190,7 +191,8 @@ final class MemberBudgetLineController extends AbstractController
     public function softDelete(
         Request $request,
         BudgetLine $budgetLine,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        SoftDeleteService $softDeleteService,
     ): Response {
         $budget = $budgetLine->getBudget();
         $organization = $budget->getOrganization();
@@ -204,13 +206,9 @@ final class MemberBudgetLineController extends AbstractController
         }
 
         if ($this->isCsrfTokenValid('delete' . $budgetLine->getId(), $request->getPayload()->getString('_token'))) {
-            $budgetLine->setIsActive(false);
+            $softDeleteService->softDelete($budgetLine, $this->getUser());
             $entityManager->flush();
-            if ($budgetLine->isExpense() === false) {
-                $this->addFlash('success', 'La recette à été suprimée avec succès !');
-            } else {
-                $this->addFlash('success', 'La dépense à été suprimée avec succès !');
-            }
+            $this->addFlash('success', $budgetLine->isExpense() ? 'La dépense a été déplacée dans la corbeille.' : 'La recette a été déplacée dans la corbeille.');
         }
 
         return $this->redirectToRoute('app_membre_budget_show', [

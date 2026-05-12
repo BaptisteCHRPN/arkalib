@@ -16,6 +16,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
@@ -24,7 +25,7 @@ final class MemberTrashController extends AbstractController
 {
     #[Route('/organisation/{slug}/corbeille', name: 'app_member_trash_index', methods: ['GET'])]
     public function index(
-        Organization $organization,
+        #[MapEntity(mapping: ['slug' => 'slug'])] Organization $organization,
         Request $request,
         BudgetRepository $budgetRepository,
         BudgetLineRepository $budgetLineRepository,
@@ -67,7 +68,7 @@ final class MemberTrashController extends AbstractController
     #[Route('/organisation/{slug}/corbeille/{type}/{id}/restore', name: 'app_member_trash_restore', methods: ['POST'])]
     public function restore(
         Request $request,
-        Organization $organization,
+        #[MapEntity(mapping: ['slug' => 'slug'])] Organization $organization,
         string $type,
         int $id,
         EntityManagerInterface $entityManager,
@@ -92,7 +93,7 @@ final class MemberTrashController extends AbstractController
     #[Route('/organisation/{slug}/corbeille/{type}/{id}/delete', name: 'app_member_trash_hard_delete', methods: ['POST'])]
     public function hardDelete(
         Request $request,
-        Organization $organization,
+        #[MapEntity(mapping: ['slug' => 'slug'])] Organization $organization,
         string $type,
         int $id,
         EntityManagerInterface $entityManager,
