@@ -1,0 +1,254 @@
+{% extends 'user_base.html.twig' %}
+
+{% block title %}Corbeille — {{ organization.name }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .trash-sidebar { width: 220px; flex-shrink: 0; }
+
+    .trash-nav { position: relative; }
+
+    .trash-nav__slider {
+        position: absolute;
+        left: 0;
+        width: 3px;
+        background-color: var(--bs-primary);
+        border-radius: 0 3px 3px 0;
+        pointer-events: none;
+        transition: top 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                    height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .trash-nav__item {
+        display: block;
+        padding: 0.65rem 1rem 0.65rem 1.25rem;
+        color: var(--bs-body-color);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s, background-color 0.2s;
+    }
+    .trash-nav__item:hover { background-color: var(--bs-light); color: var(--bs-primary); }
+    .trash-nav__item.active { color: var(--bs-primary); font-weight: 600; }
+
+    @keyframes trashFadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .trash-content-enter { animation: trashFadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1) both; }
+</style>
+{% endblock %}
+
+{% block body %}
+
+    {# Breadcrumb #}
+    <nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ path('app_dashboard') }}">Tableau de bord</a></li>
+            <li class="breadcrumb-item"><a href="{{ path('app_organization_budgets', {organizationSlug: organization.slug}) }}">{{ organization.name|title }}</a></li>
+            <li class="breadcrumb-item active text-secondary" aria-current="page">Corbeille</li>
+        </ol>
+    </nav>
+
+    {# Header #}
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="d-flex align-items-center gap-3">
+                {{ ux_icon('mdi:delete-outline', {class: 'text-secondary', style: 'font-size: 1.8rem'}) }}
+                <div>
+                    <h1 class="h3 mb-0">Corbeille</h1>
+                    <p class="text-secondary mb-0 small">{{ organization.name|title }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Layout principal #}
+    <div class="d-flex gap-4 align-items-start">
+
+        {# Menu latéral #}
+        <div class="trash-sidebar">
+            <div class="card shadow-sm">
+                <div class="card-body p-0">
+                    <p class="px-3 pt-3 pb-1 mb-0 text-uppercase text-secondary fw-semibold"
+                       style="font-size: 0.7rem; letter-spacing: 0.08em;">Éléments</p>
+                    <nav class="trash-nav pb-2" data-trash-nav>
+                        <div class="trash-nav__slider" id="trashSlider"></div>
+                        {% set types = [
+                            {key: 'depenses',     label: 'Dépenses'},
+                            {key: 'recettes',     label: 'Recettes'},
+                            {key: 'categories',   label: 'Catégories'},
+                            {key: 'transactions', label: 'Transactions'},
+                            {key: 'budgets',      label: 'Budgets'},
+                        ] %}
+                        {% for t in types %}
+                            <a href="{{ path('app_member_trash_index', {slug: organization.slug, type: t.key}) }}"
+                               class="trash-nav__item{% if type == t.key %} active{% endif %}"
+                               data-turbo-frame="trash-content">
+                                {{ t.label }}
+                            </a>
+                        {% endfor %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        {# Zone de contenu — Turbo Frame #}
+        <turbo-frame id="trash-content" class="flex-grow-1 min-w-0" style="display: block;">
+            <div class="trash-content-enter">
+                {% if items is empty %}
+                    <div class="card shadow-sm">
+                        <div class="card-body text-center py-5">
+                            {{ ux_icon('mdi:delete-empty-outline', {class: 'text-secondary mb-3', style: 'font-size: 3rem'}) }}
+                            <h5 class="text-secondary">Cette corbeille est vide</h5>
+                            <p class="text-secondary small mb-0">Les éléments supprimés apparaîtront ici.</p>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="card shadow-sm">
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            {% if type == 'budgets' %}
+                                                <th class="ps-4">Nom</th>
+                                                <th>Période</th>
+                                            {% elseif type in ['depenses', 'recettes'] %}
+                                                <th class="ps-4">Nom</th>
+                                                <th>Budget</th>
+                                                <th>Montant</th>
+                                                <th>Catégorie</th>
+                                            {% elseif type == 'categories' %}
+                                                <th class="ps-4">Nom</th>
+                                                <th>Budget</th>
+                                                <th>Catégorie parente</th>
+                                            {% elseif type == 'transactions' %}
+                                                <th class="ps-4">Référence</th>
+                                                <th>Montant</th>
+                                                <th>Date</th>
+                                                <th>Moyen de paiement</th>
+                                            {% endif %}
+                                            <th>Supprimé le</th>
+                                            <th>Supprimé par</th>
+                                            <th class="text-end pe-4">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for item in items %}
+                                            <tr>
+                                                {% if type == 'budgets' %}
+                                                    <td class="ps-4 fw-semibold">{{ item.name }}</td>
+                                                    <td class="text-secondary small">
+                                                        {{ item.startDate|date('d/m/Y') }} → {{ item.endDate|date('d/m/Y') }}
+                                                    </td>
+                                                {% elseif type in ['depenses', 'recettes'] %}
+                                                    <td class="ps-4 fw-semibold">{{ item.name }}</td>
+                                                    <td>{{ item.budget.name }}</td>
+                                                    <td class="fw-semibold">{{ item.amount|number_format(2, ',', ' ') }} €</td>
+                                                    <td>
+                                                        {% if item.category %}
+                                                            <span class="badge bg-light text-dark border">{{ item.category.name }}</span>
+                                                        {% else %}
+                                                            <span class="text-secondary">—</span>
+                                                        {% endif %}
+                                                    </td>
+                                                {% elseif type == 'categories' %}
+                                                    <td class="ps-4 fw-semibold">{{ item.name }}</td>
+                                                    <td>{{ item.budget.name }}</td>
+                                                    <td>
+                                                        {% if item.parentCategory %}
+                                                            <span class="badge bg-light text-dark border">{{ item.parentCategory.name }}</span>
+                                                        {% else %}
+                                                            <span class="text-secondary">—</span>
+                                                        {% endif %}
+                                                    </td>
+                                                {% elseif type == 'transactions' %}
+                                                    <td class="ps-4 fw-semibold">{{ item.reference ?? '—' }}</td>
+                                                    <td class="fw-semibold">{{ item.amount|number_format(2, ',', ' ') }} €</td>
+                                                    <td>{{ item.date|date('d/m/Y') }}</td>
+                                                    <td class="fst-italic">{{ item.paymentMethod ?? '—' }}</td>
+                                                {% endif %}
+
+                                                <td class="text-secondary small">{{ item.deletedAt|date('d/m/Y H:i') }}</td>
+                                                <td>
+                                                    {% if item.deletedBy %}
+                                                        <span class="badge bg-light text-dark border">
+                                                            {{ item.deletedBy.firstname }} {{ item.deletedBy.lastname }}
+                                                        </span>
+                                                    {% else %}
+                                                        <span class="text-secondary">—</span>
+                                                    {% endif %}
+                                                </td>
+
+                                                <td class="text-end pe-4">
+                                                    <form method="post"
+                                                          action="{{ path('app_member_trash_restore', {slug: organization.slug, type: type, id: item.id}) }}"
+                                                          class="d-inline">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('restore' ~ item.id) }}">
+                                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                                            {{ ux_icon('mdi:restore', {class: 'me-1'}) }}Restaurer
+                                                        </button>
+                                                    </form>
+                                                    <form method="post"
+                                                          action="{{ path('app_member_trash_hard_delete', {slug: organization.slug, type: type, id: item.id}) }}"
+                                                          class="d-inline"
+                                                          onsubmit="return confirm('Supprimer définitivement ? Cette action est irréversible.')">
+                                                        <input type="hidden" name="_token" value="{{ csrf_token('hard-delete' ~ item.id) }}">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                            {{ ux_icon('mdi:delete-forever', {class: 'me-1'}) }}Supprimer
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </turbo-frame>
+
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+    (function () {
+        const nav = document.querySelector('[data-trash-nav]');
+        if (!nav) return;
+
+        const slider = document.getElementById('trashSlider');
+
+        function moveSlider(item) {
+            slider.style.top    = item.offsetTop + 'px';
+            slider.style.height = item.offsetHeight + 'px';
+        }
+
+        // Position initiale au chargement
+        const active = nav.querySelector('.trash-nav__item.active');
+        if (active) moveSlider(active);
+
+        // Déplacement du slider au clic
+        nav.querySelectorAll('.trash-nav__item').forEach(item => {
+            item.addEventListener('click', () => {
+                nav.querySelectorAll('.trash-nav__item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+                moveSlider(item);
+            });
+        });
+
+        // Relance l'animation du contenu à chaque changement de frame
+        document.addEventListener('turbo:frame-load', (e) => {
+            if (e.target.id !== 'trash-content') return;
+            const content = e.target.querySelector('.trash-content-enter');
+            if (!content) return;
+            content.style.animation = 'none';
+            content.offsetHeight; // force reflow
+            content.style.animation = '';
+        });
+    })();
+    </script>
+{% endblock %}
