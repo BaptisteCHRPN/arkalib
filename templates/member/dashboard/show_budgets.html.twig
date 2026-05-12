@@ -54,7 +54,7 @@
 						<a class="btn btn-primary btn-sm" href="{{ path('app_member_budget_new', {'organizationId': organization.id}) }}">
 							Nouveau budget
 						</a>
-						<a class="btn btn-danger btn-sm" href="#">
+						<a class="btn btn-danger btn-sm" href="{{ path('app_member_trash_index', {slug: organization.slug}) }}">
 							{{ ux_icon('mdi:trash-can') }}
 							<span class="ms-1">Corbeille</span>
 						</a>
