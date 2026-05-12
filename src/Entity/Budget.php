@@ -43,7 +43,7 @@ class Budget
     /**
      * @var Collection<int, BudgetLine>
      */
-    #[ORM\OneToMany(targetEntity: BudgetLine::class, mappedBy: 'budget')]
+    #[ORM\OneToMany(targetEntity: BudgetLine::class, mappedBy: 'budget', cascade: ['remove'])]
     private Collection $budget_line;
 
     #[ORM\Column]
