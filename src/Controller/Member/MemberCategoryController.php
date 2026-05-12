@@ -6,8 +6,8 @@ use App\Entity\Budget;
 use App\Entity\Category;
 use App\Entity\Organization;
 use App\Form\CategoryType;
-use App\Repository\BudgetRepository;
 use App\Repository\CategoryRepository;
+use App\Service\SoftDeleteService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -85,5 +85,27 @@ final class MemberCategoryController extends AbstractController
             'form' => $form,
             'budget' => $budget,
         ]);
+    }
+
+    #[IsGranted('ROLE_USER')]
+    #[Route('/organizations/{organizationSlug}/budgets/{budgetSlug}/categories/{id}/delete', name: 'app_member_category_delete', methods: ['POST'])]
+    public function delete(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        SoftDeleteService $softDeleteService,
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
+        #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
+        Category $category,
+    ): Response {
+        if ($this->isCsrfTokenValid('delete' . $category->getId(), $request->getPayload()->getString('_token'))) {
+            $softDeleteService->softDelete($category, $this->getUser());
+            $entityManager->flush();
+            $this->addFlash('success', 'La catégorie a été déplacée dans la corbeille.');
+        }
+
+        return $this->redirectToRoute('app_category_index', [
+            'organizationSlug' => $organization->getSlug(),
+            'budgetSlug' => $budget->getSlug(),
+        ], Response::HTTP_SEE_OTHER);
     }
 }

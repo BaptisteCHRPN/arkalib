@@ -7,9 +7,8 @@ use App\Entity\BudgetLine;
 use App\Entity\Organization;
 use App\Form\BudgetType;
 use App\Repository\BudgetLineRepository;
-use App\Repository\BudgetRepository;
-use App\Repository\OrganizationRepository;
 use App\Service\BudgetCalculatorService;
+use App\Service\SoftDeleteService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -262,6 +261,26 @@ final class MemberBudgetController extends AbstractController
         return $this->redirectToRoute('app_membre_budget_show', [
             'organizationSlug' => $organization->getSlug(),
             'budgetSlug' => $budget->getSlug(),
+        ], Response::HTTP_SEE_OTHER);
+    }
+
+    #[IsGranted('ROLE_USER')]
+    #[Route('/budget/{organizationSlug}/{budgetSlug}/delete', name: 'app_member_budget_delete', methods: ['POST'])]
+    public function delete(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        SoftDeleteService $softDeleteService,
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
+        #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
+    ): Response {
+        if ($this->isCsrfTokenValid('delete' . $budget->getId(), $request->getPayload()->getString('_token'))) {
+            $softDeleteService->softDelete($budget, $this->getUser());
+            $entityManager->flush();
+            $this->addFlash('success', 'Le budget a été déplacé dans la corbeille.');
+        }
+
+        return $this->redirectToRoute('app_organization_budgets', [
+            'organizationSlug' => $organization->getSlug(),
         ], Response::HTTP_SEE_OTHER);
     }
 
