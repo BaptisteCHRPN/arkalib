@@ -117,28 +117,23 @@ class BudgetLineRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    //    /**
-    //     * @return BudgetLine[] Returns an array of BudgetLine objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('b')
-    //            ->andWhere('b.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('b.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function findDeletedByOrganization(Organization $organization, bool $isExpense): array
+    {
+        $this->getEntityManager()->getFilters()->disable('soft_delete');
 
-    //    public function findOneBySomeField($value): ?BudgetLine
-    //    {
-    //        return $this->createQueryBuilder('b')
-    //            ->andWhere('b.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $results = $this->createQueryBuilder('bl')
+            ->join('bl.budget', 'b')
+            ->where('b.organization = :organization')
+            ->andWhere('bl.deleted_at IS NOT NULL')
+            ->andWhere('bl.is_expense = :isExpense')
+            ->setParameter('organization', $organization)
+            ->setParameter('isExpense', $isExpense)
+            ->orderBy('bl.deleted_at', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        $this->getEntityManager()->getFilters()->enable('soft_delete');
+
+        return $results;
+    }
 }
