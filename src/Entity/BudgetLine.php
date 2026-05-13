@@ -27,7 +27,7 @@ class BudgetLine
     private bool $is_expense = true;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $descrption = null;
+    private ?string $description = null;
 
     #[ORM\Column]
     private ?float $amount = null;
@@ -85,14 +85,14 @@ class BudgetLine
         return $this;
     }
 
-    public function getDescrption(): ?string
+    public function getDescription(): ?string
     {
-        return $this->descrption;
+        return $this->description;
     }
 
-    public function setDescrption(string $descrption): static
+    public function setDescription(?string $description): static
     {
-        $this->descrption = $descrption;
+        $this->description = $description;
         return $this;
     }
 

@@ -85,7 +85,7 @@
                             </span>
                         </td>
                         <td>
-                            <span class="text-secondary small">{{ budget_line.descrption|length > 40 ? budget_line.descrption|slice(0, 20) ~ '…' : budget_line.descrption }}</span>
+                            <span class="text-secondary small">{{ budget_line.description|length > 40 ? budget_line.description|slice(0, 20) ~ '…' : budget_line.description }}</span>
                         </td>
                         <td>
                             <span class="text-secondary small">{{ budget_line.createdAt ? budget_line.createdAt|date('d/m/Y') : '—' }}</span>
