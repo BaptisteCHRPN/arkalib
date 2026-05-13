@@ -183,7 +183,8 @@
                                                 <td class="text-end pe-4">
                                                     <form method="post"
                                                           action="{{ path('app_member_trash_restore', {slug: organization.slug, type: type, id: item.id}) }}"
-                                                          class="d-inline">
+                                                          class="d-inline"
+                                                          data-turbo-frame="_top">
                                                         <input type="hidden" name="_token" value="{{ csrf_token('restore' ~ item.id) }}">
                                                         <button type="submit" class="btn btn-sm btn-outline-success">
                                                             {{ ux_icon('mdi:restore', {class: 'me-1'}) }}Restaurer
@@ -192,6 +193,7 @@
                                                     <form method="post"
                                                           action="{{ path('app_member_trash_hard_delete', {slug: organization.slug, type: type, id: item.id}) }}"
                                                           class="d-inline"
+                                                          data-turbo-frame="_top"
                                                           onsubmit="return confirm('Supprimer définitivement ? Cette action est irréversible.')">
                                                         <input type="hidden" name="_token" value="{{ csrf_token('hard-delete' ~ item.id) }}">
                                                         <button type="submit" class="btn btn-sm btn-outline-danger">
