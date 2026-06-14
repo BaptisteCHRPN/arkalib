@@ -1,19 +1,109 @@
-<h2>Vous êtes invité(e) !</h2>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vous êtes invité(e) à rejoindre {{ invitation.organisation.name }} – Arkalib</title>
+</head>
+<body style="margin:0;padding:0;background-color:#EFEFEF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
 
-<p>
-    <strong>{{ inviterName }}</strong> vous invite à rejoindre
-    l'organisation <strong>« {{ invitation.organisation.name }} »</strong>
-    sur Arkalib.
-</p>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#EFEFEF;">
+        <tr>
+            <td align="center" style="padding:40px 16px;">
 
-<p>
-    <a href="{{ acceptUrl }}"
-       style="display:inline-block; padding:12px 24px; background:#4F46E5;
-              color:#fff; text-decoration:none; border-radius:6px;">
-        Accepter l'invitation
-    </a>
-</p>
+                {# ── Carte principale ── #}
+                <table role="presentation" width="100%" style="max-width:560px;background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
 
-<p style="color:#666; font-size:0.9em;">
-    Ce lien expire le {{ invitation.expiresAt|date('d/m/Y à H:i') }}.
-</p>
+                    {# En-tête #}
+                    <tr>
+                        <td align="center" style="background-color:#1F2F50;padding:32px 40px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" style="display:inline-table;">
+                                <tr>
+                                    <td style="vertical-align:middle;padding-right:12px;">
+                                        <img src="{{ absolute_url(asset('img/logo.png')) }}"
+                                             alt=""
+                                             width="40"
+                                             style="max-width:40px;height:auto;display:block;">
+                                    </td>
+                                    <td style="vertical-align:middle;">
+                                        <span style="font-size:1.6rem;font-weight:700;color:#fff;letter-spacing:-0.5px;">Arkalib</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    {# Corps #}
+                    <tr>
+                        <td style="padding:40px 40px 32px;">
+                            <h1 style="margin:0 0 12px;font-size:1.4rem;font-weight:700;color:#1F2F50;line-height:1.3;">
+                                Vous êtes invité(e) à rejoindre une organisation&nbsp;!
+                            </h1>
+                            <p style="margin:0 0 24px;font-size:1rem;color:#626D7A;line-height:1.6;">
+                                <strong style="color:#1F2F50;">{{ inviterName }}</strong> vous invite à rejoindre l'organisation
+                                <strong style="color:#1F2F50;">« {{ invitation.organisation.name }} »</strong> sur Arkalib.
+                                Cliquez sur le bouton ci-dessous pour accepter l'invitation.
+                            </p>
+
+                            {# Bouton CTA #}
+                            <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 28px;">
+                                <tr>
+                                    <td style="border-radius:5px;background-color:#34BBFC;">
+                                        <a href="{{ acceptUrl }}"
+                                           style="display:inline-block;padding:14px 32px;font-size:1rem;font-weight:600;color:#ffffff;text-decoration:none;border-radius:5px;background-color:#34BBFC;">
+                                            Accepter l'invitation
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            {# Note d'expiration #}
+                            <p style="margin:0;font-size:0.85rem;color:#626D7A;line-height:1.5;">
+                                Ce lien est valable jusqu'au&nbsp;
+                                <strong style="color:#1F2F50;">{{ invitation.expiresAt|date('d/m/Y à H:i') }}</strong>.
+                                Passé ce délai, vous devrez demander une nouvelle invitation.
+                            </p>
+                        </td>
+                    </tr>
+
+                    {# Séparateur #}
+                    <tr>
+                        <td style="padding:0 40px;">
+                            <hr style="border:none;border-top:1px solid #EFEFEF;margin:0;">
+                        </td>
+                    </tr>
+
+                    {# Section aide #}
+                    <tr>
+                        <td style="padding:24px 40px;">
+                            <p style="margin:0;font-size:0.82rem;color:#626D7A;line-height:1.6;">
+                                Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur&nbsp;:
+                            </p>
+                            <p style="margin:8px 0 0;font-size:0.78rem;color:#34BBFC;word-break:break-all;">
+                                {{ acceptUrl }}
+                            </p>
+                        </td>
+                    </tr>
+
+                    {# Pied de page #}
+                    <tr>
+                        <td align="center" style="background-color:#1F2F50;padding:24px 40px;">
+                            <p style="margin:0 0 6px;font-size:0.8rem;color:rgba(255,255,255,0.5);">
+                                Vous recevez cet e-mail car <strong style="color:rgba(255,255,255,0.75);">{{ inviterName }}</strong>
+                                vous a invité(e) à rejoindre une organisation sur
+                                <strong style="color:rgba(255,255,255,0.75);">Arkalib</strong>.
+                            </p>
+                            <p style="margin:0;font-size:0.8rem;color:rgba(255,255,255,0.4);">
+                                Si vous ne souhaitez pas rejoindre cette organisation, ignorez simplement cet e-mail.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

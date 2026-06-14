@@ -23,7 +23,10 @@ class TraceabilitySubscriber
         }
 
         $entity->setCreatedAt(new \DateTimeImmutable());
-        $entity->setCreatedBy($this->security->getUser());
+
+        if (method_exists($entity, 'setCreatedBy')) {
+            $entity->setCreatedBy($this->security->getUser());
+        }
     }
 
     public function preUpdate(LifecycleEventArgs $args): void
@@ -35,7 +38,10 @@ class TraceabilitySubscriber
         }
 
         $entity->setUpdatedAt(new \DateTimeImmutable());
-        $entity->setUpdatedBy($this->security->getUser());
+
+        if (method_exists($entity, 'setUpdatedBy')) {
+            $entity->setUpdatedBy($this->security->getUser());
+        }
 
     }
 }
