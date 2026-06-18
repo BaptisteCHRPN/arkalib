@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -22,6 +23,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 180)]
     private ?string $email = null;
+
+    #[ORM\Column(length: 180, nullable: true)]
+    private ?string $pendingEmail = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?string $emailChangeToken = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?DateTimeImmutable $emailChangeTokenExpiresAt = null;
 
     /**
      * @var list<string> The user roles
@@ -81,6 +91,42 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): static
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getPendingEmail(): ?string
+    {
+        return $this->pendingEmail;
+    }
+
+    public function setPendingEmail(?string $pendingEmail): static
+    {
+        $this->pendingEmail = $pendingEmail;
+
+        return $this;
+    }
+
+    public function getEmailChangeToken(): ?string
+    {
+        return $this->emailChangeToken;
+    }
+
+    public function setEmailChangeToken(?string $emailChangeToken): static
+    {
+        $this->emailChangeToken = $emailChangeToken;
+
+        return $this;
+    }
+
+    public function getEmailChangeTokenExpiresAt(): ?DateTimeImmutable
+    {
+        return $this->emailChangeTokenExpiresAt;
+    }
+
+    public function setEmailChangeTokenExpiresAt(?DateTimeImmutable $emailChangeTokenExpiresAt): static
+    {
+        $this->emailChangeTokenExpiresAt = $emailChangeTokenExpiresAt;
 
         return $this;
     }
