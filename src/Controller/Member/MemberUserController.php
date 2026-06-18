@@ -3,12 +3,17 @@
 namespace App\Controller\Member;
 
 use App\Entity\User;
+use App\Form\ChangeEmailFormType;
 use App\Form\UserType;
+use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[IsGranted('ROLE_USER')]
@@ -54,6 +59,57 @@ final class MemberUserController extends AbstractController
             'form' => $form,
         ]);
     }
+
+    #[Route('/{id}/change-email', name: 'app_member_user_change_email', methods: ['GET', 'POST'])]
+    public function changeEmail(Request $request, User $user, MailerInterface $mailer, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->getUser() !== $user) {
+            throw $this->createAccessDeniedException();
+        }
+
+        $form = $this->createForm(ChangeEmailFormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $newEmail = $form->get('newEmail')->getData();
+            $token = bin2hex(random_bytes(32));
+            $expiresAt = new DateTimeImmutable('+1 hour');
+
+            $user->setPendingEmail($newEmail);
+            $user->setEmailChangeToken($token);
+            $user->setEmailChangeTokenExpiresAt($expiresAt);
+
+            $entityManager->flush();
+
+            $confirmUrl = $this->generateUrl(
+                'app_member_user_confirm_email',
+                ['token' => $token],
+                UrlGeneratorInterface::ABSOLUTE_URL
+            );
+
+            $email = (new TemplatedEmail())
+                ->from('noreply@arkalib.fr')
+                ->to($newEmail)
+                ->subject('Confirmez votre nouvelle adresse email')
+                ->htmlTemplate('emails/change_email.html.twig')
+                ->context([
+                    'user' => $user,
+                    'confirmUrl' => $confirmUrl,
+                ]);
+
+            $mailer->send($email);
+
+            $this->addFlash('success', 'Un email de confirmation a été envoyé à votre nouvelle adresse.');
+
+            return $this->redirectToRoute('app_member_user_edit', ['id' => $user->getId()]);
+        }
+
+        return $this->render('member/user/change_email.html.twig', [
+            'form' => $form,
+            'user' => $user,
+        ]);
+    }
+
 
     #[Route('/{id}/delete-picture', name: 'app_member_user_delete_picture', methods: ['GET'])]
     public function deletePicture(Request $request, User $user, EntityManagerInterface $entityManager): Response
