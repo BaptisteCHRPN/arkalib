@@ -57,6 +57,7 @@ final class MemberUserController extends AbstractController
         return $this->render('member/user/edit.html.twig', [
             'user' => $user,
             'form' => $form,
+            'formChangeEmail' => $this->createForm(ChangeEmailFormType::class),
         ]);
     }
 
