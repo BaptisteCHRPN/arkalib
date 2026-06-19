@@ -16,7 +16,7 @@
 	<div class="container" style="max-width: 900px;">
 		<div class="py-4">
 			<h1 class="h3 fw-normal border-bottom pb-3 mb-4">Modifier mon profil</h1>
-			{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+			{{ form_start(formChangeEmail, {'action': path('app_member_user_change_email', {'id': user.id}), 'attr': {'novalidate': 'novalidate'}}) }}
 			{# Email input #}
 			<div class="row mb-4 pb-4 border-bottom">
 				<div class="col-md-4">
@@ -24,10 +24,19 @@
 					<p class="small">Votre adresse email de connexion.</p>
 				</div>
 				<div class="col-md-8">
-					{{ form_widget(form.email, {'attr': {'class': 'form-control', 'style': 'max-width: 400px;'}}) }}
-					{{ form_errors(form.email) }}
+					{{ form_widget(formChangeEmail.newEmail, {'attr': {'class': 'form-control', 'placeholder': app.user.email, 'style': 'max-width: 400px;'}}) }}
+					{{ form_errors(formChangeEmail.newEmail) }}
 				</div>
 			</div>
+			<div class="row mb-5">
+				<div class="col-md-8 offset-md-4">
+					<button class="btn btn-primary px-4">Modifier mon email</button>
+				</div>
+			</div>
+
+			{{ form_end(formChangeEmail) }}
+
+			{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 			{# Firstname input #}
 			<div class="row mb-4 pb-4 border-bottom">
 				<div class="col-md-4">
