@@ -92,7 +92,7 @@ final class MemberUserController extends AbstractController
                 ->from('noreply@arkalib.fr')
                 ->to($newEmail)
                 ->subject('Confirmez votre nouvelle adresse email')
-                ->htmlTemplate('emails/change_email.html.twig')
+                ->htmlTemplate('member/user/change_email.html.twig')
                 ->context([
                     'user' => $user,
                     'confirmUrl' => $confirmUrl,
