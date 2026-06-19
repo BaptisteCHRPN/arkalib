@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmez votre nouvelle adresse e-mail – Arkalib</title>
+</head>
+<body style="margin:0;padding:0;background-color:#EFEFEF;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color:#EFEFEF;">
+        <tr>
+            <td align="center" style="padding:40px 16px;">
+
+                <table role="presentation" width="100%" style="max-width:560px;background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+
+                    {# En-tête #}
+                    <tr>
+                        <td align="center" style="background-color:#1F2F50;padding:32px 40px;">
+                            <table role="presentation" cellspacing="0" cellpadding="0" style="display:inline-table;">
+                                <tr>
+                                    <td style="vertical-align:middle;padding-right:12px;">
+                                        <img src="{{ absolute_url(asset('img/logo.png')) }}"
+                                             alt=""
+                                             width="40"
+                                             style="max-width:40px;height:auto;display:block;">
+                                    </td>
+                                    <td style="vertical-align:middle;">
+                                        <span style="font-size:1.6rem;font-weight:700;color:#fff;letter-spacing:-0.5px;">Arkalib</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    {# Corps #}
+                    <tr>
+                        <td style="padding:40px 40px 32px;">
+                            <h1 style="margin:0 0 12px;font-size:1.4rem;font-weight:700;color:#1F2F50;line-height:1.3;">
+                                Confirmez votre nouvelle adresse e-mail
+                            </h1>
+                            <p style="margin:0 0 24px;font-size:1rem;color:#626D7A;line-height:1.6;">
+                                Bonjour {{ user.firstname }}, vous avez demandé à modifier votre adresse e-mail sur Arkalib. Cliquez sur le bouton ci-dessous pour confirmer cette nouvelle adresse. Ce lien est valable <strong style="color:#1F2F50;">1 heure</strong>.
+                            </p>
+
+                            {# Bouton CTA #}
+                            <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 28px;">
+                                <tr>
+                                    <td style="border-radius:5px;background-color:#34BBFC;">
+                                        <a href="{{ confirmUrl }}"
+                                           style="display:inline-block;padding:14px 32px;font-size:1rem;font-weight:600;color:#ffffff;text-decoration:none;border-radius:5px;background-color:#34BBFC;">
+                                            Confirmer ma nouvelle adresse e-mail
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            {# Lien de secours #}
+                            <p style="margin:0;font-size:0.85rem;color:#626D7A;line-height:1.5;">
+                                Si le bouton ne fonctionne pas, copiez-collez ce lien dans votre navigateur&nbsp;:
+                            </p>
+                            <p style="margin:8px 0 0;font-size:0.78rem;color:#34BBFC;word-break:break-all;">
+                                {{ confirmUrl }}
+                            </p>
+                        </td>
+                    </tr>
+
+                    {# Séparateur #}
+                    <tr>
+                        <td style="padding:0 40px;">
+                            <hr style="border:none;border-top:1px solid #EFEFEF;margin:0;">
+                        </td>
+                    </tr>
+
+                    {# Pied de page #}
+                    <tr>
+                        <td align="center" style="background-color:#1F2F50;padding:24px 40px;">
+                            <p style="margin:0 0 6px;font-size:0.8rem;color:rgba(255,255,255,0.5);">
+                                Vous recevez cet e-mail car une demande de modification d'adresse e-mail a été effectuée sur
+                                <strong style="color:rgba(255,255,255,0.75);">Arkalib</strong>.
+                            </p>
+                            <p style="margin:0;font-size:0.8rem;color:rgba(255,255,255,0.4);">
+                                Si vous n'êtes pas à l'origine de cette demande, ignorez simplement cet e-mail. Votre adresse actuelle restera inchangée.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

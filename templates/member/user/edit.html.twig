@@ -24,12 +24,8 @@
 					<p class="small">Votre adresse email de connexion.</p>
 				</div>
 				<div class="col-md-8">
-					{{ form_widget(formChangeEmail.newEmail, {'attr': {'class': 'form-control', 'placeholder': app.user.email, 'style': 'max-width: 400px;'}}) }}
+					{{ form_widget(formChangeEmail.newEmail, {'attr': {'class': 'form-control, mb-3', 'placeholder': app.user.email, 'style': 'max-width: 400px;'}}) }}
 					{{ form_errors(formChangeEmail.newEmail) }}
-				</div>
-			</div>
-			<div class="row mb-5">
-				<div class="col-md-8 offset-md-4">
 					<button class="btn btn-primary px-4">Modifier mon email</button>
 				</div>
 			</div>
