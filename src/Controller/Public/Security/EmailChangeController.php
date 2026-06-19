@@ -29,10 +29,15 @@ class EmailChangeController extends AbstractController
 
         $entityManager->flush();
 
-        $this->addFlash('success', 'Votre nouvelle adresse email a été confirmée. L\'ancienne adresse email a été supprimée.');
-
-        return $this->redirectToRoute('app_member_user_edit', ['id' => $user->getId()]);
+        return $this->redirectToRoute('app_email_change_confirmed');
 
 
     }
+
+    #[Route('/email-change-confirmed', name: 'app_email_change_confirmed')]
+    public function emailChangeConfirmed(): Response
+    {
+        return $this->render('public/security/email_change_confirmed.html.twig');
+    }
+
 }

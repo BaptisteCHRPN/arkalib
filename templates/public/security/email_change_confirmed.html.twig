@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Adresse e-mail confirmée{% endblock %}
+
+{% block body %}
+    <div class="login-container">
+        <div class="login-card">
+            <h1 class="login-title">E-mail confirmé</h1>
+
+            <p class="text-center text-muted mb-4">
+                Votre nouvelle adresse e-mail a bien été confirmée. Veuillez vous reconnecter avec votre nouvelle adresse pour accéder à votre compte.
+            </p>
+
+            <a href="{{ path('app_login') }}" class="w-100 btn btn-primary login-button">
+                Se connecter
+            </a>
+        </div>
+    </div>
+{% endblock %}
