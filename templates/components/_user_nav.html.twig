@@ -107,7 +107,7 @@
                         {% elseif app.user.firstname and app.user.lastname %}
                             {{ app.user.firstname|first|upper }}{{ app.user.lastname|first|upper }}
                         {% else %}
-                            @{{ app.user.email|first|upper }}
+                            @{{ app.user.email|first }}
                         {% endif %}
                     </span>
                     <div class="ms-2 overflow-hidden">
@@ -144,7 +144,7 @@
             {% elseif app.user.firstname and app.user.lastname %}
                 {{ app.user.firstname|first|upper }}{{ app.user.lastname|first|upper }}
             {% else %}
-                 @{{ app.user.email|first|upper }}
+                 @{{ app.user.email|first }}
             {% endif %}
         </a>
         <ul class="dropdown-menu dropdown-menu-end text-small shadow">
