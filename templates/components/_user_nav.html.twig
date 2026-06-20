@@ -104,8 +104,10 @@
                         {% if app.user.picture %}
                             <img src="{{ path('user_avatar_upload', {nameFile: app.user.picture}) }}" alt=""
                                  style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                        {% elseif app.user.firstname and app.user.lastname %}
+                            {{ app.user.firstname|first|upper }}{{ app.user.lastname|first|upper }}
                         {% else %}
-                            {{ app.user.firstname|first|capitalize }}{{ app.user.lastname|first|capitalize }}
+                            @{{ app.user.email|first|upper }}
                         {% endif %}
                     </span>
                     <div class="ms-2 overflow-hidden">
@@ -139,8 +141,10 @@
             aria-expanded="false">
             {% if app.user.picture %}
                 <img src="{{ path('user_avatar_upload', {nameFile: app.user.picture}) }}" alt="">
+            {% elseif app.user.firstname and app.user.lastname %}
+                {{ app.user.firstname|first|upper }}{{ app.user.lastname|first|upper }}
             {% else %}
-                {{ app.user.firstname|first|capitalize }}{{ app.user.lastname|first|capitalize }}
+                 @{{ app.user.email|first|upper }}
             {% endif %}
         </a>
         <ul class="dropdown-menu dropdown-menu-end text-small shadow">
