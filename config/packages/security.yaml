@@ -18,6 +18,7 @@ security:
             security: false
         main:
             lazy: true
+            user_checker: App\Security\UserChecker
             provider: app_user_provider
             custom_authenticator: App\Security\EmailAuthenticator
             entry_point: App\Security\EmailAuthenticator
