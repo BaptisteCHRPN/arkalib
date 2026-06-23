@@ -1,3 +1,4 @@
+{% import 'macros/avatar.html.twig' as avatarMacros %}
 {% extends 'user_base.html.twig' %}
 
 {% block stylesheets %}
@@ -71,13 +72,7 @@
 									<span class="badge badge-id">#{{ user.id }}</span>
 								</td>
 								<td>
-									<div class="profile-rounded text-light d-inline-flex align-items-center justify-content-center text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
-										{% if user.picture %}
-											<img src="{{ path('user_avatar_upload', {nameFile: user.picture}) }}" alt="">
-										{% else %}
-											{{ user.firstname|first }}{{ user.lastname|first }}
-										{% endif %}
-									</div>
+									{{ avatarMacros.user_avatar(user.picture, user.email, 48) }}
 								</td>
 								<td class="fw-medium text-dark">{{ user.firstname }}
 									{{ user.lastname }}</td>
