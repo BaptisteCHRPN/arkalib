@@ -1,3 +1,4 @@
+{% import 'macros/avatar.html.twig' as avatarMacros %}
 {% extends 'user_base.html.twig' %}
 {% block title %}
 	{{ organization.name|title }}
@@ -165,15 +166,9 @@
 									<tr>
 										<td class="ps-4">
 											<div class="d-flex align-items-center">
-												<span class="d-inline-flex align-items-center justify-content-center rounded-circle me-3 flex-shrink-0" style="width: 36px; height: 36px; font-size: 0.8rem; background: #e9ecef; color: #495057;">
-													{% if user.picture %}
-														<img src="{{ path('user_avatar_upload', {nameFile: user.picture}) }}" alt="" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
-													{% else %}
-														{{ user.firstname|first|capitalize }}{{ user.lastname|first|capitalize }}
-													{% endif %}
-												</span>
+												{{ avatarMacros.user_avatar(user.picture, user.email, 40) }}
 												<div>
-													<h6 class="mb-0 fw-semibold">
+													<h6 class="mb-0 ms-3 fw-semibold">
 														{{ user.firstname }}
 														{{ user.lastname }}
 													</h6>
