@@ -29,6 +29,7 @@
 			</header>
 			{# main content #}
 			<main id="main-content" class="pt-80" role="main">
+				{% include "_flashes.html.twig" %}
 				<h1 class="visually-hidden"> {% block h1 %}{% endblock %}
 					</h1>
 					{% block body %}{% endblock %}
