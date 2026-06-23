@@ -1,3 +1,4 @@
+{% import 'macros/avatar.html.twig' as avatarMacros %}
 {% extends 'user_base.html.twig' %}
 {% block title %}Modifier mon profil
 {% endblock %}
@@ -63,15 +64,7 @@
 				</div>
 				<div class="col-md-8">
 					<div class="d-flex align-items-start gap-4">
-						<div style="width: 100px; height: 100px; flex-shrink: 0;">
-							{% if app.user.picture %}
-								<img src="{{ path('user_avatar_upload', {nameFile: app.user.picture}) }}" alt="{{ app.user.firstname }}" class="rounded-circle border" style="width: 100px; height: 100px; object-fit: cover;">
-							{% else %}
-								<div class="rounded-circle border d-flex align-items-center justify-content-center bg-light" style="width: 100px; height: 100px; font-size: 2.5rem; color: #586069;">
-									{{ app.user.firstname|first|capitalize }}
-								</div>
-							{% endif %}
-						</div>
+						{{ avatarMacros.user_avatar(user.picture, user.email, 62) }}
 						<div>
 							{{ form_widget(form.picture, {'attr': {'class': 'form-control', 'style': 'max-width: 300px;'}}) }}
 							{{ form_errors(form.picture) }}
