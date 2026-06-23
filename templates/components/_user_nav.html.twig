@@ -1,3 +1,5 @@
+{% import 'macros/avatar.html.twig' as avatarMacros %}
+
 {# Toggle button to display navbar #}
 <button class="navbar-toggle-btn" type="button" id="navbarToggle">
     <span class="chevron-icon"></span>
@@ -99,17 +101,7 @@
                    style="transition: background 0.2s;"
                    onmouseover="this.style.background='rgba(255,255,255,0.1)'"
                    onmouseout="this.style.background='transparent'">
-                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0"
-                          style="width: 36px; height: 36px; font-size: 0.8rem; background: rgba(255,255,255,0.15); color: #fff;">
-                        {% if app.user.picture %}
-                            <img src="{{ path('user_avatar_upload', {nameFile: app.user.picture}) }}" alt=""
-                                 style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
-                        {% elseif app.user.firstname and app.user.lastname %}
-                            {{ app.user.firstname|first|upper }}{{ app.user.lastname|first|upper }}
-                        {% else %}
-                            @{{ app.user.email|first }}
-                        {% endif %}
-                    </span>
+                    {{ avatarMacros.user_avatar(app.user.picture, app.user.email) }}
                     <div class="ms-2 overflow-hidden">
                         <div class="small fw-semibold text-truncate">
                             {{ app.user.firstname }} {{ app.user.lastname }}
@@ -130,23 +122,15 @@
         Bonjour {{ app.user.firstname }} !
     </h2>
     <div class="dropdown ms-auto me-4">
-        <a href="#" class=
-            "profile-rounded 
-            text-light 
-            d-inline-flex 
-            align-items-center 
-            justify-content-center 
-            text-decoration-none"
-            data-bs-toggle="dropdown" 
-            aria-expanded="false">
-            {% if app.user.picture %}
-                <img src="{{ path('user_avatar_upload', {nameFile: app.user.picture}) }}" alt="">
-            {% elseif app.user.firstname and app.user.lastname %}
-                {{ app.user.firstname|first|upper }}{{ app.user.lastname|first|upper }}
-            {% else %}
-                 @{{ app.user.email|first }}
-            {% endif %}
+        <a href="#"
+        class="text-decoration-none"
+        data-bs-toggle="dropdown"
+        data-bs-offset="4,25"
+        aria-expanded="false">
+            {{ avatarMacros.user_avatar(app.user.picture, app.user.email, 48) }}
         </a>
+
+
         <ul class="dropdown-menu dropdown-menu-end text-small shadow">
             <li>
                 <a class="dropdown-item text-dark" href="{{ path('app_member_user_edit', {'id': app.user.id}) }}">

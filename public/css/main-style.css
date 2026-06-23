@@ -252,6 +252,7 @@ body.loading * {
 
 .dropdown-menu {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border: none;
     z-index: 1050;
 }
 
@@ -371,6 +372,23 @@ body.loading * {
     object-fit: cover;
     border-radius: 50%;
 }
+
+/* =============================================
+   COMPOSANT – Dropdown profil
+   ============================================= */
+
+.dropdown-menu.shadow::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 22px;
+    width: 12px;
+    height: 12px;
+    background: var(--bs-body-bg, #fff);
+    transform: rotate(45deg);
+    box-shadow: -2px -2px 4px rgba(0, 0, 0, 0.06);
+}
+
 
 
 /* =============================================

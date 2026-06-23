@@ -1,0 +1,17 @@
+{% macro user_avatar(picture, seed, size) %}
+    {% set size = size ?? 36 %}
+
+    {% if picture %}
+        <img src="{{ path('user_avatar_upload', {nameFile: picture}) }}"
+             alt="avatar"
+             width="{{ size }}"
+             height="{{ size }}"
+             style="width: {{ size }}px; height: {{ size }}px; border-radius: 50%; object-fit: cover;">
+    {% else %}
+        <img src="{{ dicebear_avatar(seed) }}"
+             alt="avatar"
+             width="{{ size }}"
+             height="{{ size }}"
+             style="width: {{ size }}px; height: {{ size }}px; border-radius: 50%;">
+    {% endif %}
+{% endmacro %}
