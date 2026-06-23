@@ -4,6 +4,8 @@ namespace App\Controller\Public\Security;
 
 use App\Entity\User;
 use App\Form\RegistrationFormType;
+use App\Form\ResendVerificationEmailFormType;
+use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -21,17 +23,14 @@ class RegistrationController extends AbstractController
 {
     use TargetPathTrait;
 
-    public function __construct(private EmailVerifier $emailVerifier)
-    {
-    }
+    public function __construct(private EmailVerifier $emailVerifier) {}
 
     #[Route('/register', name: 'app_register')]
     public function register(
-        Request $request, 
-        UserPasswordHasherInterface $userPasswordHasher, 
+        Request $request,
+        UserPasswordHasherInterface $userPasswordHasher,
         EntityManagerInterface $entityManager
-    ): Response
-    {
+    ): Response {
         $user = new User();
         $form = $this->createForm(RegistrationFormType::class, $user);
         $form->handleRequest($request);
@@ -47,7 +46,9 @@ class RegistrationController extends AbstractController
             $entityManager->flush();
 
             // generate a signed url and email it to the user
-            $this->emailVerifier->sendEmailConfirmation('app_verify_email', $user,
+            $this->emailVerifier->sendEmailConfirmation(
+                'app_verify_email',
+                $user,
                 (new TemplatedEmail())
                     ->from(new Address('verify@arkalib.fr', 'Admin'))
                     ->to((string) $user->getEmail())
@@ -62,18 +63,24 @@ class RegistrationController extends AbstractController
 
         return $this->render('public/registration/register.html.twig', [
             'registrationForm' => $form,
-        ]); 
+        ]);
     }
 
     #[Route('/verify/email', name: 'app_verify_email')]
-    public function verifyUserEmail(Request $request, TranslatorInterface $translator): Response
+    public function verifyUserEmail(Request $request, TranslatorInterface $translator, UserRepository $userRepository): Response
     {
-        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
 
         // validate email confirmation link, sets User::isVerified=true and persists
         try {
             /** @var User $user */
-            $user = $this->getUser();
+            $userId = $request->query->get('id');
+            $user = $userRepository->find($userId);
+
+            if (!$user) {
+                return $this->redirectToRoute('app_register');
+            }
+
             $this->emailVerifier->handleEmailConfirmation($request, $user);
         } catch (VerifyEmailExceptionInterface $exception) {
             $this->addFlash('verify_email_error', $translator->trans($exception->getReason(), [], 'VerifyEmailBundle'));
@@ -88,5 +95,36 @@ class RegistrationController extends AbstractController
         $this->removeTargetPath($request->getSession(), 'main');
 
         return $this->redirectToRoute('app_dashboard');
+    }
+
+    #[Route('/resend/verify/email', name: 'app_verify_resend')]
+    public function resendEmailConfirmation(Request $request, UserRepository $userRepository): Response
+    {
+        $form = $this->createForm(ResendVerificationEmailFormType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $email = $form->get('email')->getData();
+            $user = $userRepository->findOneBy(['email' => $email]);
+
+            if ($user && !$user->isVerified()) {
+                $this->emailVerifier->sendEmailConfirmation(
+                    'app_verify_email',
+                    $user,
+                    (new TemplatedEmail())
+                        ->from(new Address('verify@arkalib.fr', 'Admin'))
+                        ->to((string) $user->getEmail())
+                        ->subject('Please Confirm your Email')
+                        ->htmlTemplate('public/registration/confirmation_email.html.twig')
+                );
+            }
+            $this->addFlash('success', 'L\'email de vérification à été envoyé avec succès. Veuillez vérifier votre messagerie.');
+
+            return $this->redirectToRoute('app_verify_resend');
+        }
+
+        return $this->render('public/registration/resend_email.html.twig', [
+            'form' => $form,
+        ]);
     }
 }

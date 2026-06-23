@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vérification de compte{% endblock %}
+
+{% block body %}
+	<div class="login-container">
+		<div class="login-card">
+			<h1 class="login-title">Vérifiez votre compte</h1>
+
+			<p class="text-center text-muted mb-4">
+				Saisissez votre adresse e-mail pour recevoir un nouveau lien de vérification.
+			</p>
+
+			{{ form_start(form) }}
+				{{ form_widget(form.email, {
+					'attr': {
+						'class': 'form-control login-input mb-3',
+						'placeholder': 'Adresse e-mail'
+					}
+				}) }}
+				{{ form_errors(form.email) }}
+
+				<button type="submit" class="w-100 btn btn-primary login-button">
+					Renvoyer l'email de confirmation
+				</button>
+			{{ form_end(form) }}
+
+			<hr>
+
+			<div class="text-center">
+				<a href="{{ path('app_login') }}" class="login-link">Retour à la connexion</a>
+			</div>
+		</div>
+	</div>
+{% endblock %}

@@ -17,12 +17,11 @@ class UserChecker implements UserCheckerInterface
 
         if (!$user->isVerified()) {
             throw new CustomUserMessageAuthenticationException(
-                'Votre compte n\'est pas encore vérifié. Veuillez consulter vos emails.'
+                'Votre compte n\'est pas encore vérifié. Veuillez consulter vos emails. <a href="/resend/verify/email">Renvoyer l\'email</a>'
             );
         }
     }
 
-    #[Override]
     public function checkPostAuth(UserInterface $user): void
     {
         
