@@ -55,7 +55,6 @@ final class MemberInvitationController extends AbstractController
         ]);
     }
 
-    #[IsGranted('ROLE_USER')]
     #[Route('/invitation/{token}', name: 'app_invitation_accept')]
     public function accept(
         string $token,
@@ -69,10 +68,13 @@ final class MemberInvitationController extends AbstractController
         $hashedToken = hash('sha256', $token);
         $invitation = $invitationRepository->findOneBy([
             'hashedToken' => $hashedToken,
-            'status' => \App\Entity\Invitation::STATUS_PENDING,
+            'status' => Invitation::STATUS_PENDING,
         ]);
 
         if (!$invitation || $invitation->isExpired()) {
+            if ($invitation?->isExpired()) {
+                $invitationService->markAsExpired($invitation);
+            }
             $this->addFlash('error', 'Cette invitation est invalide ou a expiré.');
             return $this->redirectToRoute('app_login');
         }
@@ -85,8 +87,8 @@ final class MemberInvitationController extends AbstractController
                     'Vous avez rejoint l\'organisation « %s » !',
                     $invitation->getOrganisation()->getName()
                 ));
-            } catch (\LogicException $e) {
-                $this->addFlash('error', $e->getMessage());
+            } catch (\LogicException) {
+                $this->addFlash('error', 'Impossible d\'accepter cette invitation.');
             }
 
             return $this->redirectToRoute('app_dashboard');

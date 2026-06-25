@@ -7,6 +7,7 @@ use App\Form\RegistrationFormType;
 use App\Form\ResendVerificationEmailFormType;
 use App\Repository\UserRepository;
 use App\Security\EmailVerifier;
+use App\Service\InvitationService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -67,7 +68,7 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/verify/email', name: 'app_verify_email')]
-    public function verifyUserEmail(Request $request, TranslatorInterface $translator, UserRepository $userRepository): Response
+    public function verifyUserEmail(Request $request, TranslatorInterface $translator, UserRepository $userRepository, InvitationService $invitationService): Response
     {
 
 
@@ -88,13 +89,28 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('app_register');
         }
 
-        // @TODO Change the redirect on success and handle or remove the flash message in your templates
-        $this->addFlash('success', 'Your email address has been verified.');
+        $this->addFlash('success', 'Votre adresse email a été vérifiée. Connectez-vous pour accéder à votre espace.');
+
+        // Cas 3 : invitation en attente pour un nouvel inscrit
+        // On traite l'invitation ici, au moment où l'identité est confirmée (email vérifié),
+        // plutôt que de dépendre d'une session fragile qui pourrait ne pas survivre
+        // jusqu'au LoginSuccessEvent.
+        $session = $request->getSession();
+        $pendingToken = $session->get('pending_invitation_token');
+        if ($pendingToken) {
+            $session->remove('pending_invitation_token');
+            try {
+                $invitationService->accept($pendingToken, $user);
+                $this->addFlash('success', 'Vous avez été ajouté à votre organisation. Connectez-vous pour y accéder.');
+            } catch (\LogicException) {
+                $this->addFlash('info', 'L\'invitation avait expiré. Demandez un nouvel envoi à votre contact.');
+            }
+        }
 
         // Clean up the target path to prevent unwanted redirections
         $this->removeTargetPath($request->getSession(), 'main');
 
-        return $this->redirectToRoute('app_dashboard');
+        return $this->redirectToRoute('app_login');
     }
 
     #[Route('/resend/verify/email', name: 'app_verify_resend')]

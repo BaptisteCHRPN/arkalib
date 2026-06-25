@@ -2,10 +2,10 @@
 
 namespace App\EventSubscriber;
 
-use App\Repository\InvitationRepository;
 use App\Service\InvitationService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\FlashBagAwareSessionInterface;
 use Symfony\Component\Security\Http\Event\LoginSuccessEvent;
 
 class InvitationSubscriber implements EventSubscriberInterface
@@ -44,9 +44,17 @@ class InvitationSubscriber implements EventSubscriberInterface
 
         // Accepter l'invitation
         try {
-            $this->invitationService->accept($token, $event->getUser());
-        } catch (\LogicException $e) {
-            // Invitation expirée ou invalide entre-temps → on ignore silencieusement
+            $invitation = $this->invitationService->accept($token, $event->getUser());
+            if ($session instanceof FlashBagAwareSessionInterface) {
+                $session->getFlashBag()->add('success', sprintf(
+                    'Vous avez rejoint l\'organisation « %s » !',
+                    $invitation->getOrganisation()->getName()
+                ));
+            }
+        } catch (\LogicException) {
+            if ($session instanceof FlashBagAwareSessionInterface) {
+                $session->getFlashBag()->add('error', 'L\'invitation avait expiré ou est invalide.');
+            }
         }
     }
 }
