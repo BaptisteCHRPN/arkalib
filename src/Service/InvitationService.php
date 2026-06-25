@@ -51,13 +51,8 @@ class InvitationService
         }
 
         // ── Génération du token ──
-        // bin2hex(random_bytes(20)) → produit 40 caractères hex aléatoires
-        // C'est le TOKEN EN CLAIR, celui qui sera dans le lien de l'email
         $token = bin2hex(random_bytes(20));
 
-        // hash('sha256', ...) → transforme le token en une empreinte de 64 caractères
-        // C'est le HASH, celui qui sera stocké en BDD
-        // Même si quelqu'un accède à ta BDD, il ne peut pas retrouver le token original
         $hashedToken = hash('sha256', $token);
 
         // ── Création de l'invitation ──
@@ -145,6 +140,16 @@ class InvitationService
     {
         $invitation->setStatus(Invitation::STATUS_EXPIRED);
         $this->em->flush();
+    }
+
+    public function markAsRevoked(Invitation $invitation): void
+    {
+        if (!$invitation->isPending()) {
+            throw new \LogicException('Seules les invitations en attente peuvent être révoquées.');
+        }
+
+        $invitation->setStatus(Invitation::STATUS_REVOKED);
+        $this->em->flush(); 
     }
 
     private function sendInvitationEmail(Invitation $invitation, string $token): void

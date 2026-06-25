@@ -55,6 +55,37 @@ final class MemberInvitationController extends AbstractController
         ]);
     }
 
+    #[IsGranted('ROLE_USER')]
+    #[Route('/{organizationSlug}/invitations/{id}/revoke', name: 'app_invitation_revoke', methods: ['POST'])]
+    public function revoke(
+        #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
+        Organization $organization,
+        Invitation $invitation,
+        InvitationService $invitationService,
+        Request $request
+    ): Response {
+
+        $user = $this->getUser();
+        if (!$organization->getUsers()->contains($user)) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if (!$this->isCsrfTokenValid('revoke_invitation_' . $invitation->getId(), $request->request->get('_token'))) {
+            throw $this->createAccessDeniedException('Token CSRF invalide.');
+        }
+
+        try {
+                $invitationService->markAsRevoked($invitation);
+                $this->addFlash('success', "Invitation révoquée.");
+            } catch (\LogicException $e) {
+                $this->addFlash('error', $e->getMessage());
+            }
+
+        return $this->redirectToRoute('app_invitation_list', [
+            'organizationSlug' => $organization->getSlug(),
+        ]);
+    }
+
     #[Route('/invitation/{token}', name: 'app_invitation_accept')]
     public function accept(
         string $token,
