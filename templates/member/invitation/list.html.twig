@@ -51,6 +51,7 @@
                                     <th scope="col" class="text-center">Statut</th>
                                     <th scope="col">Envoyée le</th>
                                     <th scope="col">Expire le</th>
+                                    <th scope="col">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -71,12 +72,17 @@
                                                 <span class="badge rounded-pill bg-success">Acceptée</span>
                                             {% elseif invitation.expired %}
                                                 <span class="badge rounded-pill bg-secondary">Expirée</span>
+                                            {% elseif invitation.status == 'revoked' %}
+                                                <span class="badge rounded-pill bg-danger">Révoquée</span>
                                             {% else %}
                                                 <span class="badge rounded-pill bg-warning">En attente</span>
                                             {% endif %}
                                         </td>
                                         <td>{{ invitation.createdAt|date('d/m/Y H:i') }}</td>
                                         <td>{{ invitation.expiresAt|date('d/m/Y H:i') }}</td>
+                                        <td>
+                                            {% include 'member/invitation/_revoke_form.html.twig' %}
+                                        </td>
                                     </tr>
                                 {% endfor %}
                             </tbody>

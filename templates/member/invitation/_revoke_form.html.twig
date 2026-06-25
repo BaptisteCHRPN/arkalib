@@ -1,0 +1,4 @@
+<form method="post" action="{{ path('app_invitation_revoke', {'organizationSlug': organization.slug, 'id': invitation.id}) }}" onsubmit="return confirm('Êtes-vous sur de vouloir annuler cette invitation ?');">
+	<input type="hidden" name="_token" value="{{ csrf_token('revoke_invitation_' ~ invitation.id) }}">
+	<button class="btn btn-sm btn-danger rounded-pill px-3 d-inline-flex align-items-center gap-2" {% if not invitation.pending %}disabled{% endif %}>Révoquer</button>
+</form>
