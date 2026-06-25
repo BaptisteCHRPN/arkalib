@@ -108,7 +108,12 @@ class InvitationService
         }
 
         if ($invitation->isExpired()) {
+            $this->markAsExpired($invitation);
             throw new \LogicException('Cette invitation a expiré.');
+        }
+
+        if (strtolower($user->getEmail()) !== strtolower($invitation->getEmail())) {
+            throw new \LogicException('Cette invitation ne vous est pas destinée.');
         }
 
         // ── Rattachement à l'organisation ──
@@ -136,6 +141,12 @@ class InvitationService
      * @param Invitation $invitation  L'invitation (pour les infos : email, orga, inviteur)
      * @param string     $token       Le token EN CLAIR (pour construire le lien)
      */
+    public function markAsExpired(Invitation $invitation): void
+    {
+        $invitation->setStatus(Invitation::STATUS_EXPIRED);
+        $this->em->flush();
+    }
+
     private function sendInvitationEmail(Invitation $invitation, string $token): void
     {
         // ── Construction de l'URL ──
