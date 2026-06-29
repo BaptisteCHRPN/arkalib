@@ -1,4 +1,6 @@
-{{ form_start(form) }}
+{{ form_start(form, {attr: {id: 'budget-line-form'}}) }}
     {{ form_widget(form) }}
-    <button class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
+    {% if not hideSubmitButton|default(false) %}
+        <button class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
+    {% endif %}
 {{ form_end(form) }}
