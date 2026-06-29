@@ -3,48 +3,114 @@
 {% block title %}Transaction{% endblock %}
 
 {% block body %}
-    <h1>Transaction</h1>
+	<div class="container-fluid px-4 py-4">
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ transaction.id }}</td>
-            </tr>
-            <tr>
-                <th>Date</th>
-                <td>{{ transaction.date ? transaction.date|date('Y-m-d') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Amount</th>
-                <td>{{ transaction.amount }}</td>
-            </tr>
-            <tr>
-                <th>Payment_method</th>
-                <td>{{ transaction.paymentMethod }}</td>
-            </tr>
-            <tr>
-                <th>Created_at</th>
-                <td>{{ transaction.createdAt ? transaction.createdAt|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Comment</th>
-                <td>{{ transaction.comment }}</td>
-            </tr>
-            <tr>
-                <th>Is_active</th>
-                <td>{{ transaction.isActive ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>Reference</th>
-                <td>{{ transaction.reference }}</td>
-            </tr>
-        </tbody>
-    </table>
+		{# Breadcrumb #}
+		<nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_dashboard') }}">Tableau de bord</a>
+				</li>
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_organization_budgets', {'organizationSlug': budget.organization.slug}) }}">{{ budget.organization.name|title }}</a>
+				</li>
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationSlug': budget.organization.slug}) }}">{{ budget.name }}</a>
+				</li>
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_member_transaction_index', {'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug}) }}">Transactions</a>
+				</li>
+				<li class="breadcrumb-item active text-secondary" aria-current="page">Transaction #{{ transaction.id }}</li>
+			</ol>
+		</nav>
 
-    <a href="{{ path('app_member_transaction_index', {'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug}) }}">back to list</a>
+		{# Header #}
+		<div class="row mb-4">
+			<div class="col-12">
+				<h1 class="dashboard-title">Transaction #{{ transaction.id }}</h1>
+			</div>
+		</div>
 
-    <a href="{{ path('app_member_transaction_edit', {'id': transaction.id, 'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug}) }}">edit</a>
+		<div class="row justify-content-center">
+			<div class="col-12 col-lg-10 col-xl-8">
+				<div class="card shadow-sm border-0">
+					<div class="card-body p-4">
+						<table class="table table-borderless mb-0">
+							<tbody>
+								<tr>
+									<th class="text-muted w-25">Date</th>
+									<td>{{ transaction.date ? transaction.date|date('d/m/Y') : '—' }}</td>
+								</tr>
+								<tr>
+									<th class="text-muted">Montant</th>
+									<td>
+										<span class="fw-bold">
+											{{ transaction.amount|number_format(2, ',', ' ') }} €
+										</span>
+									</td>
+								</tr>
+								<tr>
+									<th class="text-muted">Moyen de paiement</th>
+									<td>
+										{% if transaction.paymentMethod %}
+											{{ transaction.paymentMethod }}
+										{% else %}
+											<span class="text-secondary fst-italic small">Non renseigné</span>
+										{% endif %}
+									</td>
+								</tr>
+								<tr>
+									<th class="text-muted">Référence</th>
+									<td>
+										{% if transaction.reference %}
+											{{ transaction.reference }}
+										{% else %}
+											<span class="text-secondary fst-italic small">Aucune référence</span>
+										{% endif %}
+									</td>
+								</tr>
+								<tr>
+									<th class="text-muted">Commentaire</th>
+									<td>
+										{% if transaction.comment %}
+											{{ transaction.comment }}
+										{% else %}
+											<span class="text-secondary fst-italic small">Aucun commentaire</span>
+										{% endif %}
+									</td>
+								</tr>
+								<tr>
+									<th class="text-muted">Statut</th>
+									<td>
+										{% if transaction.isActive %}
+											<span class="badge bg-success bg-opacity-25 text-success">Actif</span>
+										{% else %}
+											<span class="badge bg-secondary bg-opacity-25 text-secondary">Inactif</span>
+										{% endif %}
+									</td>
+								</tr>
+								<tr>
+									<th class="text-muted">Créé le</th>
+									<td>{{ transaction.createdAt ? transaction.createdAt|date('d/m/Y à H:i') : '—' }}</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
 
-    {{ include('member/transaction/_delete_form.html.twig') }}
+					<div class="card-footer bg-transparent border-top d-flex justify-content-between align-items-center px-4 py-3">
+						<a href="{{ path('app_member_transaction_index', {'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-outline-secondary">
+							{{ ux_icon('mdi:arrow-left', {'class': 'me-1'}) }}Retour
+						</a>
+						<div class="d-flex gap-2">
+							<a href="{{ path('app_member_transaction_edit', {'id': transaction.id, 'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-primary">
+								{{ ux_icon('mdi:pencil', {'class': 'me-1'}) }}Modifier
+							</a>
+							{{ include('member/transaction/_delete_form.html.twig') }}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
 {% endblock %}
