@@ -51,9 +51,9 @@ class RegistrationController extends AbstractController
                 'app_verify_email',
                 $user,
                 (new TemplatedEmail())
-                    ->from(new Address('verify@arkalib.fr', 'Admin'))
+                    ->from(new Address('verify@arkalib.fr', 'Arkalib'))
                     ->to((string) $user->getEmail())
-                    ->subject('Please Confirm your Email')
+                    ->subject('Veuillez confirmation votre email')
                     ->htmlTemplate('public/registration/confirmation_email.html.twig')
             );
 
@@ -128,9 +128,9 @@ class RegistrationController extends AbstractController
                     'app_verify_email',
                     $user,
                     (new TemplatedEmail())
-                        ->from(new Address('verify@arkalib.fr', 'Admin'))
+                        ->from(new Address('verify@arkalib.fr', 'Arkalib'))
                         ->to((string) $user->getEmail())
-                        ->subject('Please Confirm your Email')
+                        ->subject('Veuillez vérifier votre email')
                         ->htmlTemplate('public/registration/confirmation_email.html.twig')
                 );
             }
