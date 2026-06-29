@@ -57,13 +57,29 @@ class RegistrationController extends AbstractController
                     ->htmlTemplate('public/registration/confirmation_email.html.twig')
             );
 
-            // do anything else you need here, like send an email
+            $request->getSession()->set('registration_pending_email', $user->getEmail());
 
-            return $this->redirectToRoute('app_login');
+            return $this->redirectToRoute('app_registration_pending');
         }
 
         return $this->render('public/registration/register.html.twig', [
             'registrationForm' => $form,
+        ]);
+    }
+
+    #[Route('/register/pending', name: 'app_registration_pending')]
+    public function registrationPending(Request $request): Response
+    {
+        $email = $request->getSession()->get('registration_pending_email');
+
+        if (!$email) {
+            return $this->redirectToRoute('app_register');
+        }
+
+        $request->getSession()->remove('registration_pending_email');
+
+        return $this->render('public/registration/registration_pending.html.twig', [
+            'email' => $email,
         ]);
     }
 

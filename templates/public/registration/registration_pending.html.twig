@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Vérifiez votre adresse e-mail{% endblock %}
+
+{% block body %}
+	<div class="login-container">
+		<div class="login-card">
+			<h1 class="login-title">Inscription réussie !</h1>
+
+			<p class="text-center text-muted mb-4">
+				Votre compte a bien été créé. Pour vous connecter, vous devez d'abord confirmer votre adresse e-mail.
+			</p>
+
+			<p class="text-center mb-4">
+				Un e-mail de vérification a été envoyé à <strong>{{ email }}</strong> de la part de <strong>verify@arkalib.fr</strong>.
+				Cliquez sur le lien qu'il contient pour activer votre compte.
+			</p>
+
+			<p class="text-center text-muted mb-4" style="font-size: 0.875rem;">
+				Pensez à vérifier vos dossiers spam ou indésirables si vous ne trouvez pas l'e-mail.
+			</p>
+
+			<hr>
+
+			<div class="text-center">
+				<a href="{{ path('app_verify_resend') }}" class="login-link">Je n'ai pas reçu l'e-mail</a>
+			</div>
+		</div>
+	</div>
+{% endblock %}
