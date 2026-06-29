@@ -223,6 +223,7 @@ body.loading * {
 .sidebar-nav {
     width: var(--ark-sidebar-width) !important;
     transition: transform 0.3s ease-in-out;
+    overflow-x: hidden;
 }
 
 .sidebar-header-row {
@@ -230,6 +231,15 @@ body.loading * {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 1rem;
+}
+
+.sidebar-nav .offcanvas-body {
+    overflow-x: hidden;
+}
+
+.sidebar-nav .nav-link .text-truncate {
+    width: 1px;
+    flex-grow: 1;
 }
 
 
