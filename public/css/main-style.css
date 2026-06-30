@@ -387,7 +387,7 @@ body.loading * {
    COMPOSANT – Dropdown profil
    ============================================= */
 
-.dropdown-menu.shadow::before {
+.dropdown-menu-profile::before {
     content: '';
     position: absolute;
     top: -6px;
