@@ -125,7 +125,7 @@
 								<button class="btn btn-sm btn-light mt-1" type="button" id="dropdownIncome{{ income.id }}" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
 									{{ ux_icon('mdi:dots-vertical') }}
 								</button>
-								<ul class="dropdown-menu dropdown-menu-end shadow">
+								<ul class="dropdown-menu dropdown-menu-end shadow dropdown-budget">
 									<li>
 										<a class="dropdown-item" href="{{ path('app_budget_line_show', { 'organizationSlug': organization.slug, 'budgetSlug': budget.slug, 'id': income.id }) }}">
 											{{ ux_icon('mdi:eye', {'class': 'me-2'}) }}Voir
@@ -216,7 +216,7 @@
 								<button class="btn btn-sm btn-light mt-1" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
 									{{ ux_icon('mdi:dots-vertical') }}
 								</button>
-								<ul class="dropdown-menu dropdown-menu-end shadow">
+								<ul class="dropdown-menu dropdown-menu-end shadow dropdown-budget">
 									<li>
 										<a class="dropdown-item" href="{{ path('app_budget_line_show', { 'organizationSlug': organization.slug, 'budgetSlug': budget.slug, 'id': expense.id }) }}">
 											{{ ux_icon('mdi:eye', {'class': 'me-2'}) }}Voir

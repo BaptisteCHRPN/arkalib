@@ -6,6 +6,10 @@
 	{{ budget.name|capitalize }}
 {% endblock %}
 
+{% block stylesheets %}
+	<meta name="turbo-cache-control" content="no-cache">
+{% endblock %}
+
 {% block body %}
 
 	<div class="d-none d-md-block">
