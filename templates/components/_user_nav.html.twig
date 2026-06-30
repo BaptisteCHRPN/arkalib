@@ -1,149 +1,152 @@
 {% import 'macros/avatar.html.twig' as avatarMacros %}
 
-{# Toggle button to display navbar #}
-<button class="navbar-toggle-btn" type="button" id="navbarToggle">
-    <span class="chevron-icon"></span>
-</button>
+<div
+	data-controller="sidebar">
 
-{# Navbar Sidebar #}
-<nav class="offcanvas offcanvas-start" tabindex="-1" id="sidebarNav" data-bs-backdrop="false">
-    <div class="d-flex flex-column flex-shrink-0 p-3 bg-secondary vh-100 sidebar-nav">
+	{# Toggle button to display navbar #}
+	<button class="navbar-toggle-btn" type="button" id="navbarToggle"
+		data-sidebar-target="toggleBtn"
+		data-action="click->sidebar#toggle">
+		<span class="chevron-icon"></span>
+	</button>
 
-        {# Logo and closure button #}
-        <div class="sidebar-header-row mb-4">
-            <a class="navbar-brand fs-2 fw-bold text-white text-decoration-none d-flex align-items-center" href="{{ path('app_home') }}">
-                <img class="img-logo me-2" src="{{ asset('img/logo.svg') }}" alt="Logo d'Arkalib" style="height: 40px;">
-                ARKALIB
-            </a>
-            <button type="button" class="btn-close btn-close-white" id="navbarClose" aria-label="Close"></button>
-        </div>
+	{# Navbar Sidebar #}
+	<nav class="offcanvas offcanvas-start" tabindex="-1" id="sidebarNav" data-bs-backdrop="false"
+		data-sidebar-target="nav">
+		<div
+			class="d-flex flex-column flex-shrink-0 p-3 bg-secondary vh-100 sidebar-nav">
 
-        {# Navigation principale #}
-        <div class="offcanvas-body p-0 d-flex flex-column">
-            <ul class="nav nav-pills flex-column mb-auto">
+			{# Logo and closure button #}
+			<div class="sidebar-header-row mb-4">
+				<a class="navbar-brand fs-2 fw-bold text-white text-decoration-none d-flex align-items-center" href="{{ path('app_home') }}">
+					<img class="img-logo me-2" src="{{ asset('img/logo.svg') }}" alt="Logo d'Arkalib" style="height: 40px;">
+					ARKALIB
+				</a>
+				<button type="button" class="btn-close btn-close-white" id="navbarClose" aria-label="Close" data-action="click->sidebar#close"></button>
+			</div>
 
-                {# Dashboard #}
-                <li class="nav-item mb-1">
-                    <a href="{{ path('app_dashboard') }}" class="nav-link text-white rounded-3 py-2 px-3 {% if app.request.attributes.get('_route') == 'app_dashboard' %}active bg-white bg-opacity-10{% endif %}">
-                        {{ ux_icon('streamline:dashboard-circle', {'class': 'text-light stroke-3 me-2'}) }}
-                        Tableau de bord
-                    </a>
-                </li>
+			{# Navigation principale #}
+			<div class="offcanvas-body p-0 d-flex flex-column">
+				<ul
+					class="nav nav-pills flex-column mb-auto">
 
-                {# Organisations #}
-                {% if app.user.organizations is not empty %}
-                    <li class="nav-item mt-4 mb-2">
-                        <div class="d-flex align-items-center justify-content-between px-3">
-                            <span class="text-light opacity-50 small text-uppercase fw-semibold" style="letter-spacing: 0.05em;">
-                                Mes organisations
-                            </span>
-                            <a href="{{ path('app_membre_organization_new') }}" class="text-light opacity-50" title="Nouvelle organisation">
-                                {{ ux_icon('ic:round-plus', {'class': 'text-light', 'style': 'width: 18px; height: 18px;'}) }}
-                            </a>
-                        </div>
-                    </li>
-                    {% for organization in app.user.organizations %}
-                        <li class="nav-item mb-1">
-                            <a href="{{ path('app_organization_budgets', { organizationSlug: organization.slug }) }}"
-                               class="nav-link text-white rounded-3 py-2 px-3 d-flex align-items-center
-                                      {% if app.request.attributes.get('organizationSlug') == organization.slug %}active bg-white bg-opacity-10{% endif %}">
-                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle me-2 flex-shrink-0"
-                                      style="width: 30px; height: 30px; font-size: 0.75rem; background: rgba(255,255,255,0.15); color: #fff;">
-                                    {% if organization.picture %}
-                                        <img src="{{ path('organization_logo_upload', {nameFile: organization.picture}) }}" alt="logo"
-                                             style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
-                                    {% else %}
-                                        {{ organization.name|first|capitalize }}
-                                    {% endif %}
-                                </span>
-                                <span class="text-truncate min-width-0">{{ organization.name|title }}</span>
-                            </a>
-                        </li>
-                    {% endfor %}
-                {% else %}
-                    <li class="nav-item mt-4 mb-2">
-                        <div class="px-3">
-                            <span class="text-light opacity-50 small text-uppercase fw-semibold" style="letter-spacing: 0.05em;">
-                                Mes organisations
-                            </span>
-                        </div>
-                    </li>
-                    <li class="nav-item mb-1">
-                        <a href="{{ path('app_membre_organization_new') }}" class="nav-link text-white opacity-75 py-2 px-3 d-flex align-items-center">
-                            {{ ux_icon('ic:round-plus', {'class': 'me-2', 'style': 'width: 18px; height: 18px;'}) }}
-                            <span class="small">Créer une organisation</span>
-                        </a>
-                    </li>
-                {% endif %}
+					{# Dashboard #}
+					<li class="nav-item mb-1">
+						<a href="{{ path('app_dashboard') }}" class="nav-link text-white rounded-3 py-2 px-3 {% if app.request.attributes.get('_route') == 'app_dashboard' %}active bg-white bg-opacity-10{% endif %}">
+							{{ ux_icon('streamline:dashboard-circle', {'class': 'text-light stroke-3 me-2'}) }}
+							Tableau de bord
+						</a>
+					</li>
 
-                {# Admin #}
-                {% if is_granted('ROLE_ADMIN') %}
-                    <li class="nav-item mt-4 mb-2">
-                        <div class="px-3">
-                            <span class="text-light opacity-50 small text-uppercase fw-semibold" style="letter-spacing: 0.05em;">
-                                Administration
-                            </span>
-                        </div>
-                    </li>
-                    <li class="nav-item mb-1">
-                        <a href="{{ path('app_back_office') }}" class="nav-link text-danger rounded-3 py-2 px-3">
-                            {{ ux_icon('eos-icons:admin-outlined', {'class': 'text-danger stroke-3 me-2'}) }}
-                            Back Office
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
+					{# Organisations #}
+					{% if app.user.organizations is not empty %}
+						<li class="nav-item mt-4 mb-2">
+							<div class="d-flex align-items-center justify-content-between px-3">
+								<span class="text-light opacity-50 small text-uppercase fw-semibold" style="letter-spacing: 0.05em;">
+									Mes organisations
+								</span>
+								<a href="{{ path('app_membre_organization_new') }}" class="text-light opacity-50" title="Nouvelle organisation">
+									{{ ux_icon('ic:round-plus', {'class': 'text-light', 'style': 'width: 18px; height: 18px;'}) }}
+								</a>
+							</div>
+						</li>
+						{% for organization in app.user.organizations %}
+							<li class="nav-item mb-1">
+								<a href="{{ path('app_organization_budgets', { organizationSlug: organization.slug }) }}" class="nav-link text-white rounded-3 py-2 px-3 d-flex align-items-center
+										                                      {% if app.request.attributes.get('organizationSlug') == organization.slug %}active bg-white bg-opacity-10{% endif %}">
+									<span class="d-inline-flex align-items-center justify-content-center rounded-circle me-2 flex-shrink-0" style="width: 30px; height: 30px; font-size: 0.75rem; background: rgba(255,255,255,0.15); color: #fff;">
+										{% if organization.picture %}
+											<img src="{{ path('organization_logo_upload', {nameFile: organization.picture}) }}" alt="logo" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
+										{% else %}
+											{{ organization.name|first|capitalize }}
+										{% endif %}
+									</span>
+									<span class="text-truncate min-width-0">{{ organization.name|title }}</span>
+								</a>
+							</li>
+						{% endfor %}
+					{% else %}
+						<li class="nav-item mt-4 mb-2">
+							<div class="px-3">
+								<span class="text-light opacity-50 small text-uppercase fw-semibold" style="letter-spacing: 0.05em;">
+									Mes organisations
+								</span>
+							</div>
+						</li>
+						<li class="nav-item mb-1">
+							<a href="{{ path('app_membre_organization_new') }}" class="nav-link text-white opacity-75 py-2 px-3 d-flex align-items-center">
+								{{ ux_icon('ic:round-plus', {'class': 'me-2', 'style': 'width: 18px; height: 18px;'}) }}
+								<span class="small">Créer une organisation</span>
+							</a>
+						</li>
+					{% endif %}
 
-            {# Footer sidebar #}
-            <div class="border-top border-light border-opacity-25 pt-3 mt-3">
-                <a href="{{ path('app_member_user_edit', {'id': app.user.id}) }}"
-                   class="d-flex align-items-center text-white text-decoration-none rounded-3 p-2"
-                   style="transition: background 0.2s;"
-                   onmouseover="this.style.background='rgba(255,255,255,0.1)'"
-                   onmouseout="this.style.background='transparent'">
-                    {{ avatarMacros.user_avatar(app.user.picture, app.user.email) }}
-                    <div class="ms-2 overflow-hidden">
-                        <div class="small fw-semibold text-truncate">
-                            {{ app.user.firstname }} {{ app.user.lastname }}
-                        </div>
-                        <div class="small opacity-50 text-truncate">
-                            {{ app.user.email }}
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </div>
-</nav>
+					{# Admin #}
+					{% if is_granted('ROLE_ADMIN') %}
+						<li class="nav-item mt-4 mb-2">
+							<div class="px-3">
+								<span class="text-light opacity-50 small text-uppercase fw-semibold" style="letter-spacing: 0.05em;">
+									Administration
+								</span>
+							</div>
+						</li>
+						<li class="nav-item mb-1">
+							<a href="{{ path('app_back_office') }}" class="nav-link text-danger rounded-3 py-2 px-3">
+								{{ ux_icon('eos-icons:admin-outlined', {'class': 'text-danger stroke-3 me-2'}) }}
+								Back Office
+							</a>
+						</li>
+					{% endif %}
+				</ul>
+
+				{# Footer sidebar #}
+				<div class="border-top border-light border-opacity-25 pt-3 mt-3">
+					<a href="{{ path('app_member_user_edit', {'id': app.user.id}) }}" class="d-flex align-items-center text-white text-decoration-none rounded-3 p-2" style="transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='transparent'">
+						{{ avatarMacros.user_avatar(app.user.picture, app.user.email) }}
+						<div class="ms-2 overflow-hidden">
+							<div class="small fw-semibold text-truncate">
+								{{ app.user.firstname }}
+								{{ app.user.lastname }}
+							</div>
+							<div class="small opacity-50 text-truncate">
+								{{ app.user.email }}
+							</div>
+						</div>
+					</a>
+				</div>
+			</div>
+		</div>
+	</nav>
+
+</div>
 
 {# Horizontal header #}
 <nav class="header-nav height-60 bg-white d-flex align-items-center border-bottom">
-    <h2 class="hello-title ms-3 mb-0">
-        Bonjour {{ app.user.firstname }} !
-    </h2>
-    <div class="dropdown ms-auto me-4">
-        <a href="#"
-        class="text-decoration-none"
-        data-bs-toggle="dropdown"
-        data-bs-offset="4,25"
-        aria-expanded="false">
-            {{ avatarMacros.user_avatar(app.user.picture, app.user.email, 48) }}
-        </a>
+	<h2 class="hello-title ms-3 mb-0">
+		Bonjour
+		{{ app.user.firstname }}
+		!
+	</h2>
+	<div class="dropdown ms-auto me-4">
+		<a href="#" class="text-decoration-none" data-bs-toggle="dropdown" data-bs-offset="4,25" aria-expanded="false">
+			{{ avatarMacros.user_avatar(app.user.picture, app.user.email, 48) }}
+		</a>
 
 
-        <ul class="dropdown-menu dropdown-menu-end text-small shadow">
-            <li>
-                <a class="dropdown-item text-dark" href="{{ path('app_member_user_edit', {'id': app.user.id}) }}">
-                    {{ ux_icon('gg:profile') }} Mon profil
-                </a>
-            </li>
-            <li><hr class="dropdown-divider"></li>
-            <li class="d-flex justify-content-center p-2">
-                <a class="btn btn-primary text-nowrap" href="{{ path('app_logout') }}">
-                    {{ ux_icon('streamline:logout-1', {'class': 'stroke-3 me-2'}) }}
-                    Se déconnecter
-                </a>
-            </li>
-        </ul>
-    </div>
+		<ul class="dropdown-menu dropdown-menu-end text-small shadow">
+			<li>
+				<a class="dropdown-item text-dark" href="{{ path('app_member_user_edit', {'id': app.user.id}) }}">
+					{{ ux_icon('gg:profile') }}
+					Mon profil
+				</a>
+			</li>
+			<li><hr class="dropdown-divider"></li>
+			<li class="d-flex justify-content-center p-2">
+				<a class="btn btn-primary text-nowrap" href="{{ path('app_logout') }}">
+					{{ ux_icon('streamline:logout-1', {'class': 'stroke-3 me-2'}) }}
+					Se déconnecter
+				</a>
+			</li>
+		</ul>
+	</div>
 </nav>
