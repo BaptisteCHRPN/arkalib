@@ -127,7 +127,7 @@
 							<a href="{{ path('app_member_budget_line_edit', {'id': budget_line.id, 'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary">
 								{{ ux_icon('mdi:pencil', {'class': 'me-1'}) }}Modifier
 							</a>
-							{{ include('member/budget_line/_delete_form.html.twig', {'budgetLine': budget_line}) }}
+							{{ include('member/budget_line/_delete_form.html.twig', {'budgetLine': budget_line, 'buttonClass': 'btn btn-danger'}) }}
 						</div>
 					</div>
 				</div>

@@ -399,6 +399,10 @@ body.loading * {
     box-shadow: -2px -2px 4px rgba(0, 0, 0, 0.06);
 }
 
+.dropdown-budget::before {
+    display: none !important;
+}
+
 
 
 /* =============================================
