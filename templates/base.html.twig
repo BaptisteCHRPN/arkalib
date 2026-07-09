@@ -7,16 +7,9 @@
 		<title>
 			{% block title %}{% endblock %}
 			| Arkalib</title>
-		<link
-			rel="stylesheet"
-			href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}"
-		>
+		<link rel="stylesheet" href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}">
 		<script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}" defer></script>
-		<link
-			rel="stylesheet"
-			href="{{ asset('css/main-style.css') }}?v=2"
-		>
-		{% block stylesheets %}{% endblock %}
+		<link rel="stylesheet" href="{{ asset('css/main-style.css') }}?v=2"> {% block stylesheets %}{% endblock %}
 		</head>
 		<body>
 			{# skip link) #}

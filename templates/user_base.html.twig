@@ -7,14 +7,10 @@
 		<title>
 			{% block title %}{% endblock %}
 		</title>
-		<link
-			rel="stylesheet"
-			href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}"
-		>
+		<link rel="stylesheet" href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}">
 		<script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}" defer></script>
 		<link rel="stylesheet" href="{{ asset('css/main-style.css') }}?v=3">
-		<meta name="turbo-cache-control" content="no-cache">
-		{% block stylesheets %}{% endblock %}
+		<meta name="turbo-cache-control" content="no-cache"> {% block stylesheets %}{% endblock %}
 		</head>
 		<body class="bg-lighgray loading">
 
