@@ -1,7 +1,6 @@
 {
   "devDependencies": {
     "@symfony/webpack-encore": "^5.3.1",
-    "bootstrap": "^5.3.8",
     "core-js": "^3.47.0",
     "sass": "^1.97.1",
     "sass-loader": "^16.0.6",
