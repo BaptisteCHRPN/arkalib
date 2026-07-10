@@ -116,8 +116,9 @@
 												Ouvrir
 											</a>
 											<a href="{{ path('app_membre_duplicate_budget', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-sm btn-outline-secondary px-3">
-        										Dupliquer
-    										</a>
+												Dupliquer
+											</a>
+											{{ include('member/budget/_delete_form.html.twig', {'organization': organization, 'budget': budget}) }}
 										</td>
 									</tr>
 								{% endfor %}
@@ -207,5 +208,4 @@
 			</div>
 		{% endif %}
 	</div>
-</div>
-{% endblock %}
+</div>{% endblock %}
