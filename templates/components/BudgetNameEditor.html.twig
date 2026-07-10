@@ -1,0 +1,39 @@
+<div{{attributes}}>
+	{% if isEditing %}
+		<div class="d-flex flex-column gap-1" style="max-width: 250px;" data-action="keydown.esc->live#action" data-live-action-param="cancel">
+			<div class="d-flex align-items-center gap-2">
+				<input type="text" class="form-control form-control-sm" data-model="name" value="{{ name }}" autofocus data-action="keydown.enter->live#action" data-live-action-param="save">
+				<button type="button" class="btn btn-sm btn-link p-0 text-success" data-action="live#action" data-live-action-param="save">
+					{{ ux_icon('mdi:check') }}
+				</button>
+				<button type="button" class="btn btn-sm btn-link p-0 text-danger" data-action="live#action" data-live-action-param="cancel">
+					{{ ux_icon('mdi:close') }}
+				</button>
+			</div>
+			<div class="d-flex gap-1">
+				<input type="date" class="form-control form-control-sm" data-model="startDate" value="{{ startDate }}" data-action="keydown.enter->live#action" data-live-action-param="save">
+				<input type="date" class="form-control form-control-sm" data-model="endDate" value="{{ endDate }}" data-action="keydown.enter->live#action" data-live-action-param="save">
+			</div>
+		</div>
+	{% else %}
+		<h6 class="mb-0 fw-semibold d-flex align-items-center gap-2">
+			{{ budget.name|capitalize }}
+			<button type="button" class="btn btn-link btn-sm p-0 text-muted" data-action="live#action" data-live-action-param="edit">
+				{{ ux_icon('mdi:pencil') }}
+			</button>
+		</h6>
+		{% if budget.startDate and budget.endDate %}
+			<small class="text-secondary">
+				Du
+				{{ budget.startDate|date('d/m/Y') }}
+				au
+				{{ budget.endDate|date('d/m/Y') }}
+			</small>
+		{% endif %}
+	{% endif %}
+
+	{% if error %}
+		<small class="text-danger">{{ error }}</small>
+	{% endif %}
+
+</div>
