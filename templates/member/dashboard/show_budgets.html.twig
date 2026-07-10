@@ -96,15 +96,7 @@
 										<td class="ps-4">
 											<div class="d-flex align-items-center">
 												<div>
-													<h6 class="mb-0 fw-semibold">{{ budget.name|capitalize }}</h6>
-													{% if budget.startDate and budget.endDate %}
-														<small class="text-secondary">
-															Du
-															{{ budget.startDate|date('d/m/Y') }}
-															au
-															{{ budget.endDate|date('d/m/Y') }}
-														</small>
-													{% endif %}
+													<twig:BudgetNameEditor :budget="budget" />
 												</div>
 											</div>
 										</td>
