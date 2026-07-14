@@ -96,12 +96,17 @@
 										<td class="ps-4">
 											<div class="d-flex align-items-center">
 												<div>
-													<twig:BudgetNameEditor :budget="budget" />
+													<twig:BudgetNameEditor :budget="budget"/>
 												</div>
 											</div>
 										</td>
 										<td class="text-center">
-											<span class="badge rounded-pill bg-success">Actif</span>
+											{% if budget.isClosed %}
+												<span class="badge rounded-pill bg-secondary">Clôturé</span>
+											{% else %}
+												<span class="badge rounded-pill bg-success">Actif</span>
+											{% endif %}
+
 										</td>
 										<td class="text-end pe-4">
 											<a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationId': organization.id, 'organizationSlug': organization.slug}) }}" class="btn btn-sm btn-primary px-3">
