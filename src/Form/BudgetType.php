@@ -20,11 +20,23 @@ class BudgetType extends AbstractType
             ])
             ->add('start_date', DateType::class, [
                 'widget' => 'single_text',
-                'label' => 'Date de début'
+                'html5' => false,
+                'format' => 'dd/MM/yyyy',
+                'label' => 'Date de début',
+                'attr' => [
+                    'data-controller' => 'date-paste',
+                    'autocomplete' => 'off',
+                ],
             ])
             ->add('end_date', DateType::class, [
                 'widget' => 'single_text',
-                'label' => 'Date de fin'
+                'html5' => false,
+                'format' => 'dd/MM/yyyy',
+                'label' => 'Date de fin',
+                'attr' => [
+                    'data-controller' => 'date-paste',
+                    'autocomplete' => 'off',
+                ],
             ])
 
             // ->add('organization', EntityType::class, [

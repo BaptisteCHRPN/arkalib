@@ -8,6 +8,7 @@ use App\Entity\Transaction;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -20,9 +21,17 @@ class TransactionType extends AbstractType
         $budget = $options['budget'];
 
         $builder
-            ->add('date', null, [
+            ->add('date', DateType::class, [
+                'widget' => 'single_text',
+                'html5' => false,
+                'format' => 'dd/MM/yyyy',
                 'label' => 'Date de la transaction',
+                'attr' => [
+                    'data-controller' => 'date-paste',
+                    'autocomplete' => 'off',
+                ],
             ])
+
             ->add('amount', null, [
                 'label' => 'Montant',
             ])
@@ -45,8 +54,8 @@ class TransactionType extends AbstractType
                         ->setParameter('budget', $budget)
                         ->orderBy('bl.name', 'ASC');
                 },
-                'choice_label' => function(BudgetLine $budgetLine) {
-                    return $budgetLine->getName() . ' - ' . number_format($budgetLine->getAmount(),2 , ',', ' ') . ' €';
+                'choice_label' => function (BudgetLine $budgetLine) {
+                    return $budgetLine->getName() . ' - ' . number_format($budgetLine->getAmount(), 2, ',', ' ') . ' €';
                 },
                 'multiple' => true,
                 'required' => false,
