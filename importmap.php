@@ -38,4 +38,7 @@ return [
     'flatpickr/dist/l10n/fr.js' => [
         'version' => '4.6.13',
     ],
+    'autonumeric' => [
+        'version' => '4.10.10',
+    ],
 ];
