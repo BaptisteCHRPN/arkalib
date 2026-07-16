@@ -56,7 +56,8 @@ class BudgetLineType extends AbstractType
                 'currency' => 'EUR',
                 'attr' => [
                     'placeholder' => '0.00',
-                    'class' => 'form-control'
+                    'class' => 'form-control',
+                    'data-controller' => 'money-input',
                 ],
                 'required' => true
             ])

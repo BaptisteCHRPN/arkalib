@@ -34,6 +34,9 @@ class TransactionType extends AbstractType
 
             ->add('amount', null, [
                 'label' => 'Montant',
+                'attr' => [
+                    'data-controller' => 'money-input',
+                ],
             ])
             ->add('payment_method', null, [
                 'label' => 'Moyen de paiement',
