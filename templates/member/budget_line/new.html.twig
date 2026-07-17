@@ -30,7 +30,15 @@
         <div class="col-12 col-lg-10 col-xl-8">
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
-                    {{ include('member/budget_line/_form.html.twig') }}
+                    {{ include('member/budget_line/_form.html.twig', {hideSubmitButton: true}) }}
+                </div>
+                <div class="card-footer bg-transparent border-top d-flex justify-content-between align-items-center px-4 py-3">
+                    <a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-outline-secondary">
+                        {{ ux_icon('mdi:arrow-left', {'class': 'me-1'}) }}Retour
+                    </a>
+                    <button type="submit" form="budget-line-form" class="btn btn-primary">
+                        {{ ux_icon('mdi:content-save', {'class': 'me-1'}) }}Enregistrer
+                    </button>
                 </div>
             </div>
         </div>
