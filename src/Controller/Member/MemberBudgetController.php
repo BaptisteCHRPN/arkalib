@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use App\Repository\CategoryRepository;
 
 final class MemberBudgetController extends AbstractController
 {
@@ -70,6 +71,7 @@ final class MemberBudgetController extends AbstractController
     #[Route('/budget/{organizationSlug}/{budgetSlug}', name: 'app_membre_budget_show', methods: ['GET'])]
     public function show(
         BudgetCalculatorService $budgetCalculatorService,
+        CategoryRepository $categoryRepository,
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         EntityManagerInterface $entityManager,
         string $budgetSlug
@@ -87,42 +89,84 @@ final class MemberBudgetController extends AbstractController
             throw $this->createAccessDeniedException('Ce budget n\'appartient pas à cette organisation');
         }
 
-        // fetching all actives budget  lines
-        $expenses = $budget->getBudgetLine()->filter(
-            fn($line) => $line->isExpense() && $line->isActive()
-        );
-        $incomes = $budget->getBudgetLine()->filter(
-            fn($line) => !$line->isExpense() && $line->isActive()
-        );
+        $categoryGroups = $this->buildCategoryGroups($budget, $categoryRepository);
 
-        // Calcul total budget lines active
+        $uncategorizedLines = array_values(array_filter(
+            $budget->getBudgetLine()->toArray(),
+            fn(BudgetLine $line) => $line->getCategory() === null && $line->isActive()
+        ));
+
         $sumExpenses = $budgetCalculatorService->sumTotalExpenses($budget);
         $sumIncomes = $budgetCalculatorService->sumTotalIncomes($budget);
         $balanceBudget = $budgetCalculatorService->balanceBudget($budget);
 
-        // Calcul all total even inactive lines
-        $totalExpensesAll = 0;
-        foreach ($expenses as $expense) {
-            $totalExpensesAll += $expense->getAmount();
-        }
-
-        $totalIncomesAll = 0;
-        foreach ($incomes as $income) {
-            $totalIncomesAll += $income->getAmount();
-        }
-
         return $this->render('member/budget/index.html.twig', [
             'budget' => $budget,
             'organization' => $organization,
-            'expenses' => $expenses,
-            'incomes' => $incomes,
+            'categoryGroups' => $categoryGroups,
+            'uncategorizedLines' => $uncategorizedLines,
+            'uncategorizedExpenseTotal' => $this->sumByType($uncategorizedLines, true),
+            'uncategorizedIncomeTotal' => $this->sumByType($uncategorizedLines, false),
             'sumExpenses' => $sumExpenses,
             'sumIncomes' => $sumIncomes,
-            'totalExpensesAll' => $totalExpensesAll,
-            'totalIncomesAll' => $totalIncomesAll,
             'balanceBudget' => $balanceBudget,
         ]);
     }
+
+    /**
+     * @return array<int, array{category: \App\Entity\Category, lines: BudgetLine[], children: array, expenseTotal: float, incomeTotal: float}>
+     */
+    private function buildCategoryGroups(Budget $budget, CategoryRepository $categoryRepository): array
+    {
+        $groups = [];
+
+        foreach ($categoryRepository->findRootCategories($budget) as $category) {
+            $directLines = array_values(array_filter(
+                $category->getBudgetLines()->toArray(),
+                fn(BudgetLine $line) => $line->isActive()
+            ));
+
+            $children = [];
+            foreach ($category->getSubCategories() as $subCategory) {
+                $childLines = array_values(array_filter(
+                    $subCategory->getBudgetLines()->toArray(),
+                    fn(BudgetLine $line) => $line->isActive()
+                ));
+
+                $children[] = [
+                    'category' => $subCategory,
+                    'lines' => $childLines,
+                    'expenseTotal' => $this->sumByType($childLines, true),
+                    'incomeTotal' => $this->sumByType($childLines, false),
+                ];
+            }
+
+            $childrenExpenseTotal = array_sum(array_column($children, 'expenseTotal'));
+            $childrenIncomeTotal = array_sum(array_column($children, 'incomeTotal'));
+
+            $groups[] = [
+                'category' => $category,
+                'lines' => $directLines,
+                'children' => $children,
+                'expenseTotal' => $this->sumByType($directLines, true) + $childrenExpenseTotal,
+                'incomeTotal' => $this->sumByType($directLines, false) + $childrenIncomeTotal,
+            ];
+        }
+
+        return $groups;
+    }
+
+    /**
+     * @param BudgetLine[] $lines
+     */
+    private function sumByType(array $lines, bool $isExpense): float
+    {
+        return array_sum(array_map(
+            fn(BudgetLine $line) => $line->getAmount(),
+            array_filter($lines, fn(BudgetLine $line) => $line->isExpense() === $isExpense)
+        ));
+    }
+
 
     #[IsGranted('ROLE_USER')]
     #[Route('/budget-realise/{organizationSlug}/{budgetSlug}', name: 'app_membre_actuel_budget_show', methods: ['GET'])]
