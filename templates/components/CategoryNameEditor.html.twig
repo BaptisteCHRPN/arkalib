@@ -1,0 +1,23 @@
+<span{{ attributes }}>
+	{% if isEditing %}
+		<span class="d-inline-flex align-items-center gap-1" data-action="keydown.esc->live#action" data-live-action-param="cancel">
+			<input type="text" class="form-control form-control-sm d-inline-block" style="width: auto; max-width: 200px;" data-model="name" value="{{ name }}" autofocus data-action="keydown.enter->live#action" data-live-action-param="save">
+			<button type="button" class="btn btn-sm btn-link p-0 text-success" data-action="live#action" data-live-action-param="save">
+				{{ ux_icon('mdi:check') }}
+			</button>
+			<button type="button" class="btn btn-sm btn-link p-0 text-danger" data-action="live#action" data-live-action-param="cancel">
+				{{ ux_icon('mdi:close') }}
+			</button>
+		</span>
+	{% else %}
+		<span class="d-inline-flex align-items-center gap-1">
+			{{ ux_icon('mdi:folder', {'class': 'me-1'}) }}{{ category.name }}
+			<button type="button" class="btn btn-sm btn-link p-0 text-secondary" data-action="live#action" data-live-action-param="edit" title="Renommer">
+				{{ ux_icon('mdi:pencil', {'class': 'small'}) }}
+			</button>
+		</span>
+	{% endif %}
+	{% if error %}
+		<div class="text-danger small">{{ error }}</div>
+	{% endif %}
+</span>

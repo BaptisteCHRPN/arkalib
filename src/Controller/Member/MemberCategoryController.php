@@ -97,13 +97,37 @@ final class MemberCategoryController extends AbstractController
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
         Category $category,
     ): Response {
+        if ($budget->getOrganization()->getId() !== $organization->getId()) {
+            throw $this->createAccessDeniedException('Ce budget n\'appartient pas à cette organisation');
+        }
+
+        if ($budget->isClosed()) {
+            $this->addFlash('warning', 'Ce budget est clôturé. Impossible de supprimer une catégorie.');
+            return $this->redirectToRoute('app_membre_budget_show', [
+                'organizationSlug' => $organization->getSlug(),
+                'budgetSlug' => $budget->getSlug(),
+            ], Response::HTTP_SEE_OTHER);
+        }
+
         if ($this->isCsrfTokenValid('delete' . $category->getId(), $request->getPayload()->getString('_token'))) {
+            if (!$category->getSubCategories()->isEmpty()) {
+                $this->addFlash('warning', 'Impossible de supprimer une catégorie qui contient encore des sous-catégories. Supprimez-les d\'abord.');
+                return $this->redirectToRoute('app_membre_budget_show', [
+                    'organizationSlug' => $organization->getSlug(),
+                    'budgetSlug' => $budget->getSlug(),
+                ], Response::HTTP_SEE_OTHER);
+            }
+
+            foreach ($category->getBudgetLines() as $budgetLine) {
+                $budgetLine->setCategory(null);
+            }
+
             $softDeleteService->softDelete($category, $this->getUser());
             $entityManager->flush();
             $this->addFlash('success', 'La catégorie a été déplacée dans la corbeille.');
         }
 
-        return $this->redirectToRoute('app_category_index', [
+        return $this->redirectToRoute('app_membre_budget_show', [
             'organizationSlug' => $organization->getSlug(),
             'budgetSlug' => $budget->getSlug(),
         ], Response::HTTP_SEE_OTHER);

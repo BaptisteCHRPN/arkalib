@@ -217,7 +217,7 @@
 								{% for group in categoryGroups %}
 									<tr class="table-secondary">
 										<th colspan="2">
-											{{ ux_icon('mdi:folder', {'class': 'me-2'}) }}{{ group.category.name }}
+											<twig:CategoryNameEditor :category="group.category" />
 										</th>
 										<th class="text-end text-danger">
 											{% if group.expenseTotal > 0 %}- {{ group.expenseTotal|number_format(2, ',', ' ') }} €{% endif %}
@@ -225,7 +225,16 @@
 										<th class="text-end text-success">
 											{% if group.incomeTotal > 0 %}+ {{ group.incomeTotal|number_format(2, ',', ' ') }} €{% endif %}
 										</th>
-										<th></th>
+										<th class="text-center">
+											<div class="dropdown">
+												<button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false">
+													{{ ux_icon('mdi:dots-vertical') }}
+												</button>
+												<ul class="dropdown-menu dropdown-menu-end shadow dropdown-budget">
+													<li>{% include "member/category/_delete_form.html.twig" with {'category': group.category} %}</li>
+												</ul>
+											</div>
+										</th>
 									</tr>
 
 									{% for line in group.lines %}
@@ -235,7 +244,7 @@
 									{% for child in group.children %}
 										<tr class="table-light">
 											<td colspan="2" class="ps-4">
-												{{ ux_icon('mdi:folder-outline', {'class': 'me-2 text-secondary'}) }}{{ child.category.name }}
+												<twig:CategoryNameEditor :category="child.category" />
 											</td>
 											<td class="text-end text-danger">
 												{% if child.expenseTotal > 0 %}- {{ child.expenseTotal|number_format(2, ',', ' ') }} €{% endif %}
@@ -243,7 +252,16 @@
 											<td class="text-end text-success">
 												{% if child.incomeTotal > 0 %}+ {{ child.incomeTotal|number_format(2, ',', ' ') }} €{% endif %}
 											</td>
-											<td></td>
+											<td class="text-center">
+												<div class="dropdown">
+													<button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false">
+														{{ ux_icon('mdi:dots-vertical') }}
+													</button>
+													<ul class="dropdown-menu dropdown-menu-end shadow dropdown-budget">
+														<li>{% include "member/category/_delete_form.html.twig" with {'category': child.category} %}</li>
+													</ul>
+												</div>
+											</td>
 										</tr>
 
 										{% for line in child.lines %}
