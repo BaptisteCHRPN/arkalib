@@ -1,0 +1,14 @@
+<turbo-frame id="budget-line-form-frame">
+	<div class="modal-body">
+		{{ include('member/budget_line/_form.html.twig', {
+			hideSubmitButton: true,
+			form_action: path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug})
+		}) }}
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+		<button type="submit" form="budget-line-form" class="btn btn-primary">
+			{{ ux_icon('mdi:content-save', {'class': 'me-1'}) }}Enregistrer
+		</button>
+	</div>
+</turbo-frame>

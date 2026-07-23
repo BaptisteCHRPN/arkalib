@@ -20,4 +20,8 @@
 		{% include "member/budget/_mobile_view.html.twig" %}
 	</div>
 
+	{% if not budget.isClosed() %}
+		{% include "member/budget_line/_new_modal.html.twig" %}
+	{% endif %}
+
 {% endblock %}
