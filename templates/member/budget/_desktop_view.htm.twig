@@ -109,10 +109,10 @@
 			{# New ligne / category #}
 			<div class="d-grid gap-2 d-md-flex justify-content-md-start">
 				{% if not budget.isClosed() %}
-					<a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary">
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#budgetLineFormModal">
 						{{ ux_icon('mdi:plus-circle', {'class': 'me-2'}) }}
 						Nouvelle ligne budgétaire
-					</a>
+					</button>
 					<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#categoryFormModal">
 						{{ ux_icon('mdi:tag', {'class': 'me-2'}) }}
 						Créer une catégorie
@@ -316,10 +316,10 @@
 				<div class="text-center py-5">
 					{{ ux_icon('mdi:inbox', {'class': 'text-secondary', 'style': 'font-size: 3rem;'}) }}
 					<p class="text-secondary mt-3 mb-0">Aucune catégorie ni ligne budgétaire pour l'instant</p>
-					<a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-sm btn-outline-primary mt-3">
+					<button type="button" class="btn btn-sm btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#budgetLineFormModal">
 						{{ ux_icon('mdi:plus-circle', {'class': 'me-2'}) }}
 						Ajouter une ligne budgétaire
-					</a>
+					</button>
 				</div>
 			{% endif %}
 		</div>

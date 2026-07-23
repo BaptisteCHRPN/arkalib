@@ -1,4 +1,8 @@
-{{ form_start(form, {attr: {id: 'budget-line-form'}}) }}
+{% set form_options = {attr: {id: 'budget-line-form', 'data-turbo-frame': '_top'}} %}
+{% if form_action is defined and form_action %}
+    {% set form_options = form_options|merge({action: form_action}) %}
+{% endif %}
+{{ form_start(form, form_options) }}
     {{ form_widget(form) }}
     {% if not hideSubmitButton|default(false) %}
         <button class="btn btn-primary">{{ button_label|default('Enregistrer') }}</button>
