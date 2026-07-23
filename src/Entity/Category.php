@@ -39,12 +39,14 @@ class Category
      * @var Collection<int, Category>
      */
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'parentCategory', cascade: ['remove'])]
+    #[ORM\OrderBy(['name' => 'ASC'])]
     private Collection $subCategories;
 
     /**
      * @var Collection<int, BudgetLine>
      */
     #[ORM\OneToMany(targetEntity: BudgetLine::class, mappedBy: 'category')]
+    #[ORM\OrderBy(['name' => 'ASC'])]
     private Collection $budgetLines;
 
     public function __construct()

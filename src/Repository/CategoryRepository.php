@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Budget;
 use App\Entity\Category;
 use App\Entity\Organization;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -48,5 +49,16 @@ class CategoryRepository extends ServiceEntityRepository
         $this->getEntityManager()->getFilters()->enable('soft_delete');
 
         return $results;
+    }
+
+    public function findRootCategories(Budget $budget): array
+    {
+        return $this->createQueryBuilder('c')
+            ->where('c.budget = :budget')
+            ->andWhere('c.parentCategory IS NULL')
+            ->setParameter('budget', $budget)
+            ->orderBy('c.name', 'ASC')
+            ->getQuery()
+            ->getResult();
     }
 }

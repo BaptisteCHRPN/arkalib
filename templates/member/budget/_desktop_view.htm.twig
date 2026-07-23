@@ -1,3 +1,57 @@
+{% macro budgetLineRow(line, organization, budget, indentClass) %}
+	<tr>
+		<td class="align-middle {{ indentClass }}">
+			<strong>{{ line.name }}</strong>
+		</td>
+		<td class="align-middle">
+			{% if line.description %}
+				<small class="text-secondary">{{ line.description }}</small>
+			{% else %}
+				<small class="text-secondary fst-italic">Aucune description</small>
+			{% endif %}
+		</td>
+		<td class="text-end align-middle">
+			{% if line.expense %}
+				<span class="text-danger fw-bold">- {{ line.amount|number_format(2, ',', ' ') }} €</span>
+			{% endif %}
+		</td>
+		<td class="text-end align-middle">
+			{% if not line.expense %}
+				<span class="text-success fw-bold">+ {{ line.amount|number_format(2, ',', ' ') }} €</span>
+			{% endif %}
+		</td>
+		<td class="text-center align-middle">
+			<div class="dropdown">
+				<button class="btn btn-sm btn-light" type="button" id="dropdownLine{{ line.id }}" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false">
+					{{ ux_icon('mdi:dots-vertical') }}
+				</button>
+				<ul class="dropdown-menu dropdown-menu-end shadow dropdown-budget" aria-labelledby="dropdownLine{{ line.id }}">
+					<li>
+						<a class="dropdown-item" href="{{ path('app_budget_line_show', { 'organizationSlug': organization.slug, 'budgetSlug': budget.slug, 'id': line.id }) }}">
+							{{ ux_icon('mdi:eye', {'class': 'me-2'}) }}Voir
+						</a>
+					</li>
+					<li>
+						<a class="dropdown-item" href="{{ path('app_member_budget_line_edit', {'id': line.id, 'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">
+							{{ ux_icon('mdi:pencil', {'class': 'me-2'}) }}Modifier
+						</a>
+					</li>
+					<li>
+						<a class="dropdown-item" href="{{ path('app_member_transaction_new', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}">
+							{{ ux_icon('hugeicons:transaction', {'class': 'me-2'}) }}Ajouter une transaction
+						</a>
+					</li>
+					<li><hr class="dropdown-divider"></li>
+					<li>
+						{% include "member/budget_line/_delete_form.html.twig" with {'budgetLine': line} %}
+					</li>
+				</ul>
+			</div>
+		</td>
+	</tr>
+{% endmacro %}
+{% import _self as macros %}
+
 <div
 	class="budget-view">
 	{# Breadcrumb #}
@@ -14,6 +68,7 @@
 			</li>
 		</ol>
 	</nav>
+
 
 	{% if budget.isClosed() %}
 		<div class="alert alert-warning d-flex align-items-center mb-3" role="alert">
@@ -58,10 +113,10 @@
 						{{ ux_icon('mdi:plus-circle', {'class': 'me-2'}) }}
 						Nouvelle ligne budgétaire
 					</a>
-					<a href="{{ path('app_category_new', {'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-outline-primary">
+					<button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#categoryFormModal">
 						{{ ux_icon('mdi:tag', {'class': 'me-2'}) }}
 						Créer une catégorie
-					</a>
+					</button>
 				{% endif %}
 				<a href="{{ path('app_member_transaction_index', { 'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug }) }}" class="btn btn-outline-primary">
 					{{ ux_icon('hugeicons:transaction', {'class': 'me-2'}) }}
@@ -139,247 +194,132 @@
 		</div>
 	</div>
 
-	{# Incomes #}
+	{# Budget lines grouped by category #}
 	<div class="card shadow-sm mb-4">
-		<div class="card-header bg-success bg-opacity-10 border-success border-opacity-25">
-			<div class="d-flex justify-content-between align-items-center">
-				<h2 class="h5 mb-0 text-success">
-					Recettes prévisionnelles
-				</h2>
-				<span class="badge bg-success">
-					{{ incomes|length }}
-					ligne(s)
-				</span>
-			</div>
+		<div class="card-header bg-light">
+			<h2 class="h5 mb-0">Dépenses et recettes par catégorie</h2>
 		</div>
 		<div class="card-body p-0">
-			{% if incomes|length > 0 %}
+			{% if categoryGroups|length > 0 or uncategorizedLines|length > 0 %}
 				<div class="d-none d-md-block">
 					<div class="table-responsive">
 						<table class="table table-hover mb-0">
 							<thead class="table-light">
 								<tr>
-									<th style="width: 25%">Nom</th>
-									<th style="width: 20%">Catégorie</th>
-									<th style="width: 35%">Description</th>
-									<th class="text-end" style="width: 15%">Montant</th>
-									<th class="text-center" style="width: 5%">Actions</th>
+									<th style="width: 30%">Nom</th>
+									<th style="width: 30%">Description</th>
+									<th class="text-end" style="width: 15%">Dépense</th>
+									<th class="text-end" style="width: 15%">Recette</th>
+									<th class="text-center" style="width: 10%">Actions</th>
 								</tr>
 							</thead>
 							<tbody>
-								{% for income in incomes %}
-									<tr>
-										<td class="align-middle">
-											<strong>{{ income.name }}</strong>
-										</td>
-										<td class="align-middle">
-											{% if income.category %}
-												{% if income.category.parentCategory %}
-													<span class="badge bg-light text-dark">
-														{{ income.category.parentCategory.name }}
-													</span>
-													{{ ux_icon('mdi:chevron-right', {'class': 'small text-secondary'}) }}
-												{% endif %}
-												<span class="badge bg-success bg-opacity-25 text-success">
-													{{ income.category.name }}
-												</span>
-											{% else %}
-												<span class="text-secondary fst-italic small">Non catégorisé</span>
-											{% endif %}
-										</td>
-										<td class="align-middle">
-											{% if income.description %}
-												<small class="text-secondary">{{ income.description }}</small>
-											{% else %}
-												<small class="text-secondary fst-italic">Aucune description</small>
-											{% endif %}
-										</td>
-										<td class="text-end align-middle">
-											<span class="text-success fw-bold">
-												+
-												{{ income.amount|number_format(2, ',', ' ') }}
-												€
-											</span>
-										</td>
-										{# Actions Incomes #}
-										<td class="text-center align-middle">
-											<div class="dropdown">
-												<button class="btn btn-sm btn-light" type="button" id="dropdownIncome{{ income.id }}" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false">
-													{{ ux_icon('mdi:dots-vertical') }}
-												</button>
-												<ul class="dropdown-menu dropdown-menu-end shadow dropdown-budget" aria-labelledby="dropdownIncome{{ income.id }}">
-													<li>
-														<a class="dropdown-item" href="{{ path('app_budget_line_show', { 'organizationSlug': organization.slug, 'budgetSlug': budget.slug, 'id': income.id }) }}">
-															{{ ux_icon('mdi:eye', {'class': 'me-2'}) }}Voir
-														</a>
-													</li>
-													<li>
-														<a class="dropdown-item" href="{{ path('app_member_budget_line_edit', {'id': income.id, 'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">
-															{{ ux_icon('mdi:pencil', {'class': 'me-2'}) }}Modifier
-														</a>
-													</li>
-													<li>
-														<a class="dropdown-item" href="{{ path('app_member_transaction_new', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}">
-															{{ ux_icon('hugeicons:transaction', {'class': 'me-2'}) }}Ajouter une transaction
-														</a>
-													</li>
-													<li><hr class="dropdown-divider"></li>
-													<li>
-														{% include "member/budget_line/_delete_form.html.twig" with {'budgetLine': income} %}
-													</li>
-												</ul>
-											</div>
-										</td>
+								{% for group in categoryGroups %}
+									<tr class="table-secondary">
+										<th colspan="2">
+											{{ ux_icon('mdi:folder', {'class': 'me-2'}) }}{{ group.category.name }}
+										</th>
+										<th class="text-end text-danger">
+											{% if group.expenseTotal > 0 %}- {{ group.expenseTotal|number_format(2, ',', ' ') }} €{% endif %}
+										</th>
+										<th class="text-end text-success">
+											{% if group.incomeTotal > 0 %}+ {{ group.incomeTotal|number_format(2, ',', ' ') }} €{% endif %}
+										</th>
+										<th></th>
 									</tr>
+
+									{% for line in group.lines %}
+										{{ macros.budgetLineRow(line, organization, budget, 'ps-4') }}
+									{% endfor %}
+
+									{% for child in group.children %}
+										<tr class="table-light">
+											<td colspan="2" class="ps-4">
+												{{ ux_icon('mdi:folder-outline', {'class': 'me-2 text-secondary'}) }}{{ child.category.name }}
+											</td>
+											<td class="text-end text-danger">
+												{% if child.expenseTotal > 0 %}- {{ child.expenseTotal|number_format(2, ',', ' ') }} €{% endif %}
+											</td>
+											<td class="text-end text-success">
+												{% if child.incomeTotal > 0 %}+ {{ child.incomeTotal|number_format(2, ',', ' ') }} €{% endif %}
+											</td>
+											<td></td>
+										</tr>
+
+										{% for line in child.lines %}
+											{{ macros.budgetLineRow(line, organization, budget, 'ps-5') }}
+										{% endfor %}
+
+										{% if child.expenseTotal == 0 and child.incomeTotal == 0 %}
+											<tr>
+												<td colspan="5" class="ps-5 text-secondary fst-italic small">Aucune ligne dans cette sous-catégorie</td>
+											</tr>
+										{% endif %}
+									{% endfor %}
+
+									{% if group.expenseTotal == 0 and group.incomeTotal == 0 %}
+										<tr>
+											<td colspan="5" class="ps-4 text-secondary fst-italic small">Aucune ligne dans cette catégorie</td>
+										</tr>
+									{% endif %}
 								{% endfor %}
+
+								{% if uncategorizedLines|length > 0 %}
+									<tr class="table-secondary">
+										<th colspan="2">
+											{{ ux_icon('mdi:tag-off', {'class': 'me-2'}) }}Non catégorisé
+										</th>
+										<th class="text-end text-danger">
+											{% if uncategorizedExpenseTotal > 0 %}- {{ uncategorizedExpenseTotal|number_format(2, ',', ' ') }} €{% endif %}
+										</th>
+										<th class="text-end text-success">
+											{% if uncategorizedIncomeTotal > 0 %}+ {{ uncategorizedIncomeTotal|number_format(2, ',', ' ') }} €{% endif %}
+										</th>
+										<th></th>
+									</tr>
+
+									{% for line in uncategorizedLines %}
+										{{ macros.budgetLineRow(line, organization, budget, 'ps-4') }}
+									{% endfor %}
+								{% endif %}
 							</tbody>
 							<tfoot class="table-light">
 								<tr>
-									<td colspan="3" class="text-end fw-bold">Total des recettes :</td>
-									<td class="text-end fw-bold text-success">
-										+
-										{{ sumIncomes|number_format(2, ',', ' ') }}
-										€
-									</td>
+									<td colspan="2" class="text-end fw-bold">Total :</td>
+									<td class="text-end fw-bold text-danger">- {{ sumExpenses|number_format(2, ',', ' ') }} €</td>
+									<td class="text-end fw-bold text-success">+ {{ sumIncomes|number_format(2, ',', ' ') }} €</td>
 									<td></td>
 								</tr>
 							</tfoot>
 						</table>
 					</div>
 				</div>
-
 			{% else %}
 				<div class="text-center py-5">
 					{{ ux_icon('mdi:inbox', {'class': 'text-secondary', 'style': 'font-size: 3rem;'}) }}
-					<p class="text-secondary mt-3 mb-0">Aucune recette trouvée</p>
-					<a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-sm btn-outline-success mt-3">
+					<p class="text-secondary mt-3 mb-0">Aucune catégorie ni ligne budgétaire pour l'instant</p>
+					<a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-sm btn-outline-primary mt-3">
 						{{ ux_icon('mdi:plus-circle', {'class': 'me-2'}) }}
-						Ajouter une recette
+						Ajouter une ligne budgétaire
 					</a>
 				</div>
 			{% endif %}
 		</div>
 	</div>
 
-	{# Expenses #}
-	<div class="card shadow-sm mb-4">
-		<div class="card-header bg-danger bg-opacity-10 border-danger border-opacity-25">
-			<div class="d-flex justify-content-between align-items-center">
-				<h2 class="h5 mb-0 text-danger">
-					Dépenses prévisionnelles
-				</h2>
-				<span class="badge bg-danger">
-					{{ expenses|length }}
-					ligne(s)
-				</span>
+	{# Category creation modal #}
+	<div class="modal fade" id="categoryFormModal" tabindex="-1" aria-labelledby="categoryFormModalLabel" aria-hidden="true"
+		data-controller="category-modal-refresh" data-action="category-created@window->category-modal-refresh#reload">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="categoryFormModalLabel">Créer une catégorie</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+				</div>
+				<div class="modal-body">
+					<twig:CategoryFormComponent :budget="budget" />
+				</div>
 			</div>
-		</div>
-		<div class="card-body p-0">
-			{% if expenses|length > 0 %}
-				<div class="d-none d-md-block">
-					<div class="table-responsive">
-						<table class="table table-hover mb-0">
-							<thead class="table-light">
-								<tr>
-									<th style="width: 25%">Nom</th>
-									<th style="width: 20%">Catégorie</th>
-									<th style="width: 35%">Description</th>
-									<th class="text-end" style="width: 15%">Montant</th>
-									<th class="text-center" style="width: 5%">Actions</th>
-								</tr>
-							</thead>
-							<tbody>
-								{% for expense in expenses %}
-									<tr>
-										<td class="align-middle">
-											<strong>{{ expense.name }}</strong>
-										</td>
-										<td class="align-middle">
-											{% if expense.category %}
-												{% if expense.category.parentCategory %}
-													<span class="badge bg-light text-dark">
-														{{ expense.category.parentCategory.name }}
-													</span>
-													{{ ux_icon('mdi:chevron-right', {'class': 'small text-secondary'}) }}
-												{% endif %}
-												<span class="badge bg-danger bg-opacity-25 text-danger">
-													{{ expense.category.name }}
-												</span>
-											{% else %}
-												<span class="text-secondary fst-italic small">Non catégorisé</span>
-											{% endif %}
-										</td>
-										<td class="align-middle">
-											{% if expense.description %}
-												<small class="text-secondary">{{ expense.description }}</small>
-											{% else %}
-												<small class="text-secondary fst-italic">Aucune description</small>
-											{% endif %}
-										</td>
-										<td class="text-end align-middle">
-											<span class="text-danger fw-bold">
-												-
-												{{ expense.amount|number_format(2, ',', ' ') }}
-												€
-											</span>
-										</td>
-										{#  Actions Expenses #}
-										<td class="text-center align-middle">
-											<div class="dropdown">
-												<button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-													{{ ux_icon('mdi:dots-vertical') }}
-												</button>
-												<ul class="dropdown-menu dropdown-menu-end dropdown-budget">
-													<li>
-														<a class="dropdown-item" href="{{ path('app_budget_line_show', { 'organizationSlug': organization.slug, 'budgetSlug': budget.slug, 'id': expense.id }) }}">
-															{{ ux_icon('mdi:eye', {'class': 'me-2'}) }}Voir
-														</a>
-													</li>
-													<li>
-														<a class="dropdown-item" href="{{ path('app_member_budget_line_edit', {'id': expense.id, 'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">
-															{{ ux_icon('mdi:pencil', {'class': 'me-2'}) }}Modifier
-														</a>
-													</li>
-													<li>
-														<a class="dropdown-item" href="{{ path('app_member_transaction_new', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}">
-															{{ ux_icon('hugeicons:transaction', {'class': 'me-2'}) }}Ajouter une transaction
-														</a>
-													</li>
-													<li><hr class="dropdown-divider"></li>
-													<li>
-														{% include "member/budget_line/_delete_form.html.twig" with {'budgetLine': expense} %}
-													</li>
-												</ul>
-											</div>
-										</td>
-									</tr>
-								{% endfor %}
-							</tbody>
-							<tfoot class="table-light">
-								<tr>
-									<td colspan="3" class="text-end fw-bold">Total des dépenses :</td>
-									<td class="text-end fw-bold text-danger">
-										-
-										{{ sumExpenses|number_format(2, ',', ' ') }}
-										€
-									</td>
-									<td></td>
-								</tr>
-							</tfoot>
-						</table>
-					</div>
-				</div>
-
-			{% else %}
-				<div class="text-center py-5">
-					{{ ux_icon('mdi:inbox', {'class': 'text-secondary', 'style': 'font-size: 3rem;'}) }}
-					<p class="text-secondary mt-3 mb-0">Aucune dépense trouvée</p>
-					<a href="{{ path('app_budget_line_new', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-sm btn-outline-danger mt-3">
-						{{ ux_icon('mdi:plus-circle', {'class': 'me-2'}) }}
-						Ajouter une dépense
-					</a>
-				</div>
-			{% endif %}
 		</div>
 	</div>
 </div>
