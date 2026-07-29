@@ -86,7 +86,7 @@ En développement, il est recommandé d'utiliser **Mailpit** ou **Mailtrap** pou
 Un utilisateur crée un compte puis rejoint une association — soit en la créant, soit via une invitation. Au sein d'une association, il peut :
 - Créer et gérer des budgets
 - Organiser les lignes budgétaires en catégories
-- Ajouter des transactions (budget réalisé) aux ligne budgetaire afin de comparer le prévisionnel et le réél
+- Ajouter des transactions (budget réalisé) aux lignes budgetaires afin de comparer le prévisionnel et le réel
 - Inviter des membres à rejoindre l'association
 
 
