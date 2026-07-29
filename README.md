@@ -106,4 +106,4 @@ sur ce projet. Les points qui m'intéressent particulièrement :
 
 ## Auteur
 
-**Baptiste CHERPIN** — [cherpinb@gmail.com](mailto:cherpinb@gmail.com)
+**Baptiste CHERPIN** — [cherpinb@gmail.com](mailto:baptiste@batdev.fr)
