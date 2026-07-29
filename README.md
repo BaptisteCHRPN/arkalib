@@ -81,6 +81,29 @@ En développement, il est recommandé d'utiliser **Mailpit** ou **Mailtrap** pou
 
 ---
 
+### Fonctionnement
+
+Un utilisateur crée un compte puis rejoint une association — soit en la créant, soit via une invitation. Au sein d'une association, il peut :
+- Créer et gérer des budgets
+- Organiser les lignes budgétaires en catégories
+- Ajouter des transactions (budget réalisé) aux ligne budgetaire afin de comparer le prévisionnel et le réél
+- Inviter des membres à rejoindre l'association
+
+
+## Feedback recherché
+
+Je suis développeur junior en reconversion et je cherche des retours honnêtes 
+sur ce projet. Les points qui m'intéressent particulièrement :
+
+- **Architecture générale** : j'ai séparé l'application en deux espaces distincts 
+  (`member` et `admin`), chacun avec ses propres controllers et templates. 
+  Est-ce une approche cohérente ? Que feriez-vous différemment ?
+- **Organisation des templates Twig** : je m'y perds parfois moi-même, 
+  ce qui est probablement un signal. Tout retour sur la structure est bienvenu.
+- **Ce que je ne sais pas que je ne sais pas** : étant junior, mes angles morts 
+  sont par définition invisibles pour moi. N'hésitez pas à signaler ce qui vous 
+  surprend, même si je n'ai pas pensé à le mentionner.
+
 ## Auteur
 
 **Baptiste CHERPIN** — [cherpinb@gmail.com](mailto:cherpinb@gmail.com)
