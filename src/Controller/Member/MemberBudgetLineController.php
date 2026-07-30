@@ -212,8 +212,14 @@ final class MemberBudgetLineController extends AbstractController
         if ($this->isCsrfTokenValid('delete' . $budgetLine->getId(), $request->getPayload()->getString('_token'))) {
             $softDeleteService->softDelete($budgetLine, $this->getUser());
             $entityManager->flush();
-            $this->addFlash('success', $budgetLine->isExpense() ? 'La dépense a été déplacée dans la corbeille.' : 'La recette a été déplacée dans la corbeille.');
+            $this->addFlash('undo_delete', [
+                'message'          => $budgetLine->isExpense() ? 'La dépense a été déplacée dans la corbeille.' : 'La recette a été déplacée dans la corbeille.',
+                'id'               => $budgetLine->getId(),
+                'type'             => $budgetLine->isExpense() ? 'depenses' : 'recettes',
+                'organizationSlug' => $organization->getSlug(),
+            ]);
         }
+
 
         return $this->redirectToRoute('app_membre_budget_show', [
             'organizationSlug' => $organization->getSlug(),
