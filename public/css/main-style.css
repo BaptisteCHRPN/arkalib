@@ -418,6 +418,18 @@ body.loading * {
     text-decoration: none !important;
 }
 
+/* =============================================
+   COMPOSANT – Toast (annuler suppression)
+   ============================================= */
+
+.toast-progress {
+    height: 3px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.85);
+    transition-property: width;
+    transition-timing-function: linear;
+}
+
 
 
 /* =============================================
