@@ -178,8 +178,10 @@ final class MemberOrganizationController extends AbstractController
                 $organization->removeUser($user);
             }
 
+            $entityManager->getFilters()->disable('soft_delete');
             $entityManager->remove($organization);
             $entityManager->flush();
+            $entityManager->getFilters()->enable('soft_delete');
             $this->addFlash('success', 'L\'organisation à été supprimée avec succès !');
         }
 

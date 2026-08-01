@@ -1,4 +1,26 @@
-<form method="post" action="{{ path('app_member_organization_delete', {'id': organization.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
-    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ organization.id) }}">
-    <button class="btn btn-danger">Suprimer</button>
-</form>
+<button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteOrganizationModal">
+    Supprimer
+</button>
+
+<div class="modal fade" id="deleteOrganizationModal" tabindex="-1" aria-labelledby="deleteOrganizationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content" data-controller="delete-confirm" data-delete-confirm-name-value="{{ organization.name }}">
+            <form method="post" action="{{ path('app_member_organization_delete', {'id': organization.id}) }}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteOrganizationModalLabel">Supprimer l'organisation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Cette action est irréversible. Toutes les données de l'organisation (budgets, catégories, transactions, invitations...) seront supprimées définitivement.</p>
+                    <p class="mb-2">Pour confirmer, tapez <strong>{{ organization.name }}</strong> ci-dessous :</p>
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ organization.id) }}">
+                    <input type="text" class="form-control" autocomplete="off" data-delete-confirm-target="input" data-action="input->delete-confirm#check">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger" disabled data-delete-confirm-target="submit">Supprimer définitivement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
