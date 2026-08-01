@@ -164,7 +164,11 @@ final class MemberBudgetLineController extends AbstractController
             ], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('member/budget_line/edit.html.twig', [
+        $template = $request->headers->has('Turbo-Frame')
+            ? 'member/budget_line/_edit_modal_form.html.twig'
+            : 'member/budget_line/edit.html.twig';
+
+        return $this->render($template, [
             'budgetLine' => $budgetLine,
             'budget' => $budget,
             'organization' => $organization,
