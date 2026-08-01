@@ -168,7 +168,10 @@ final class MemberOrganizationController extends AbstractController
         if ($this->isCsrfTokenValid('delete' . $organization->getId(), $request->getPayload()->getString('_token'))) {
 
             if ($organization->getPicture()) {
-                unlink($this->getParameter('organization_logo') . '/' . $organization->getPicture());
+                $logoPath = $this->getParameter('organization_logo') . '/' . $organization->getPicture();
+                if (file_exists($logoPath)) {
+                    unlink($logoPath);
+                }
             }
 
             foreach ($organization->getUsers() as $user) {

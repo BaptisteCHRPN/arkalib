@@ -31,8 +31,9 @@ class Organization
     /**
      * @var Collection<int, Budget>
      */
-    #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'organization')]
+    #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'organization', cascade: ['remove'])]
     private Collection $budgets;
+
 
     /**
      * @var Collection<int, User>
