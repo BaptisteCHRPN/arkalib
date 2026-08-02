@@ -1,0 +1,24 @@
+<turbo-frame id="budget-line-edit-form-frame">
+	<div class="modal-body">
+		{{ include('member/budget_line/_form.html.twig', {
+			hideSubmitButton: true,
+			form_id: 'budget-line-edit-form',
+			form_action: path('app_member_budget_line_edit', {'id': budgetLine.id})
+		}) }}
+		{% if budgetLine.attachment %}
+			<hr>
+			<div class="mt-3">
+				<p class="small mb-1 fw-semibold">Pièce jointe actuelle :</p>
+				<a href="{{ path('app_member_budget_line_delete_attachment', {id: budgetLine.id}) }}" class="btn btn-sm btn-outline-danger">
+					Supprimer la pièce jointe
+				</a>
+			</div>
+		{% endif %}
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+		<button type="submit" form="budget-line-edit-form" class="btn btn-primary">
+			{{ ux_icon('mdi:content-save', {'class': 'me-1'}) }}Enregistrer
+		</button>
+	</div>
+</turbo-frame>

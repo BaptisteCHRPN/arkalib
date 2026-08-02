@@ -32,9 +32,9 @@
 						</a>
 					</li>
 					<li>
-						<a class="dropdown-item" href="{{ path('app_member_budget_line_edit', {'id': line.id, 'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">
+						<button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#budgetLineEditModal" data-url="{{ path('app_member_budget_line_edit', {'id': line.id, 'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">
 							{{ ux_icon('mdi:pencil', {'class': 'me-2'}) }}Modifier
-						</a>
+						</button>
 					</li>
 					<li>
 						<a class="dropdown-item" href="{{ path('app_member_transaction_new', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}">

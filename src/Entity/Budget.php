@@ -16,7 +16,7 @@ class Budget
 {
     use TraceableTrait;
     use SoftDeleteTrait;
-    
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -52,8 +52,9 @@ class Budget
     /**
      * @var Collection<int, Category>
      */
-    #[ORM\OneToMany(targetEntity: Category::class, mappedBy: 'budget', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Category::class, mappedBy: 'budget', orphanRemoval: true, cascade: ['remove'])]
     private Collection $categories;
+
 
     public function __construct()
     {

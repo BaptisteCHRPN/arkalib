@@ -13,7 +13,7 @@ use App\Entity\Trait\TraceableTrait;
 class Organization
 {
     use TraceableTrait;
-    
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -31,8 +31,9 @@ class Organization
     /**
      * @var Collection<int, Budget>
      */
-    #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'organization')]
+    #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'organization', cascade: ['remove'])]
     private Collection $budgets;
+
 
     /**
      * @var Collection<int, User>
@@ -41,7 +42,7 @@ class Organization
     #[ORM\JoinTable(name: 'organization_user')]
     private Collection $users;
 
-    #[ORM\Column(length: 255, unique:true)]
+    #[ORM\Column(length: 255, unique: true)]
     private ?string $slug = null;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -50,7 +51,7 @@ class Organization
     /**
      * @var Collection<int, Invitation>
      */
-    #[ORM\OneToMany(targetEntity: Invitation::class, mappedBy: 'organisation')]
+    #[ORM\OneToMany(targetEntity: Invitation::class, mappedBy: 'organisation', cascade: ['remove'])]
     private Collection $invitations;
 
     public function __construct()

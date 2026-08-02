@@ -1,0 +1,19 @@
+<div class="toast-container position-fixed bottom-0 start-50 translate-middle-x p-3" style="z-index: 1080;">
+	{% for undo in app.flashes('undo_delete') %}
+		<div class="toast align-items-center text-bg-dark border-0 show" role="alert" aria-live="assertive" aria-atomic="true" data-controller="toast" data-toast-duration-value="6000" data-toast-restore-url-value="{{ path('app_member_trash_restore', {slug: undo.organizationSlug, type: undo.type, id: undo.id}) }}">
+			<div class="d-flex">
+				<div class="toast-body d-flex align-items-center justify-content-between w-100">
+					<span>{{ undo.message }}</span>
+					<div class="d-flex align-items-center ms-3">
+						<input type="hidden" data-toast-target="token" value="{{ csrf_token('restore' ~ undo.id) }}">
+						<button type="button" class="btn btn-sm btn-link text-white text-decoration-underline p-0 me-3" data-action="toast#undo">
+							Annuler
+						</button>
+						<button type="button" class="btn-close btn-close-white" data-action="toast#dismiss" aria-label="Fermer"></button>
+					</div>
+				</div>
+			</div>
+			<div class="toast-progress" data-toast-target="progress"></div>
+		</div>
+	{% endfor %}
+</div>

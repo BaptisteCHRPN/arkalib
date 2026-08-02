@@ -1,4 +1,4 @@
-{% set form_options = {attr: {id: 'budget-line-form', 'data-turbo-frame': '_top'}} %}
+{% set form_options = {attr: {id: form_id|default('budget-line-form'), 'data-turbo-frame': '_top'}} %}
 {% if form_action is defined and form_action %}
     {% set form_options = form_options|merge({action: form_action}) %}
 {% endif %}

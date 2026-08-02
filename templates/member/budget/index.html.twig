@@ -22,6 +22,7 @@
 
 	{% if not budget.isClosed() %}
 		{% include "member/budget_line/_new_modal.html.twig" %}
+		{% include "member/budget_line/_edit_modal.html.twig" %}
 	{% endif %}
 
 {% endblock %}
