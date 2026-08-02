@@ -1,0 +1,18 @@
+<div class="modal fade" id="budgetLineEditModal" tabindex="-1" aria-labelledby="budgetLineEditModalLabel" aria-hidden="true"
+	data-controller="budget-line-edit-modal" data-action="show.bs.modal->budget-line-edit-modal#load">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="budgetLineEditModalLabel">Modifier la ligne budgétaire</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+			</div>
+			<turbo-frame id="budget-line-edit-form-frame" data-budget-line-edit-modal-target="frame">
+				<div class="modal-body text-center py-5">
+					<div class="spinner-border text-primary" role="status">
+						<span class="visually-hidden">Chargement...</span>
+					</div>
+				</div>
+			</turbo-frame>
+		</div>
+	</div>
+</div>

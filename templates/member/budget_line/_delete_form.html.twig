@@ -1,6 +1,6 @@
-<form method="post" action="{{ path('app_soft_delete_budget_line', {'id': budgetLine.id}) }}" onsubmit="return confirm('Are you sure you want to delete this item?');">
-    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ budgetLine.id) }}">
-    <button class="{{ buttonClass|default('dropdown-item text-danger border-0 bg-transparent w-100 text-start') }}">
-        {{ ux_icon('mdi:trash-can', {'class': 'me-2'}) }}Supprimer
-    </button>
+<form method="post" action="{{ path('app_soft_delete_budget_line', {'id': budgetLine.id}) }}" data-preserve-scroll>
+	<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ budgetLine.id) }}">
+	<button class="{{ buttonClass|default('dropdown-item text-danger border-0 bg-transparent w-100 text-start') }}">
+		{{ ux_icon('mdi:trash-can', {'class': 'me-2'}) }}Supprimer
+	</button>
 </form>

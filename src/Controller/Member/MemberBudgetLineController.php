@@ -164,7 +164,11 @@ final class MemberBudgetLineController extends AbstractController
             ], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->render('member/budget_line/edit.html.twig', [
+        $template = $request->headers->has('Turbo-Frame')
+            ? 'member/budget_line/_edit_modal_form.html.twig'
+            : 'member/budget_line/edit.html.twig';
+
+        return $this->render($template, [
             'budgetLine' => $budgetLine,
             'budget' => $budget,
             'organization' => $organization,
@@ -212,8 +216,14 @@ final class MemberBudgetLineController extends AbstractController
         if ($this->isCsrfTokenValid('delete' . $budgetLine->getId(), $request->getPayload()->getString('_token'))) {
             $softDeleteService->softDelete($budgetLine, $this->getUser());
             $entityManager->flush();
-            $this->addFlash('success', $budgetLine->isExpense() ? 'La dépense a été déplacée dans la corbeille.' : 'La recette a été déplacée dans la corbeille.');
+            $this->addFlash('undo_delete', [
+                'message'          => $budgetLine->isExpense() ? 'La dépense a été déplacée dans la corbeille.' : 'La recette a été déplacée dans la corbeille.',
+                'id'               => $budgetLine->getId(),
+                'type'             => $budgetLine->isExpense() ? 'depenses' : 'recettes',
+                'organizationSlug' => $organization->getSlug(),
+            ]);
         }
+
 
         return $this->redirectToRoute('app_membre_budget_show', [
             'organizationSlug' => $organization->getSlug(),

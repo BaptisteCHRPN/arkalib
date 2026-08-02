@@ -29,4 +29,5 @@ yarn-error.log
 ###> upload files ###
 /uploads/
 ###< upload files ###
-/.env.dev
+
+/.idea/

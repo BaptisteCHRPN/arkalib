@@ -168,15 +168,20 @@ final class MemberOrganizationController extends AbstractController
         if ($this->isCsrfTokenValid('delete' . $organization->getId(), $request->getPayload()->getString('_token'))) {
 
             if ($organization->getPicture()) {
-                unlink($this->getParameter('organization_logo') . '/' . $organization->getPicture());
+                $logoPath = $this->getParameter('organization_logo') . '/' . $organization->getPicture();
+                if (file_exists($logoPath)) {
+                    unlink($logoPath);
+                }
             }
 
             foreach ($organization->getUsers() as $user) {
                 $organization->removeUser($user);
             }
 
+            $entityManager->getFilters()->disable('soft_delete');
             $entityManager->remove($organization);
             $entityManager->flush();
+            $entityManager->getFilters()->enable('soft_delete');
             $this->addFlash('success', 'L\'organisation à été supprimée avec succès !');
         }
 
