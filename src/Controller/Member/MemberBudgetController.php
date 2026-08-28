@@ -7,6 +7,7 @@ use App\Entity\BudgetLine;
 use App\Entity\Organization;
 use App\Form\BudgetType;
 use App\Repository\BudgetLineRepository;
+use App\Security\Voter\OrganizationVoter;
 use App\Service\BudgetCalculatorService;
 use App\Service\SoftDeleteService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -35,9 +36,7 @@ final class MemberBudgetController extends AbstractController
             throw $this->createNotFoundException('Organisation non trouvée');
         }
 
-        if (!$organization->getUsers()->contains($this->getUser())) {
-            throw $this->createAccessDeniedException('Vous n\'êtes pas membre de cette organisation');
-        }
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
 
         $budget = new Budget();
         $budget->setOrganization($organization);
@@ -259,9 +258,7 @@ final class MemberBudgetController extends AbstractController
             throw $this->createNotFoundException('Budget non trouvé');
         }
 
-        if (!$organization->getUsers()->contains($this->getUser())) {
-            throw $this->createAccessDeniedException('Vous n\'êtes pas membre de cette organisation');
-        }
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
 
         if ($this->isCsrfTokenValid('close' . $budget->getId(), $request->getPayload()->getString('_token'))) {
             $budget->setIsClosed(true);
@@ -292,9 +289,7 @@ final class MemberBudgetController extends AbstractController
             throw $this->createNotFoundException('Budget non trouvé');
         }
 
-        if (!$organization->getUsers()->contains($this->getUser())) {
-            throw $this->createAccessDeniedException('Vous n\'êtes pas membre de cette organisation');
-        }
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
 
         if ($this->isCsrfTokenValid('reopen' . $budget->getId(), $request->getPayload()->getString('_token'))) {
             $budget->setIsClosed(false);
@@ -346,9 +341,7 @@ final class MemberBudgetController extends AbstractController
             throw $this->createNotFoundException('Le budget demandé n\'existe pas');
         }
 
-        if (!$organization->getUsers()->contains($this->getUser())) {
-            throw $this->createAccessDeniedException('Vous n\'êtes pas membre de cette organisation');
-        }
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
 
         // On pré-remplit le nouveau budget avec les valeurs de l'original
         $newBudget = new Budget();

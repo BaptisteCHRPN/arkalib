@@ -7,6 +7,7 @@ use App\Entity\Organization;
 use App\Form\InvitationType;
 use App\Repository\InvitationRepository;
 use App\Repository\UserRepository;
+use App\Security\Voter\OrganizationVoter;
 use App\Service\InvitationService;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,11 +26,9 @@ final class MemberInvitationController extends AbstractController
         Request $request,
         InvitationService $invitationService,
     ): Response {
-        // Vérifier que l'utilisateur connecté est bien membre de cette orga
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+
         $user = $this->getUser();
-        if (!$organization->getUsers()->contains($user)) {
-            throw $this->createAccessDeniedException();
-        }
 
         $form = $this->createForm(InvitationType::class);
         $form->handleRequest($request);
@@ -65,10 +64,7 @@ final class MemberInvitationController extends AbstractController
         Request $request
     ): Response {
 
-        $user = $this->getUser();
-        if (!$organization->getUsers()->contains($user)) {
-            throw $this->createAccessDeniedException();
-        }
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
 
         if (!$this->isCsrfTokenValid('revoke_invitation_' . $invitation->getId(), $request->request->get('_token'))) {
             throw $this->createAccessDeniedException('Token CSRF invalide.');
@@ -149,10 +145,7 @@ final class MemberInvitationController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
         Organization $organization,
     ): Response {
-        $user = $this->getUser();
-        if (!$organization->getUsers()->contains($user)) {
-            throw $this->createAccessDeniedException();
-        }
+        $this->denyAccessUnlessGranted(OrganizationVoter::VIEW, $organization);
 
         $invitations = $organization->getInvitations();
 
