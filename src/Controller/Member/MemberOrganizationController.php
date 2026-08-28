@@ -6,6 +6,7 @@ use App\Entity\Budget;
 use App\Entity\Organization;
 use App\Form\OrganizationType;
 use App\Repository\OrganizationRepository;
+use App\Security\Voter\OrganizationVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -78,12 +79,10 @@ final class MemberOrganizationController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
         Organization $organization
     ): Response {
+        $this->denyAccessUnlessGranted(OrganizationVoter::VIEW, $organization);
+
         $budgets = $organization->getBudgets();
         $users = $organization->getUsers();
-
-        if (!$organization->getUsers()->contains($this->getUser())) {
-            throw $this->createAccessDeniedException();
-        }
 
         return $this->render('member/dashboard/show_budgets.html.twig', [
             'organization' => $organization,

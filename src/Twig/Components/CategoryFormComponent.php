@@ -5,6 +5,7 @@ namespace App\Twig\Components;
 use App\Entity\Budget;
 use App\Entity\Category;
 use App\Repository\CategoryRepository;
+use App\Security\Voter\OrganizationVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
@@ -45,7 +46,7 @@ class CategoryFormComponent
     #[LiveAction]
     public function save(): void
     {
-        if (!$this->budget->getOrganization()->getUsers()->contains($this->security->getUser())) {
+        if (!$this->security->isGranted(OrganizationVoter::EDIT, $this->budget->getOrganization())) {
             $this->error = 'Vous n\'êtes pas autorisé à modifier ce budget.';
             return;
         }
