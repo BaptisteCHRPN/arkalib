@@ -95,7 +95,7 @@ php bin/console app:create-user <email> <motdepasse> [vérifié] [rôle]
 | email | oui | — | une adresse valide, non déjà utilisée |
 | mot de passe | oui | — | en clair, il est haché avant enregistrement |
 | vérifié | non | `true` | `true` / `false` |
-| rôle | non | `ROLE_USER` | `ROLE_USER`, `ROLE_ADMIN`, `ROLE_SUPER_ADMIN` |
+| rôle | non | `ROLE_USER` | `ROLE_USER`, `ROLE_ADMIN` |
 
 Les deux derniers arguments étant optionnels, cette forme courte crée un membre
 standard, vérifié et prêt à se connecter :
