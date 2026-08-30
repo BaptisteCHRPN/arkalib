@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -27,7 +28,9 @@ class ResetPasswordController extends AbstractController
 
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
-        private EntityManagerInterface $entityManager
+        private EntityManagerInterface $entityManager,
+        #[Autowire(param: 'mailer_from_address')] private string $mailerFromAddress,
+        #[Autowire(param: 'mailer_from_name')] private string $mailerFromName,
     ) {
     }
 
@@ -157,7 +160,7 @@ class ResetPasswordController extends AbstractController
         }
 
         $email = (new TemplatedEmail())
-            ->from(new Address('noreply@arkalib.fr', 'Admin Arkalib'))
+            ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
             ->to((string) $user->getEmail())
             ->subject('Your password reset request')
             ->htmlTemplate('public/reset_password/email.html.twig')

@@ -1,6 +1,7 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Vérifiez votre adresse e-mail{% endblock %}
+{% block title %}Vérifiez votre adresse e-mail
+{% endblock %}
 
 {% block body %}
 	<div class="login-container">
@@ -12,8 +13,12 @@
 			</p>
 
 			<p class="text-center mb-4">
-				Un e-mail de vérification a été envoyé à <strong>{{ email }}</strong> de la part de <strong>verify@arkalib.fr</strong>.
-				Cliquez sur le lien qu'il contient pour activer votre compte.
+				Un e-mail de vérification a été envoyé à
+				<strong>{{ email }}</strong>
+				de la part de
+				<strong>{{ mailer_from_address }}</strong>.
+					
+									Cliquez sur le lien qu'il contient pour activer votre compte.
 			</p>
 
 			<p class="text-center text-muted mb-4" style="font-size: 0.875rem;">

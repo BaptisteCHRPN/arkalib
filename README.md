@@ -50,9 +50,16 @@ cp .env .env.local
 APP_ENV=dev
 APP_SECRET=votre_secret_ici
 
+# URL publique de l'instance : sert à générer les liens absolus
+# (invitation, confirmation d'e-mail) hors contexte HTTP.
+DEFAULT_URI=http://localhost:8000
+
 DATABASE_URL="mysql://utilisateur:motdepasse@127.0.0.1:3306/arkalib?serverVersion=8.0"
 
 MAILER_DSN=smtp://localhost:1025
+MAILER_FROM_ADDRESS=noreply@example.org
+MAILER_FROM_NAME=Arkalib
+
 ```
 
 ### 4. Créer la base de données et appliquer les migrations
@@ -78,6 +85,17 @@ L'application est accessible sur [http://localhost:8000](http://localhost:8000).
 ### Envoi d'emails
 
 En développement, il est recommandé d'utiliser **Mailpit** ou **Mailtrap** pour intercepter les emails sans les envoyer réellement. Adaptez `MAILER_DSN` en conséquence.
+
+**Adresse d'expédition.** Tous les e-mails de l'application (invitation, vérification d'adresse, réinitialisation de mot de passe, changement d'adresse) partent de `MAILER_FROM_ADDRESS`, affichée sous le nom `MAILER_FROM_NAME`.
+
+Si vous auto-hébergez Arkalib, **renseignez impérativement une adresse appartenant à votre propre domaine**. Une adresse d'un domaine tiers sera rejetée par la plupart des serveurs destinataires (SPF/DKIM), ou refusée à l'envoi par votre propre serveur SMTP :
+
+```dotenv
+MAILER_FROM_ADDRESS=noreply@mondomaine.tld
+MAILER_FROM_NAME=Arkalib
+```
+
+Pensez également à ajuster `DEFAULT_URI` : les liens contenus dans les e-mails envoyés hors contexte HTTP (tâches planifiées, commandes CLI) en dépendent.
 
 ---
 

@@ -12,6 +12,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Address;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -62,8 +64,15 @@ final class MemberUserController extends AbstractController
     }
 
     #[Route('/{id}/change-email', name: 'app_member_user_change_email', methods: ['GET', 'POST'])]
-    public function changeEmail(Request $request, User $user, MailerInterface $mailer, EntityManagerInterface $entityManager): Response
-    {
+    public function changeEmail(
+        Request $request,
+        User $user,
+        MailerInterface $mailer,
+        EntityManagerInterface $entityManager,
+        #[Autowire(param: 'mailer_from_address')] string $mailerFromAddress,
+        #[Autowire(param: 'mailer_from_name')] string $mailerFromName,
+    ): Response {
+
         if ($this->getUser() !== $user) {
             throw $this->createAccessDeniedException();
         }
@@ -89,7 +98,7 @@ final class MemberUserController extends AbstractController
             );
 
             $email = (new TemplatedEmail())
-                ->from('noreply@arkalib.fr')
+                ->from(new Address($mailerFromAddress, $mailerFromName))
                 ->to($newEmail)
                 ->subject('Confirmez votre nouvelle adresse email')
                 ->htmlTemplate('member/user/change_email.html.twig')
