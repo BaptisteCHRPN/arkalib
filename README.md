@@ -69,19 +69,7 @@ php bin/console doctrine:database:create
 php bin/console doctrine:migrations:migrate --no-interaction
 ```
 
-### 5. Compiler les assets
-```bash
-php bin/console importmap:install
-php bin/console asset-map:compile
-```
-
-### 6. Gérer le cache
-```bash
-php bin/console cache:clear
-php bin/console cache:warmup
-```
-
-### 7. Lancer le serveur de développement
+### 5. Lancer le serveur de développement
 ```bash
 # Avec Symfony CLI
 symfony serve
