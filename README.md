@@ -69,7 +69,58 @@ php bin/console doctrine:database:create
 php bin/console doctrine:migrations:migrate --no-interaction
 ```
 
-### 5. Lancer le serveur de développement
+### 5. Compiler les assets
+```bash
+php bin/console importmap:install
+php bin/console asset-map:compile
+```
+
+### 6. Gérer le cache
+```bash
+php bin/console cache:clear
+php bin/console cache:warmup
+```
+
+### 7. Créer un utilisateur en ligne de commande
+
+La commande `app:create-user` crée un compte de n'importe quel type, sans passer par
+le formulaire d'inscription ni par l'e-mail de confirmation :
+
+```bash
+php bin/console app:create-user <email> <motdepasse> [vérifié] [rôle]
+```
+
+| Argument | Obligatoire | Défaut | Valeurs |
+|---|---|---|---|
+| email | oui | — | une adresse valide, non déjà utilisée |
+| mot de passe | oui | — | en clair, il est haché avant enregistrement |
+| vérifié | non | `true` | `true` / `false` |
+| rôle | non | `ROLE_USER` | `ROLE_USER`, `ROLE_ADMIN`, `ROLE_SUPER_ADMIN` |
+
+Les deux derniers arguments étant optionnels, cette forme courte crée un membre
+standard, vérifié et prêt à se connecter :
+
+```bash
+php bin/console app:create-user membre@mondomaine.tld 'MotDePasse123'
+```
+
+Et la forme complète permet de choisir le rôle — c'est ainsi que se crée le premier
+administrateur, l'inscription publique ne produisant que des comptes standards :
+
+```bash
+php bin/console app:create-user admin@mondomaine.tld 'MotDePasse123' true ROLE_ADMIN
+```
+
+Le troisième argument correspond au champ `isVerified` de l'entité `User`. À `true`,
+le compte est immédiatement utilisable sans confirmation d'adresse, ce qui est utile
+tant que le mailer n'est pas configuré. À `false`, le compte est créé mais la
+connexion restera bloquée jusqu'à validation de l'e-mail — pratique pour reproduire
+ce cas en test.
+
+> Le mot de passe étant passé en clair, il reste inscrit dans l'historique de votre
+> terminal. Pensez à le changer après la première connexion sur une instance exposée.
+
+### 8. Lancer le serveur de développement
 ```bash
 # Avec Symfony CLI
 symfony serve
