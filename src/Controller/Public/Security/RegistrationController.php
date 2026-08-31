@@ -13,6 +13,7 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
@@ -24,7 +25,12 @@ class RegistrationController extends AbstractController
 {
     use TargetPathTrait;
 
-    public function __construct(private EmailVerifier $emailVerifier) {}
+    public function __construct(
+        private EmailVerifier $emailVerifier,
+        #[Autowire(param: 'mailer_from_address')] private string $mailerFromAddress,
+        #[Autowire(param: 'mailer_from_name')] private string $mailerFromName,
+    ) {}
+
 
     #[Route('/register', name: 'app_register')]
     public function register(
@@ -51,7 +57,7 @@ class RegistrationController extends AbstractController
                 'app_verify_email',
                 $user,
                 (new TemplatedEmail())
-                    ->from(new Address('verify@arkalib.fr', 'Arkalib'))
+                    ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                     ->to((string) $user->getEmail())
                     ->subject('Veuillez confirmation votre email')
                     ->htmlTemplate('public/registration/confirmation_email.html.twig')
@@ -144,7 +150,7 @@ class RegistrationController extends AbstractController
                     'app_verify_email',
                     $user,
                     (new TemplatedEmail())
-                        ->from(new Address('verify@arkalib.fr', 'Arkalib'))
+                        ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                         ->to((string) $user->getEmail())
                         ->subject('Veuillez vérifier votre email')
                         ->htmlTemplate('public/registration/confirmation_email.html.twig')
