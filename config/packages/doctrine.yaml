@@ -8,6 +8,14 @@ doctrine:
 
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
+
+        # Ne pas dépendre de la config du serveur MySQL local : certaines
+        # installations (WAMP/XAMPP) ont default_storage_engine = MyISAM,
+        # qui ne supporte pas les clés étrangères et limite les index à 1000 octets.
+        default_table_options:
+            charset: utf8mb4
+            collation: utf8mb4_unicode_ci
+            engine: InnoDB
     orm:
         auto_generate_proxy_classes: true
         enable_lazy_ghost_objects: true

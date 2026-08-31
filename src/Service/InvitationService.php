@@ -10,6 +10,7 @@ use App\Repository\InvitationRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -22,6 +23,8 @@ class InvitationService
         private UrlGeneratorInterface $urlGenerator,
         private InvitationRepository $invitationRepository,
         private UserRepository $userRepository,
+        #[Autowire(param: 'mailer_from_address')] private string $mailerFromAddress,
+        #[Autowire(param: 'mailer_from_name')] private string $mailerFromName,
     ) {}
 
     /**
@@ -173,7 +176,7 @@ class InvitationService
         // ── Construction de l'email ──
         // TemplatedEmail = email dont le contenu HTML est un template Twig
         $email = (new TemplatedEmail())
-            ->from(new Address('noreply@arkalib.fr', 'Arkalib'))
+            ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
             ->to($invitation->getEmail())
             ->subject(sprintf('%s vous invite à rejoindre %s',
                 $inviterName,
