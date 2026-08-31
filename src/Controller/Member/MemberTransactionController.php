@@ -16,9 +16,12 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Security\Voter\OrganizationVoter;
 
 final class MemberTransactionController extends AbstractController
 {
+    use \App\Security\AssertsOwnershipTrait;
+
     #[IsGranted('ROLE_USER')]
     #[Route('/budget/{organizationSlug}/{budgetSlug}/transaction', name: 'app_member_transaction_index', methods: ['GET'])]
     public function index(
@@ -26,6 +29,9 @@ final class MemberTransactionController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
     ): Response {
+        $this->denyAccessUnlessGranted(OrganizationVoter::VIEW, $organization);
+        $this->assertBudgetBelongsToOrganization($budget, $organization);
+
         return $this->render('member/transaction/index.html.twig', [
             'transactions' => $transactionRepository->findByBudget($budget),
             'organization' => $organization,
@@ -41,6 +47,9 @@ final class MemberTransactionController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
     ): Response {
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->assertBudgetBelongsToOrganization($budget, $organization);
+
         $transaction = new Transaction();
         $form = $this->createForm(TransactionType::class, $transaction, ['budget' => $budget]);
         $form->handleRequest($request);
@@ -94,6 +103,10 @@ final class MemberTransactionController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
     ): Response {
+        $this->denyAccessUnlessGranted(OrganizationVoter::VIEW, $organization);
+        $this->assertBudgetBelongsToOrganization($budget, $organization);
+        $this->assertTransactionBelongsToBudget($transaction, $budget);
+
         return $this->render('member/transaction/show.html.twig', [
             'transaction' => $transaction,
             'organization' => $organization,
@@ -110,6 +123,10 @@ final class MemberTransactionController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
     ): Response {
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->assertBudgetBelongsToOrganization($budget, $organization);
+        $this->assertTransactionBelongsToBudget($transaction, $budget);
+
         $form = $this->createForm(TransactionType::class, $transaction, ['budget' => $budget]);
         $form->handleRequest($request);
 
@@ -165,6 +182,10 @@ final class MemberTransactionController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
     ): Response {
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->assertBudgetBelongsToOrganization($budget, $organization);
+        $this->assertTransactionBelongsToBudget($transaction, $budget);
+
         if ($budget->isClosed()) {
             $this->addFlash('warning', 'Ce budget est clôturé. Impossible de supprimer une transaction.');
             return $this->redirectToRoute('app_member_transaction_index', [
@@ -184,5 +205,4 @@ final class MemberTransactionController extends AbstractController
             'budgetSlug' => $budget->getSlug(),
         ], Response::HTTP_SEE_OTHER);
     }
-
 }

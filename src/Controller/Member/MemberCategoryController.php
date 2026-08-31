@@ -7,6 +7,8 @@ use App\Entity\Category;
 use App\Entity\Organization;
 use App\Form\CategoryType;
 use App\Repository\CategoryRepository;
+use App\Security\AssertsOwnershipTrait;
+use App\Security\Voter\OrganizationVoter;
 use App\Service\SoftDeleteService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -19,6 +21,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 // #[Route('/budget/{budget}/category')]
 final class MemberCategoryController extends AbstractController
 {
+    use AssertsOwnershipTrait;
+
     #[IsGranted('ROLE_USER')]
     #[Route('/organizations/{organizationSlug}/budgets/{budgetSlug}/categories', name: 'app_category_index', methods: ['GET'])]
     public function index(
@@ -26,9 +30,8 @@ final class MemberCategoryController extends AbstractController
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
         CategoryRepository $categoryRepository
     ): Response {
-        if ($budget->getOrganization()->getId() !== $organization->getId()) {
-            throw $this->createAccessDeniedException('Ce budget n\'appartient pas à cette organisation');
-        }
+        $this->denyAccessUnlessGranted(OrganizationVoter::VIEW, $organization);
+        $this->assertBudgetBelongsToOrganization($budget, $organization);
 
         $categories = $categoryRepository->findBy(['budget' => $budget], ['name' => 'ASC']);
 
@@ -47,10 +50,8 @@ final class MemberCategoryController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager
     ): Response {
-        // Check if current budget is owned by organization
-        if ($budget->getOrganization()->getId() !== $organization->getId()) {
-            throw $this->createAccessDeniedException('Ce budget n\'appartient pas à cette organisation');
-        }
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->assertBudgetBelongsToOrganization($budget, $organization);
 
         if ($budget->isClosed()) {
             $this->addFlash('warning', 'Ce budget est clôturé. Impossible de créer une catégorie.');
@@ -97,9 +98,9 @@ final class MemberCategoryController extends AbstractController
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
         Category $category,
     ): Response {
-        if ($budget->getOrganization()->getId() !== $organization->getId()) {
-            throw $this->createAccessDeniedException('Ce budget n\'appartient pas à cette organisation');
-        }
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->assertBudgetBelongsToOrganization($budget, $organization);
+        $this->assertEntityBelongsToBudget($category, $budget);
 
         if ($budget->isClosed()) {
             $this->addFlash('warning', 'Ce budget est clôturé. Impossible de supprimer une catégorie.');
