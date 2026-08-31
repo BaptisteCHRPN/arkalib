@@ -7,6 +7,7 @@ use App\Entity\BudgetLine;
 use App\Entity\Organization;
 use App\Form\BudgetType;
 use App\Repository\BudgetLineRepository;
+use App\Security\AssertsOwnershipTrait;
 use App\Security\Voter\OrganizationVoter;
 use App\Service\BudgetCalculatorService;
 use App\Service\SoftDeleteService;
@@ -22,6 +23,8 @@ use App\Repository\CategoryRepository;
 
 final class MemberBudgetController extends AbstractController
 {
+    use AssertsOwnershipTrait;
+
     #[IsGranted('ROLE_USER')]
     #[Route('/budget/new/{organizationId}', name: 'app_member_budget_new', methods: ['GET', 'POST'])]
     public function new(
@@ -312,6 +315,9 @@ final class MemberBudgetController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
     ): Response {
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->assertBudgetBelongsToOrganization($budget, $organization);
+
         if ($this->isCsrfTokenValid('delete' . $budget->getId(), $request->getPayload()->getString('_token'))) {
             $softDeleteService->softDelete($budget, $this->getUser());
             $entityManager->flush();

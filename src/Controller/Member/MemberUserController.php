@@ -26,6 +26,10 @@ final class MemberUserController extends AbstractController
     public function show(User $user): Response
     {
 
+        if ($this->getUser() !== $user) {
+            throw $this->createAccessDeniedException();
+        }
+
         return $this->render('member/user/show.html.twig', [
             'user' => $user,
         ]);
@@ -36,6 +40,10 @@ final class MemberUserController extends AbstractController
     {
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
+
+        if ($this->getUser() !== $user) {
+            throw $this->createAccessDeniedException();
+        }
 
         if ($form->isSubmitted() && $form->isValid()) {
 
@@ -124,6 +132,10 @@ final class MemberUserController extends AbstractController
     #[Route('/{id}/delete-picture', name: 'app_member_user_delete_picture', methods: ['GET'])]
     public function deletePicture(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
+        if ($this->getUser() !== $user) {
+            throw $this->createAccessDeniedException();
+        }
+
         if ($user->getPicture()) {
             $filePath = $this->getParameter('user_avatar') . '/' . $user->getPicture();
             if (file_exists($filePath)) {
@@ -142,6 +154,10 @@ final class MemberUserController extends AbstractController
     #[Route('/{id}', name: 'app_user_delete', methods: ['POST'])]
     public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
+        if ($this->getUser() !== $user) {
+            throw $this->createAccessDeniedException();
+        }
+        
         if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->getPayload()->getString('_token'))) {
 
             if ($user->getPicture()) {

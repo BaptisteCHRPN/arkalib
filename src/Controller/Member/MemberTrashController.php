@@ -19,6 +19,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use App\Security\Voter\OrganizationVoter;
 
 #[IsGranted('ROLE_USER')]
 final class MemberTrashController extends AbstractController
@@ -32,6 +33,8 @@ final class MemberTrashController extends AbstractController
         CategoryRepository $categoryRepository,
         TransactionRepository $transactionRepository,
     ): Response {
+        $this->denyAccessUnlessGranted(OrganizationVoter::VIEW, $organization);
+
         $type = $request->query->getString('type', 'budgets');
 
         $items = match ($type) {
@@ -49,7 +52,7 @@ final class MemberTrashController extends AbstractController
         ]);
     }
 
-    private function findEntityInTrash(EntityManagerInterface $em, string $type, int $id): ?object
+    private function findEntityInTrash(EntityManagerInterface $em, string $type, int $id, Organization $organization): ?object
     {
         $class = match ($type) {
             'depenses', 'recettes' => BudgetLine::class,
@@ -62,8 +65,22 @@ final class MemberTrashController extends AbstractController
         $entity = $em->find($class, $id);
         $em->getFilters()->enable('soft_delete');
 
-        return $entity;
+        if (!$entity) {
+            return null;
+        }
+
+        $belongsToOrganization = match (true) {
+            $entity instanceof Budget => $entity->getOrganization() === $organization,
+            $entity instanceof BudgetLine, $entity instanceof Category => $entity->getBudget()?->getOrganization() === $organization,
+            $entity instanceof Transaction => $entity->getBudgetLine()->exists(
+                fn(int $i, BudgetLine $line) => $line->getBudget()?->getOrganization() === $organization
+            ),
+            default => false,
+        };
+
+        return $belongsToOrganization ? $entity : null;
     }
+
 
     #[Route('/organisation/{slug}/corbeille/{type}/{id}/restore', name: 'app_member_trash_restore', methods: ['POST'])]
     public function restore(
@@ -74,8 +91,10 @@ final class MemberTrashController extends AbstractController
         EntityManagerInterface $entityManager,
         SoftDeleteService $softDeleteService,
     ): Response {
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+
         if ($this->isCsrfTokenValid('restore' . $id, $request->getPayload()->getString('_token'))) {
-            $entity = $this->findEntityInTrash($entityManager, $type, $id);
+            $entity = $this->findEntityInTrash($entityManager, $type, $id, $organization);
 
             if ($entity) {
                 $softDeleteService->restore($entity);
@@ -98,8 +117,10 @@ final class MemberTrashController extends AbstractController
         int $id,
         EntityManagerInterface $entityManager,
     ): Response {
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+
         if ($this->isCsrfTokenValid('hard-delete' . $id, $request->getPayload()->getString('_token'))) {
-            $entity = $this->findEntityInTrash($entityManager, $type, $id);
+            $entity = $this->findEntityInTrash($entityManager, $type, $id, $organization);
 
             if ($entity) {
                 $entityManager->remove($entity);

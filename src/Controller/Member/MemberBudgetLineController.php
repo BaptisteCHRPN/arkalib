@@ -7,6 +7,8 @@ use App\Entity\BudgetLine;
 use App\Entity\Organization;
 use App\Form\BudgetLineType;
 use App\Repository\BudgetLineRepository;
+use App\Security\AssertsOwnershipTrait;
+use App\Security\Voter\OrganizationVoter;
 use App\Service\BudgetCalculatorServie;
 use App\Service\SoftDeleteService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,6 +23,8 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/member/budgetline')]
 final class MemberBudgetLineController extends AbstractController
 {
+    use AssertsOwnershipTrait;
+
     #[Route('/new/{organizationSlug}/{budgetSlug}', name: 'app_budget_line_new', methods: ['GET', 'POST'])]
     public function new(
         string $budgetSlug,
@@ -30,6 +34,8 @@ final class MemberBudgetLineController extends AbstractController
         Organization $organization,
         // BudgetLine $budgetLine,
     ): Response {
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+
         // Fetch current budget et check organization's owner
         $budget = $entityManager->getRepository(Budget::class)->findOneBy([
             'slug' => $budgetSlug,
@@ -107,6 +113,10 @@ final class MemberBudgetLineController extends AbstractController
         Budget $budget,
         BudgetLine $budgetLine,
     ): Response {
+        $this->denyAccessUnlessGranted(OrganizationVoter::VIEW, $organization);
+        $this->assertBudgetBelongsToOrganization($budget, $organization);
+        $this->assertEntityBelongsToBudget($budgetLine, $budget);
+
         return $this->render('member/budget_line/show.html.twig', [
             'budget' => $budget,
             'budget_line' => $budgetLine,
@@ -122,6 +132,8 @@ final class MemberBudgetLineController extends AbstractController
     ): Response {
         $budget = $budgetLine->getBudget();
         $organization = $budget->getOrganization();
+
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
 
         if ($budget->isClosed()) {
             $this->addFlash('warning', 'Ce budget est clôturé. Impossible de modifier une ligne budgétaire.');
@@ -182,6 +194,9 @@ final class MemberBudgetLineController extends AbstractController
         BudgetLine $budgetLine,
         EntityManagerInterface $entityManager
     ): Response {
+        $organization = $budgetLine->getBudget()->getOrganization();
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+
         if ($budgetLine->getAttachment()) {
             $filePath = $this->getParameter('budget_file') . '/' . $budgetLine->getAttachment();
             if (file_exists($filePath)) {
@@ -204,6 +219,8 @@ final class MemberBudgetLineController extends AbstractController
     ): Response {
         $budget = $budgetLine->getBudget();
         $organization = $budget->getOrganization();
+
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
 
         if ($budget->isClosed()) {
             $this->addFlash('warning', 'Ce budget est clôturé. Impossible de supprimer une ligne budgétaire.');
