@@ -1,0 +1,67 @@
+name: Déploiement
+
+on:
+  push:
+    branches: [test, main]
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: test
+      DATABASE_URL: "sqlite:///%kernel.project_dir%/var/test.db"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+      - name: Installer les dépendances PHP
+        run: composer install --prefer-dist --no-progress
+      - name: Créer le schéma de la base de test
+        run: php bin/console doctrine:schema:create --env=test
+      - name: Lancer la suite de tests
+        run: php bin/phpunit
+
+  deploy-beta:
+    needs: tests
+    if: github.ref == 'refs/heads/test'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Déployer sur la beta
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script_stop: true
+          script: |
+            cd /var/www/arkalib-beta
+            git pull origin test
+            composer install --no-dev --optimize-autoloader
+            php bin/console importmap:install
+            php bin/console asset-map:compile
+            php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+            php bin/console cache:clear --env=prod
+            php bin/console cache:warmup --env=prod
+
+  deploy-prod:
+    needs: tests
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Déployer en prod
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script_stop: true
+          script: |
+            cd /var/www/arkalib
+            git pull origin main
+            composer install --no-dev --optimize-autoloader
+            php bin/console importmap:install
+            php bin/console asset-map:compile
+            php bin/console doctrine:migrations:migrate --no-interaction --env=prod
+            php bin/console cache:clear --env=prod
+            php bin/console cache:warmup --env=prod
