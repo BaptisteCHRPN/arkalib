@@ -16,9 +16,14 @@ final class UploadsControllerTest extends WebTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->filePath = dirname(__DIR__, 2) . '/uploads/budget_line_attachments/test-attachment.pdf';
+        $directory = dirname(__DIR__, 2) . '/uploads/budget_line_attachments';
+        if (!is_dir($directory)) {
+            mkdir($directory, 0777, true);
+        }
+        $this->filePath = $directory . '/test-attachment.pdf';
         file_put_contents($this->filePath, 'contenu factice');
     }
+
 
     protected function tearDown(): void
     {
