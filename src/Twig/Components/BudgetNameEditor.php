@@ -4,7 +4,9 @@ namespace App\Twig\Components;
 
 use App\Entity\Budget;
 use App\Repository\BudgetRepository;
+use App\Security\Voter\OrganizationVoter;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\UX\LiveComponent\Attribute\AsLiveComponent;
 use Symfony\UX\LiveComponent\Attribute\LiveAction;
 use Symfony\UX\LiveComponent\Attribute\LiveProp;
@@ -18,6 +20,7 @@ class BudgetNameEditor
     public function __construct(
         private EntityManagerInterface $entityManager,
         private BudgetRepository $budgetRepository,
+        private Security $security,
     ) {
     }
 
@@ -56,6 +59,11 @@ class BudgetNameEditor
     #[LiveAction]
     public function save(): void
     {
+        if (!$this->security->isGranted(OrganizationVoter::EDIT, $this->budget->getOrganization())) {
+            $this->error = 'Vous n\'êtes pas autorisé à modifier ce budget.';
+            return;
+        }
+
         $name = trim($this->name);
 
         if ($name === '') {
