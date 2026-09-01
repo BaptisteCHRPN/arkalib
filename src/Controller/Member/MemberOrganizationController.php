@@ -99,6 +99,8 @@ final class MemberOrganizationController extends AbstractController
         Organization $organization,
         EntityManagerInterface $entityManager
     ): Response {
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+
         if ($organization->getPicture()) {
             $filePath = $this->getParameter('organization_logo') . '/' . $organization->getPicture();
             if (file_exists($filePath)) {
@@ -121,6 +123,8 @@ final class MemberOrganizationController extends AbstractController
         EntityManagerInterface $entityManager,
         Security $security,
     ): Response {
+        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+
         $form = $this->createForm(OrganizationType::class, $organization);
         $form->handleRequest($request);
         $budgets = $organization->getBudgets();
@@ -164,6 +168,8 @@ final class MemberOrganizationController extends AbstractController
     #[Route('/organization/{id}', name: 'app_member_organization_delete', methods: ['POST'])]
     public function delete(Request $request, Organization $organization, EntityManagerInterface $entityManager): Response
     {
+        $this->denyAccessUnlessGranted(OrganizationVoter::DELETE, $organization);
+
         if ($this->isCsrfTokenValid('delete' . $organization->getId(), $request->getPayload()->getString('_token'))) {
 
             if ($organization->getPicture()) {
