@@ -11,6 +11,7 @@ use App\Entity\Trait\TraceableTrait;
 use App\Entity\Trait\SoftDeleteTrait;
 
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
+#[ORM\Table(name: '`transaction`')]
 class Transaction
 {
     use TraceableTrait;
