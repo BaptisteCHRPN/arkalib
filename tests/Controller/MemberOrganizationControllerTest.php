@@ -65,4 +65,35 @@ final class MemberOrganizationControllerTest extends WebTestCase
 
         $this->assertResponseRedirects('/dashboard');
     }
+
+    public function testNonMemberCannotEditOrganization(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+
+        $organization = new Organization();
+        $organization->setName('Org cible');
+        $organization->setSlug('org-cible-edit-test');
+        $organization->setIsActive(true);
+
+        $outsider = new User();
+        $outsider->setEmail('outsider-edit@example.com');
+        $outsider->setPassword('not-checked-by-loginUser');
+
+        $em->persist($organization);
+        $em->persist($outsider);
+        $em->flush();
+
+        $client->loginUser($outsider);
+
+        $client->request('GET', '/' . $organization->getSlug() . '/edit');
+
+        $this->assertResponseStatusCodeSame(403);
+
+        $refreshed = static::getContainer()->get(EntityManagerInterface::class)
+            ->getRepository(Organization::class)
+            ->find($organization->getId());
+
+        $this->assertFalse($refreshed->getUsers()->contains($outsider));
+    }
 }
