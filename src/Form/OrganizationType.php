@@ -36,10 +36,10 @@ class OrganizationType extends AbstractType
                 'required' => false,
                 'mapped' => false,
                 'constraints' => [
-                    new Assert\File([
-                        'mimeTypes' => ['image/jpeg', 'image/png', 'image/avif'],
-                        'mimeTypesMessage' => 'Format non autorisé.',
-                    ])
+                    new Assert\File(
+                        mimeTypes: ['image/jpeg', 'image/png', 'image/avif'],
+                        mimeTypesMessage: 'Format non autorisé.',
+                    )
                 ],
                 'attr' => [
                     'accept' => '.jpg, .png, .avif',

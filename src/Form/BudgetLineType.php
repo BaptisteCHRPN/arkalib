@@ -98,10 +98,10 @@ class BudgetLineType extends AbstractType
                 'required' => false,
                 'mapped' => false,
                 'constraints' => [
-                    new Assert\File([
-                        'mimeTypes' => ['application/pdf', 'image/jpeg', 'image/png'],
-                        'mimeTypesMessage' => 'Format non autorisé.',
-                    ])
+                    new Assert\File(
+                        mimeTypes: ['application/pdf', 'image/jpeg', 'image/png'],
+                        mimeTypesMessage: 'Format non autorisé.',
+                    )
                 ],
                 'attr' => [
                     'accept' => '.pdf, .jpg, .png',
