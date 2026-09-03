@@ -129,6 +129,13 @@ final class MemberBudgetController extends AbstractController
             'organization' => $organization,
         ]);
 
+        if (!$budget) {
+            throw $this->createNotFoundException('Le budget demandé n\'existe pas dans cette organisation');
+        }
+
+        $this->denyAccessUnlessGranted(OrganizationVoter::VIEW, $organization);
+        $this->assertBudgetBelongsToOrganization($budget, $organization);
+
         // Récupérer les lignes de budget actives
         $expenses = $budget->getBudgetLine()->filter(
             fn($line) => $line->isExpense() && $line->isActive()

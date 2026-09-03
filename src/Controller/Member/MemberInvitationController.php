@@ -66,6 +66,12 @@ final class MemberInvitationController extends AbstractController
 
         $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
 
+        // Le slug de l'URL et l'id de l'invitation sont résolus indépendamment :
+        // rien ne garantit que l'invitation appartient bien à cette organisation.
+        if ($invitation->getOrganisation() !== $organization) {
+            throw $this->createNotFoundException();
+        }
+
         if (!$this->isCsrfTokenValid('revoke_invitation_' . $invitation->getId(), $request->request->get('_token'))) {
             throw $this->createAccessDeniedException('Token CSRF invalide.');
         }
