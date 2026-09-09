@@ -18,10 +18,17 @@ final class OrganizationVoter extends Voter
     /** Consulter l'organisation et ses données : tout membre. */
     public const VIEW = 'ORGANIZATION_VIEW';
 
-    /** Tenir les comptes : lignes, catégories, transactions, clôture, corbeille. */
+    /**
+     * Tenir les comptes : tout ce qui est réversible. Le cycle de vie complet
+     * des budgets (créer, dupliquer, renommer, clôturer, mettre à la corbeille
+     * et restaurer), les lignes, les catégories et les transactions.
+     */
     public const CONTRIBUTE = 'ORGANIZATION_CONTRIBUTE';
 
-    /** Administrer : structure des budgets, membres, invitations, purge. */
+    /**
+     * Administrer : ce qui touche à l'organisation elle-même, à ses membres,
+     * ou ce qui ne peut pas être défait (purge de la corbeille).
+     */
     public const ADMINISTER = 'ORGANIZATION_ADMINISTER';
 
     /** Supprimer définitivement l'organisation elle-même. */

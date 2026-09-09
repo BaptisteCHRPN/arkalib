@@ -5,6 +5,7 @@ namespace App\Tests\Controller;
 use App\Entity\Budget;
 use App\Entity\Organization;
 use App\Entity\User;
+use App\Enum\OrganizationRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -39,6 +40,49 @@ final class MemberBudgetControllerTest extends WebTestCase
         $user->setPassword('not-checked-by-loginUser');
 
         return $user;
+    }
+
+    /**
+     * Décision produit : créer un budget est un geste de trésorier, pas
+     * d'administrateur. C'est additif et réversible — rien n'est retiré à
+     * personne — et c'est le travail courant du trésorier en début d'exercice.
+     */
+    public function testATreasurerCanOpenTheBudgetCreationForm(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+
+        $organization = $this->makeOrganization('Mon orga', 'orga-tresorier-cree-budget');
+        $treasurer = $this->makeUser('tresorier-cree-budget@example.com');
+        $organization->addUser($treasurer, OrganizationRole::TREASURER);
+
+        $em->persist($organization);
+        $em->persist($treasurer);
+        $em->flush();
+
+        $client->loginUser($treasurer);
+        $client->request('GET', '/budget/new/' . $organization->getId());
+
+        $this->assertResponseIsSuccessful();
+    }
+
+    public function testAReaderCannotOpenTheBudgetCreationForm(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+
+        $organization = $this->makeOrganization('Mon orga', 'orga-lecteur-cree-budget');
+        $reader = $this->makeUser('lecteur-cree-budget@example.com');
+        $organization->addUser($reader, OrganizationRole::READER);
+
+        $em->persist($organization);
+        $em->persist($reader);
+        $em->flush();
+
+        $client->loginUser($reader);
+        $client->request('GET', '/budget/new/' . $organization->getId());
+
+        $this->assertResponseStatusCodeSame(403);
     }
 
     public function testOutsiderCannotViewTheRealizedBudgetOfAnOrganization(): void
