@@ -4,13 +4,13 @@ namespace App\Controller\Member;
 
 use App\Entity\Budget;
 use App\Entity\Organization;
+use App\Enum\OrganizationRole;
 use App\Form\OrganizationType;
 use App\Repository\OrganizationRepository;
 use App\Security\Voter\OrganizationVoter;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -58,7 +58,9 @@ final class MemberOrganizationController extends AbstractController
                 $organization->setPicture($nameFile);
             }
 
-            $organization->addUser($user);
+            // Le créateur administre son organisation : sans ça il en serait
+            // simple lecteur, faute de pouvoir s'attribuer un rôle après coup.
+            $organization->addUser($user, OrganizationRole::ADMIN);
 
             $entityManager->persist($organization);
             $entityManager->flush();
