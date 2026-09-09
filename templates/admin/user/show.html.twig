@@ -345,6 +345,90 @@
 			</div>
 		</div>
 
+		{# ─── Actions de dépannage ───────────────────────────────────────────
+		   Les trois premières sont réversibles et se déclenchent sans crainte.
+		   L'anonymisation est séparée : elle ne se défait pas.
+		#}
+		{% if not isAnonymized %}
+			<div class="card admin-table-card shadow-sm mt-4">
+				<div class="card-header d-flex align-items-center gap-2">
+					{{ ux_icon('lucide:wrench', { width: '16', height: '16' }) }}
+					<span class="fw-semibold text-dark">Dépannage</span>
+				</div>
+				<div class="card-body p-4 d-flex flex-wrap gap-2">
+
+					{% if not user.isVerified %}
+						<form method="post" action="{{ path('app_admin_user_resend_verification', {'id': user.id}) }}">
+							<input type="hidden" name="_token" value="{{ csrf_token('resend_verification' ~ user.id) }}">
+							<button class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+								{{ ux_icon('lucide:mail-check', { width: '14', height: '14' }) }}
+								Renvoyer l'email de vérification
+							</button>
+						</form>
+					{% endif %}
+
+					<form method="post" action="{{ path('app_admin_user_send_password_reset', {'id': user.id}) }}">
+						<input type="hidden" name="_token" value="{{ csrf_token('password_reset' ~ user.id) }}">
+						<button class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+							{{ ux_icon('lucide:key-round', { width: '14', height: '14' }) }}
+							Envoyer un lien de réinitialisation
+						</button>
+					</form>
+
+					{% if user.id != app.user.id %}
+						<form method="post" action="{{ path('app_admin_user_toggle_admin', {'id': user.id}) }}">
+							<input type="hidden" name="_token" value="{{ csrf_token('toggle_admin' ~ user.id) }}">
+							<button class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+								{{ ux_icon('lucide:shield', { width: '14', height: '14' }) }}
+								{{ 'ROLE_ADMIN' in user.roles ? 'Retirer le rôle administrateur' : 'Accorder le rôle administrateur' }}
+							</button>
+						</form>
+					{% endif %}
+				</div>
+
+				{# ─── Effacement ─── #}
+				{% if user.id != app.user.id %}
+					<div class="card-body border-top p-4">
+						<p class="fw-semibold text-dark mb-1">Droit à l'effacement</p>
+						<p class="text-muted small mb-3">
+							Les données personnelles sont effacées, la ligne du compte est conservée :
+							les budgets et transactions saisis par cette personne gardent leur auteur,
+							sans quoi ses collègues perdraient l'historique de leur comptabilité.
+							Cette action ne se défait pas.
+						</p>
+
+						{% if anonymizationBlockers is not empty %}
+							<div class="d-flex align-items-start gap-2 text-danger small mb-3">
+								{{ ux_icon('lucide:triangle-alert', { width: '16', height: '16', class: 'flex-shrink-0 mt-1' }) }}
+								<span>
+									Impossible pour l'instant : ce compte est le seul administrateur de
+									{% for name in anonymizationBlockers %}« {{ name }} »{{ not loop.last ? ', ' }}{% endfor %}.
+									Désignez un autre administrateur avant de continuer.
+								</span>
+							</div>
+							<button class="btn btn-sm btn-danger rounded-pill px-3" disabled>Anonymiser le compte</button>
+						{% else %}
+							<form method="post" action="{{ path('app_admin_user_anonymize', {'id': user.id}) }}"
+								  onsubmit="return confirm('Anonymiser définitivement ce compte ? Le nom, l\'adresse e-mail et l\'avatar seront effacés, et la personne ne pourra plus se connecter.');">
+								<input type="hidden" name="_token" value="{{ csrf_token('anonymize' ~ user.id) }}">
+								<button class="btn btn-sm btn-danger rounded-pill px-3 d-inline-flex align-items-center gap-2">
+									{{ ux_icon('lucide:user-x', { width: '14', height: '14' }) }}
+									Anonymiser le compte
+								</button>
+							</form>
+						{% endif %}
+					</div>
+				{% endif %}
+			</div>
+		{% else %}
+			<div class="card admin-table-card shadow-sm mt-4">
+				<div class="card-body p-4 d-flex align-items-center gap-2 text-secondary">
+					{{ ux_icon('lucide:user-x', { width: '16', height: '16' }) }}
+					Ce compte a été anonymisé : ses données personnelles ont été effacées et il ne peut plus servir à se connecter.
+				</div>
+			</div>
+		{% endif %}
+
 		{# ─── Footer ─── #}
 		<div class="d-flex justify-content-between align-items-center mt-3 px-1">
 			<a href="{{ path('app_user_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">

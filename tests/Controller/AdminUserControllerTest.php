@@ -223,4 +223,142 @@ final class AdminUserControllerTest extends WebTestCase
         $this->assertSelectorTextContains('body', 'Aucune invitation envoyée');
         $this->assertSelectorTextContains('body', 'Aucune demande enregistrée');
     }
+
+    /**
+     * Soumet le vrai formulaire de la fiche plutôt qu'un POST fabriqué : le
+     * bouton, son jeton CSRF et sa route sont ainsi testés ensemble.
+     */
+    private function submitActionFromFiche(User $user, string $routeSuffix): void
+    {
+        $action = '/admin/user/' . $user->getId() . '/' . $routeSuffix;
+        $crawler = $this->client->request('GET', '/admin/user/' . $user->getId());
+
+        $this->client->submit($crawler->filter('form[action="' . $action . '"] button')->form());
+    }
+
+    /**
+     * Le noyau redémarre entre deux requêtes du client : l'objet d'origine est
+     * détaché, il faut le relire depuis un EntityManager frais.
+     */
+    private function reload(int $id): User
+    {
+        return static::getContainer()->get(EntityManagerInterface::class)->find(User::class, $id);
+    }
+
+    public function testResendingTheVerificationEmailActuallySendsIt(): void
+    {
+        $this->loginAsAdmin();
+        $user = $this->createUser('pasverifie@example.com');
+
+        $this->submitActionFromFiche($user, 'renvoyer-verification');
+
+        $this->assertResponseRedirects('/admin/user/' . $user->getId());
+        $this->assertEmailCount(1);
+        $this->assertEmailAddressContains($this->getMailerMessage(), 'To', 'pasverifie@example.com');
+    }
+
+    public function testAnAlreadyVerifiedAccountIsNotOfferedTheResendButton(): void
+    {
+        $this->loginAsAdmin();
+        $user = $this->createUser('verifie@example.com');
+        $user->setIsVerified(true);
+        $this->entityManager->flush();
+
+        $this->client->request('GET', '/admin/user/' . $user->getId());
+
+        $this->assertSelectorNotExists('form[action$="/renvoyer-verification"]');
+    }
+
+    public function testTheActionsRefuseAForgedRequest(): void
+    {
+        $this->loginAsAdmin();
+        $user = $this->createUser('cible@example.com');
+
+        $this->client->request('POST', '/admin/user/' . $user->getId() . '/renvoyer-verification', ['_token' => 'faux']);
+
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertEmailCount(0);
+    }
+
+    public function testSendingAPasswordResetLinkActuallySendsIt(): void
+    {
+        $this->loginAsAdmin();
+        $user = $this->createUser('oubli@example.com');
+
+        $this->submitActionFromFiche($user, 'reinitialiser-mot-de-passe');
+
+        $this->assertResponseRedirects('/admin/user/' . $user->getId());
+        $this->assertEmailCount(1);
+        $this->assertEmailAddressContains($this->getMailerMessage(), 'To', 'oubli@example.com');
+    }
+
+    public function testGrantingAndRevokingTheAdminRole(): void
+    {
+        $this->loginAsAdmin();
+        $user = $this->createUser('promu@example.com');
+
+        $id = $user->getId();
+
+        $this->submitActionFromFiche($user, 'role-admin');
+        $this->assertContains('ROLE_ADMIN', $this->reload($id)->getRoles());
+
+        $this->submitActionFromFiche($user, 'role-admin');
+        $this->assertNotContains('ROLE_ADMIN', $this->reload($id)->getRoles());
+    }
+
+    /**
+     * Se retirer soi-même le rôle reviendrait à se verrouiller dehors : la
+     * fiche de l'opérateur ne propose donc pas le bouton.
+     */
+    public function testAnAdminIsNotOfferedTheRoleButtonOnTheirOwnFiche(): void
+    {
+        $admin = $this->loginAsAdmin();
+
+        $this->client->request('GET', '/admin/user/' . $admin->getId());
+
+        $this->assertSelectorNotExists('form[action$="/role-admin"]');
+        $this->assertSelectorNotExists('form[action$="/anonymiser"]');
+    }
+
+    public function testAnonymizingAnAccountRedirectsToTheList(): void
+    {
+        $this->loginAsAdmin();
+        $user = $this->createUser('apartir@example.com', 'Marie', 'Dupont');
+
+        $id = $user->getId();
+
+        $this->submitActionFromFiche($user, 'anonymiser');
+
+        $this->assertResponseRedirects('/admin/user');
+
+        $anonymized = $this->reload($id);
+        $this->assertNull($anonymized->getFirstname());
+        $this->assertStringStartsWith('supprime-', (string) $anonymized->getEmail());
+    }
+
+    public function testAnAnonymizedFicheSaysSoAndOffersNoAction(): void
+    {
+        $this->loginAsAdmin();
+        $user = $this->createUser('apartir@example.com', 'Marie', 'Dupont');
+        $this->submitActionFromFiche($user, 'anonymiser');
+
+        $this->client->request('GET', '/admin/user/' . $user->getId());
+
+        $this->assertSelectorTextContains('body', 'Ce compte a été anonymisé');
+        $this->assertSelectorNotExists('form[action$="/anonymiser"]');
+    }
+
+    public function testTheFicheExplainsWhyAnonymizationIsBlocked(): void
+    {
+        $this->loginAsAdmin();
+        $user = $this->createUser('seul@example.com', 'Marie', 'Dupont');
+        $organization = $this->createOrganization('Orpheline', 'orpheline');
+        $organization->addUser($user, OrganizationRole::ADMIN);
+        $this->entityManager->flush();
+
+        $this->client->request('GET', '/admin/user/' . $user->getId());
+
+        $this->assertSelectorTextContains('body', 'seul administrateur de « Orpheline »');
+        $this->assertSelectorExists('button[disabled]');
+    }
 }

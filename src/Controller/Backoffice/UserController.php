@@ -8,11 +8,15 @@ use App\Form\UserType;
 use App\Repository\OrganizationMembershipRepository;
 use App\Repository\ResetPasswordRequestRepository;
 use App\Repository\UserRepository;
+use App\Security\EmailVerifier;
+use App\Security\PasswordResetMailer;
+use App\Service\AccountAnonymizer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 
 #[Route('admin/user')]
 final class UserController extends AbstractController
@@ -66,6 +70,7 @@ final class UserController extends AbstractController
         User $user,
         OrganizationMembershipRepository $membershipRepository,
         ResetPasswordRequestRepository $resetPasswordRequestRepository,
+        AccountAnonymizer $anonymizer,
     ): Response {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
@@ -102,6 +107,8 @@ final class UserController extends AbstractController
             'organizations' => $organizations,
             'invitations' => $invitations,
             'resetRequest' => $resetPasswordRequestRepository->findMostRecentForUser($user),
+            'anonymizationBlockers' => $anonymizer->blockingOrganizations($user),
+            'isAnonymized' => $anonymizer->isAnonymized($user),
         ]);
     }
 
@@ -138,19 +145,100 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_admin_user_delete', methods: ['POST'])]
-    public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    #[Route('/{id}/renvoyer-verification', name: 'app_admin_user_resend_verification', methods: ['POST'])]
+    public function resendVerification(Request $request, User $user, EmailVerifier $emailVerifier): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
-        
-        if ($this->isCsrfTokenValid('delete'.$user->getId(), $request->getPayload()->getString('_token'))) {
 
-            if($user->getPicture()){
-                unlink($this->getParameter('user_avatar') . '/' );
-            }
+        if (!$this->isCsrfTokenValid('resend_verification' . $user->getId(), $request->getPayload()->getString('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
 
-            $entityManager->remove($user);
-            $entityManager->flush();
+        if ($user->isVerified()) {
+            $this->addFlash('warning', 'Ce compte est déjà vérifié, aucun email n\'a été envoyé.');
+
+            return $this->redirectToRoute('app_admin_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        $emailVerifier->sendVerificationEmailTo($user);
+        $this->addFlash('success', sprintf('Email de vérification renvoyé à %s.', $user->getEmail()));
+
+        return $this->redirectToRoute('app_admin_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/reinitialiser-mot-de-passe', name: 'app_admin_user_send_password_reset', methods: ['POST'])]
+    public function sendPasswordReset(Request $request, User $user, PasswordResetMailer $passwordResetMailer): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        if (!$this->isCsrfTokenValid('password_reset' . $user->getId(), $request->getPayload()->getString('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        try {
+            $passwordResetMailer->sendTo($user);
+            $this->addFlash('success', sprintf('Lien de réinitialisation envoyé à %s.', $user->getEmail()));
+        } catch (ResetPasswordExceptionInterface $exception) {
+            // Contrairement au formulaire public, on dit ici pourquoi l'envoi
+            // n'est pas parti : sans ça l'exploitant croit avoir agi.
+            $this->addFlash('error', 'Aucun lien envoyé : une demande trop récente est encore en cours pour ce compte.');
+        }
+
+        return $this->redirectToRoute('app_admin_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/role-admin', name: 'app_admin_user_toggle_admin', methods: ['POST'])]
+    public function toggleAdmin(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        if (!$this->isCsrfTokenValid('toggle_admin' . $user->getId(), $request->getPayload()->getString('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if ($user === $this->getUser()) {
+            $this->addFlash('error', 'Vous ne pouvez pas modifier votre propre rôle d\'administrateur.');
+
+            return $this->redirectToRoute('app_admin_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        $roles = $user->getRoles();
+
+        if (in_array('ROLE_ADMIN', $roles, true)) {
+            $user->setRoles(array_values(array_diff($roles, ['ROLE_ADMIN', 'ROLE_USER'])));
+            $this->addFlash('success', 'Le rôle administrateur a été retiré.');
+        } else {
+            $user->setRoles(array_values(array_unique([...$roles, 'ROLE_ADMIN'])));
+            $this->addFlash('success', 'Le rôle administrateur a été accordé.');
+        }
+
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_admin_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+    }
+
+    #[Route('/{id}/anonymiser', name: 'app_admin_user_anonymize', methods: ['POST'])]
+    public function anonymize(Request $request, User $user, AccountAnonymizer $anonymizer): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        if (!$this->isCsrfTokenValid('anonymize' . $user->getId(), $request->getPayload()->getString('_token'))) {
+            throw $this->createAccessDeniedException();
+        }
+
+        if ($user === $this->getUser()) {
+            $this->addFlash('error', 'Vous ne pouvez pas anonymiser votre propre compte.');
+
+            return $this->redirectToRoute('app_admin_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        try {
+            $anonymizer->anonymize($user);
+            $this->addFlash('success', 'Le compte a été anonymisé. Les écritures qu\'il a créées gardent leur auteur.');
+        } catch (\LogicException $exception) {
+            $this->addFlash('error', $exception->getMessage());
+
+            return $this->redirectToRoute('app_admin_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
