@@ -61,6 +61,9 @@
 						</a>
 					</div>
 					<div class="btn-group btn-group-sm">
+							<a class="btn btn-outline-primary" href="{{ path('app_member_membership_list', {'organizationSlug': organization.slug}) }}">
+								Membres
+							</a>
 						<a class="btn btn-outline-primary" href="{{ path('app_invitation_send', {'organizationSlug': organization.slug}) }}">
 							Inviter un membre
 						</a>

@@ -3,6 +3,7 @@
 namespace App\Controller\Backoffice;
 
 use App\Entity\Organization;
+use App\Enum\OrganizationRole;
 use App\Form\OrganizationType;
 use App\Repository\OrganizationRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -43,11 +44,13 @@ final class AdminOrganizationController extends AbstractController
                 // save namefile in organization object to inject it in bdd
                 $organization->setPicture($nameFile);
             }
-            // debut : ajout de l'utilisateur connecter à l'organization
+            // Le créateur administre l'organisation qu'il vient de créer : sans
+            // rôle explicite elle naîtrait sans aucun administrateur, donc
+            // impossible à gérer par la suite.
             $user = $security->getUser();
             if ($user) {
-                $organization->addUser($user);
-            } // fin
+                $organization->addUser($user, OrganizationRole::ADMIN);
+            }
 
             $entityManager->persist($organization);
             $entityManager->flush();
@@ -70,7 +73,7 @@ final class AdminOrganizationController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_admin_organization_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Organization $organization, EntityManagerInterface $entityManager, Security $security): Response
+    public function edit(Request $request, Organization $organization, EntityManagerInterface $entityManager): Response
     {
         $form = $this->createForm(OrganizationType::class, $organization);
         $form->handleRequest($request);
@@ -89,12 +92,6 @@ final class AdminOrganizationController extends AbstractController
                     unlink($this->getParameter('organization_logo') . '/' . $organization->getPicture());
                 }
                 $organization->setPicture($nameFile);
-            }
-
-            // link connecteed user to organization
-            $user = $security->getUser();
-            if ($user) {
-                $organization->addUser($user);
             }
 
             $entityManager->flush();
