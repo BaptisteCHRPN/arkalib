@@ -101,7 +101,7 @@ final class MemberOrganizationController extends AbstractController
         Organization $organization,
         EntityManagerInterface $entityManager
     ): Response {
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::ADMINISTER, $organization);
 
         if ($organization->getPicture()) {
             $filePath = $this->getParameter('organization_logo') . '/' . $organization->getPicture();
@@ -124,7 +124,7 @@ final class MemberOrganizationController extends AbstractController
         Organization $organization,
         EntityManagerInterface $entityManager,
     ): Response {
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::ADMINISTER, $organization);
 
         $form = $this->createForm(OrganizationType::class, $organization);
         $form->handleRequest($request);

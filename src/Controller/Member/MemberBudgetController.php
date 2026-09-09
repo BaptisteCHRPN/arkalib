@@ -39,7 +39,7 @@ final class MemberBudgetController extends AbstractController
             throw $this->createNotFoundException('Organisation non trouvée');
         }
 
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::ADMINISTER, $organization);
 
         $budget = new Budget();
         $budget->setOrganization($organization);
@@ -212,7 +212,7 @@ final class MemberBudgetController extends AbstractController
             throw $this->createNotFoundException('Budget non trouvé');
         }
 
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::CONTRIBUTE, $organization);
 
         if ($this->isCsrfTokenValid('close' . $budget->getId(), $request->getPayload()->getString('_token'))) {
             $budget->setIsClosed(true);
@@ -243,7 +243,7 @@ final class MemberBudgetController extends AbstractController
             throw $this->createNotFoundException('Budget non trouvé');
         }
 
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::CONTRIBUTE, $organization);
 
         if ($this->isCsrfTokenValid('reopen' . $budget->getId(), $request->getPayload()->getString('_token'))) {
             $budget->setIsClosed(false);
@@ -266,7 +266,7 @@ final class MemberBudgetController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
     ): Response {
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::ADMINISTER, $organization);
         $this->assertBudgetBelongsToOrganization($budget, $organization);
 
         if ($this->isCsrfTokenValid('delete' . $budget->getId(), $request->getPayload()->getString('_token'))) {
@@ -298,7 +298,7 @@ final class MemberBudgetController extends AbstractController
             throw $this->createNotFoundException('Le budget demandé n\'existe pas');
         }
 
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::ADMINISTER, $organization);
 
         // On pré-remplit le nouveau budget avec les valeurs de l'original
         $newBudget = new Budget();

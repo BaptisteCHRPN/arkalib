@@ -50,7 +50,7 @@ final class MemberCategoryController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager
     ): Response {
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::CONTRIBUTE, $organization);
         $this->assertBudgetBelongsToOrganization($budget, $organization);
 
         if ($budget->isClosed()) {
@@ -98,7 +98,7 @@ final class MemberCategoryController extends AbstractController
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
         Category $category,
     ): Response {
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::CONTRIBUTE, $organization);
         $this->assertBudgetBelongsToOrganization($budget, $organization);
         $this->assertEntityBelongsToBudget($category, $budget);
 

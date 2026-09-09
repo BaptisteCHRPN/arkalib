@@ -5,6 +5,7 @@ namespace App\Tests\Controller;
 use App\Entity\Budget;
 use App\Entity\Organization;
 use App\Entity\User;
+use App\Enum\OrganizationRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -90,7 +91,7 @@ final class MemberTrashControllerTest extends WebTestCase
 
         $organization = $this->makeOrganization('Mon orga', 'mon-orga-corbeille-test');
         $member = $this->makeUser('membre-corbeille@example.com');
-        $organization->addUser($member);
+        $organization->addUser($member, OrganizationRole::TREASURER);
 
         $em->persist($organization);
         $em->persist($member);
@@ -114,7 +115,7 @@ final class MemberTrashControllerTest extends WebTestCase
 
         $organization = $this->makeOrganization('Mon orga', 'orga-restore-ok-test');
         $member = $this->makeUser('membre-restore-ok@example.com');
-        $organization->addUser($member);
+        $organization->addUser($member, OrganizationRole::TREASURER);
         $trashedBudget = $this->makeTrashedBudget($organization, 'budget-restore-ok-test');
 
         $em->persist($organization);
@@ -141,7 +142,7 @@ final class MemberTrashControllerTest extends WebTestCase
 
         $orgA = $this->makeOrganization('Org A', 'org-a-corbeille-test');
         $member = $this->makeUser('membre-corbeille-a@example.com');
-        $orgA->addUser($member);
+        $orgA->addUser($member, OrganizationRole::TREASURER);
 
         $orgB = $this->makeOrganization('Org B', 'org-b-corbeille-test');
         $trashedBudgetB = $this->makeTrashedBudget($orgB, 'budget-b-corbeille-test');
@@ -175,7 +176,7 @@ final class MemberTrashControllerTest extends WebTestCase
 
         $orgA = $this->makeOrganization('Org A', 'org-a-corbeille-hard-test');
         $member = $this->makeUser('membre-corbeille-hard-a@example.com');
-        $orgA->addUser($member);
+        $orgA->addUser($member, OrganizationRole::ADMIN);
 
         $orgB = $this->makeOrganization('Org B', 'org-b-corbeille-hard-test');
         $trashedBudgetB = $this->makeTrashedBudget($orgB, 'budget-b-corbeille-hard-test');

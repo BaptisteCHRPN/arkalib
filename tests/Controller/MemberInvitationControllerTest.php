@@ -5,6 +5,7 @@ namespace App\Tests\Controller;
 use App\Entity\Invitation;
 use App\Entity\Organization;
 use App\Entity\User;
+use App\Enum\OrganizationRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -59,11 +60,11 @@ final class MemberInvitationControllerTest extends WebTestCase
 
         $orgA = $this->makeOrganization('Org A', 'org-a-invitation-test');
         $member = $this->makeUser('membre-invitation-a@example.com');
-        $orgA->addUser($member);
+        $orgA->addUser($member, OrganizationRole::ADMIN);
 
         $orgB = $this->makeOrganization('Org B', 'org-b-invitation-test');
         $ownerB = $this->makeUser('proprietaire-invitation-b@example.com');
-        $orgB->addUser($ownerB);
+        $orgB->addUser($ownerB, OrganizationRole::ADMIN);
 
         $invitationB = $this->makeInvitation($orgB, $ownerB, 'invite-b@example.com', 'hash-invitation-b');
 
@@ -98,7 +99,7 @@ final class MemberInvitationControllerTest extends WebTestCase
 
         $organization = $this->makeOrganization('Org cible', 'org-cible-invitation-test');
         $owner = $this->makeUser('proprietaire-invitation@example.com');
-        $organization->addUser($owner);
+        $organization->addUser($owner, OrganizationRole::ADMIN);
 
         $invitation = $this->makeInvitation($organization, $owner, 'invite@example.com', 'hash-invitation-outsider');
 
@@ -132,7 +133,7 @@ final class MemberInvitationControllerTest extends WebTestCase
 
         $organization = $this->makeOrganization('Mon orga', 'mon-orga-invitation-test');
         $member = $this->makeUser('membre-invitation@example.com');
-        $organization->addUser($member);
+        $organization->addUser($member, OrganizationRole::ADMIN);
 
         $invitation = $this->makeInvitation($organization, $member, 'invite@example.com', 'hash-invitation-ok');
         // La page de liste lit organization.invitations : on synchronise les deux
@@ -171,7 +172,7 @@ final class MemberInvitationControllerTest extends WebTestCase
 
         $organization = $this->makeOrganization('Mon orga', 'orga-invitation-csrf-test');
         $member = $this->makeUser('membre-invitation-csrf@example.com');
-        $organization->addUser($member);
+        $organization->addUser($member, OrganizationRole::ADMIN);
 
         $invitation = $this->makeInvitation($organization, $member, 'invite@example.com', 'hash-invitation-csrf');
 

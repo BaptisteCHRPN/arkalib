@@ -47,7 +47,7 @@ final class MemberTransactionController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
     ): Response {
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::CONTRIBUTE, $organization);
         $this->assertBudgetBelongsToOrganization($budget, $organization);
 
         $transaction = new Transaction();
@@ -123,7 +123,7 @@ final class MemberTransactionController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
     ): Response {
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::CONTRIBUTE, $organization);
         $this->assertBudgetBelongsToOrganization($budget, $organization);
         $this->assertTransactionBelongsToBudget($transaction, $budget);
 
@@ -182,7 +182,7 @@ final class MemberTransactionController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
     ): Response {
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::CONTRIBUTE, $organization);
         $this->assertBudgetBelongsToOrganization($budget, $organization);
         $this->assertTransactionBelongsToBudget($transaction, $budget);
 

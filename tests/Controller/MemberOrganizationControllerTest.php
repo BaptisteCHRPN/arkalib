@@ -4,6 +4,7 @@ namespace App\Tests\Controller;
 
 use App\Entity\Organization;
 use App\Entity\User;
+use App\Enum\OrganizationRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -48,7 +49,7 @@ final class MemberOrganizationControllerTest extends WebTestCase
         $member->setEmail('membre@example.com');
         $member->setPassword('not-checked-by-loginUser');
 
-        $organization->addUser($member);
+        $organization->addUser($member, OrganizationRole::ADMIN);
 
         $entityManager->persist($organization);
         $entityManager->persist($member);

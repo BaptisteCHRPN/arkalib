@@ -26,7 +26,7 @@ final class MemberInvitationController extends AbstractController
         Request $request,
         InvitationService $invitationService,
     ): Response {
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::ADMINISTER, $organization);
 
         $user = $this->getUser();
 
@@ -65,7 +65,7 @@ final class MemberInvitationController extends AbstractController
         Request $request
     ): Response {
 
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::ADMINISTER, $organization);
 
         // Le slug de l'URL et l'id de l'invitation sont résolus indépendamment :
         // rien ne garantit que l'invitation appartient bien à cette organisation.
@@ -152,7 +152,7 @@ final class MemberInvitationController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
         Organization $organization,
     ): Response {
-        $this->denyAccessUnlessGranted(OrganizationVoter::VIEW, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::ADMINISTER, $organization);
 
         $invitations = $organization->getInvitations();
 

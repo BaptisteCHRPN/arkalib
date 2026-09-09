@@ -6,6 +6,7 @@ use App\Entity\Budget;
 use App\Entity\Category;
 use App\Entity\Organization;
 use App\Entity\User;
+use App\Enum\OrganizationRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -113,7 +114,7 @@ final class MemberCategoryControllerTest extends WebTestCase
 
         $orgA = $this->makeOrganization('Org A', 'org-a-categorie-test');
         $member = $this->makeUser('membre-categorie-a@example.com');
-        $orgA->addUser($member);
+        $orgA->addUser($member, OrganizationRole::TREASURER);
 
         $orgB = $this->makeOrganization('Org B', 'org-b-categorie-test');
         $budgetB = $this->makeBudget($orgB, 'budget-b-categorie-test');
@@ -139,7 +140,7 @@ final class MemberCategoryControllerTest extends WebTestCase
 
         $organization = $this->makeOrganization('Mon orga', 'orga-categorie-croisee-test');
         $member = $this->makeUser('membre-categorie-croisee@example.com');
-        $organization->addUser($member);
+        $organization->addUser($member, OrganizationRole::TREASURER);
 
         $budget = $this->makeBudget($organization, 'budget-categorie-croisee-test');
         $otherBudget = $this->makeBudget($organization, 'autre-budget-categorie-croisee-test');
@@ -175,7 +176,7 @@ final class MemberCategoryControllerTest extends WebTestCase
 
         $organization = $this->makeOrganization('Mon orga', 'orga-categorie-delete-test');
         $member = $this->makeUser('membre-categorie-delete@example.com');
-        $organization->addUser($member);
+        $organization->addUser($member, OrganizationRole::TREASURER);
 
         $budget = $this->makeBudget($organization, 'budget-categorie-delete-test');
         $category = $this->makeCategory($budget, 'Fournitures');
@@ -198,6 +199,40 @@ final class MemberCategoryControllerTest extends WebTestCase
         $this->assertNotNull($this->reloadCategory($category->getId())->getDeletedAt());
     }
 
+    /**
+     * Preuve de bout en bout que le Voter est réellement branché sur la route :
+     * même membre, même budget ouvert, seul le rôle change.
+     */
+    public function testAReaderCannotSoftDeleteACategory(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+
+        $organization = $this->makeOrganization('Mon orga', 'orga-categorie-lecteur-test');
+        $reader = $this->makeUser('lecteur-categorie@example.com');
+        $organization->addUser($reader, OrganizationRole::READER);
+
+        $budget = $this->makeBudget($organization, 'budget-categorie-lecteur-test');
+        $category = $this->makeCategory($budget, 'Fournitures');
+
+        $em->persist($organization);
+        $em->persist($reader);
+        $em->persist($budget);
+        $em->persist($category);
+        $em->flush();
+
+        $client->loginUser($reader);
+
+        $client->request(
+            'POST',
+            $this->categoryUrl($organization, $budget, '/' . $category->getId() . '/delete'),
+            ['_token' => $this->primeCsrfToken($client, 'delete' . $category->getId())],
+        );
+
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertNull($this->reloadCategory($category->getId())->getDeletedAt());
+    }
+
     public function testACategoryCannotBeCreatedOnAClosedBudget(): void
     {
         $client = static::createClient();
@@ -205,7 +240,7 @@ final class MemberCategoryControllerTest extends WebTestCase
 
         $organization = $this->makeOrganization('Mon orga', 'orga-budget-cloture-new-test');
         $member = $this->makeUser('membre-budget-cloture-new@example.com');
-        $organization->addUser($member);
+        $organization->addUser($member, OrganizationRole::TREASURER);
 
         $budget = $this->makeBudget($organization, 'budget-cloture-new-test', closed: true);
 
@@ -232,7 +267,7 @@ final class MemberCategoryControllerTest extends WebTestCase
 
         $organization = $this->makeOrganization('Mon orga', 'orga-budget-cloture-delete-test');
         $member = $this->makeUser('membre-budget-cloture-delete@example.com');
-        $organization->addUser($member);
+        $organization->addUser($member, OrganizationRole::TREASURER);
 
         $budget = $this->makeBudget($organization, 'budget-cloture-delete-test', closed: true);
         $category = $this->makeCategory($budget, 'Fournitures');
@@ -265,7 +300,7 @@ final class MemberCategoryControllerTest extends WebTestCase
 
         $organization = $this->makeOrganization('Mon orga', 'orga-categorie-parente-test');
         $member = $this->makeUser('membre-categorie-parente@example.com');
-        $organization->addUser($member);
+        $organization->addUser($member, OrganizationRole::TREASURER);
 
         $budget = $this->makeBudget($organization, 'budget-categorie-parente-test');
         $parent = $this->makeCategory($budget, 'Parente');

@@ -59,7 +59,7 @@ class BudgetNameEditor
     #[LiveAction]
     public function save(): void
     {
-        if (!$this->security->isGranted(OrganizationVoter::EDIT, $this->budget->getOrganization())) {
+        if (!$this->security->isGranted(OrganizationVoter::ADMINISTER, $this->budget->getOrganization())) {
             $this->error = 'Vous n\'êtes pas autorisé à modifier ce budget.';
             return;
         }

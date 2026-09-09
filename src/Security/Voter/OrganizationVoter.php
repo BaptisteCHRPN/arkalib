@@ -4,18 +4,32 @@ namespace App\Security\Voter;
 
 use App\Entity\Organization;
 use App\Entity\User;
+use App\Enum\OrganizationRole;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Authorization\Voter\Voter;
 
+/**
+ * Les attributs décrivent ce que le point d'appel veut faire, jamais le rôle
+ * attendu : c'est ici, et ici seulement, que la matrice de droits est écrite.
+ * Redécouper les rôles ne touchera donc aucun contrôleur.
+ */
 final class OrganizationVoter extends Voter
 {
+    /** Consulter l'organisation et ses données : tout membre. */
     public const VIEW = 'ORGANIZATION_VIEW';
-    public const EDIT = 'ORGANIZATION_EDIT';
+
+    /** Tenir les comptes : lignes, catégories, transactions, clôture, corbeille. */
+    public const CONTRIBUTE = 'ORGANIZATION_CONTRIBUTE';
+
+    /** Administrer : structure des budgets, membres, invitations, purge. */
+    public const ADMINISTER = 'ORGANIZATION_ADMINISTER';
+
+    /** Supprimer définitivement l'organisation elle-même. */
     public const DELETE = 'ORGANIZATION_DELETE';
 
     protected function supports(string $attribute, mixed $subject): bool
     {
-        return in_array($attribute, [self::VIEW, self::EDIT, self::DELETE], true)
+        return in_array($attribute, [self::VIEW, self::CONTRIBUTE, self::ADMINISTER, self::DELETE], true)
             && $subject instanceof Organization;
     }
 
@@ -33,6 +47,21 @@ final class OrganizationVoter extends Voter
         }
 
         /** @var Organization $subject */
-        return $subject->getUsers()->contains($user);
+        $membership = $subject->getMembershipFor($user);
+
+        if (null === $membership) {
+            return false;
+        }
+
+        return $membership->getRole()->includes($this->requiredRole($attribute));
+    }
+
+    private function requiredRole(string $attribute): OrganizationRole
+    {
+        return match ($attribute) {
+            self::VIEW => OrganizationRole::READER,
+            self::CONTRIBUTE => OrganizationRole::TREASURER,
+            self::ADMINISTER, self::DELETE => OrganizationRole::ADMIN,
+        };
     }
 }

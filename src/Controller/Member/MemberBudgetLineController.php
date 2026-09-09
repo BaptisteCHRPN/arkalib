@@ -34,7 +34,7 @@ final class MemberBudgetLineController extends AbstractController
         Organization $organization,
         // BudgetLine $budgetLine,
     ): Response {
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::CONTRIBUTE, $organization);
 
         // Fetch current budget et check organization's owner
         $budget = $entityManager->getRepository(Budget::class)->findOneBy([
@@ -133,7 +133,7 @@ final class MemberBudgetLineController extends AbstractController
         $budget = $budgetLine->getBudget();
         $organization = $budget->getOrganization();
 
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::CONTRIBUTE, $organization);
 
         if ($budget->isClosed()) {
             $this->addFlash('warning', 'Ce budget est clôturé. Impossible de modifier une ligne budgétaire.');
@@ -195,7 +195,7 @@ final class MemberBudgetLineController extends AbstractController
         EntityManagerInterface $entityManager
     ): Response {
         $organization = $budgetLine->getBudget()->getOrganization();
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::CONTRIBUTE, $organization);
 
         if ($budgetLine->getAttachment()) {
             $filePath = $this->getParameter('budget_file') . '/' . $budgetLine->getAttachment();
@@ -220,7 +220,7 @@ final class MemberBudgetLineController extends AbstractController
         $budget = $budgetLine->getBudget();
         $organization = $budget->getOrganization();
 
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::CONTRIBUTE, $organization);
 
         if ($budget->isClosed()) {
             $this->addFlash('warning', 'Ce budget est clôturé. Impossible de supprimer une ligne budgétaire.');

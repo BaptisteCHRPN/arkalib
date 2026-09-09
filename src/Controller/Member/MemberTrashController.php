@@ -33,7 +33,7 @@ final class MemberTrashController extends AbstractController
         CategoryRepository $categoryRepository,
         TransactionRepository $transactionRepository,
     ): Response {
-        $this->denyAccessUnlessGranted(OrganizationVoter::VIEW, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::CONTRIBUTE, $organization);
 
         $type = $request->query->getString('type', 'budgets');
 
@@ -91,7 +91,7 @@ final class MemberTrashController extends AbstractController
         EntityManagerInterface $entityManager,
         SoftDeleteService $softDeleteService,
     ): Response {
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::CONTRIBUTE, $organization);
 
         if ($this->isCsrfTokenValid('restore' . $id, $request->getPayload()->getString('_token'))) {
             $entity = $this->findEntityInTrash($entityManager, $type, $id, $organization);
@@ -117,7 +117,7 @@ final class MemberTrashController extends AbstractController
         int $id,
         EntityManagerInterface $entityManager,
     ): Response {
-        $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
+        $this->denyAccessUnlessGranted(OrganizationVoter::ADMINISTER, $organization);
 
         if ($this->isCsrfTokenValid('hard-delete' . $id, $request->getPayload()->getString('_token'))) {
             $entity = $this->findEntityInTrash($entityManager, $type, $id, $organization);
