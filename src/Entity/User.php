@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Trait\TraceableTrait;
 use App\Enum\OrganizationRole;
 use App\Repository\UserRepository;
 use DateTimeImmutable;
@@ -17,6 +18,13 @@ use Symfony\Component\Security\Core\User\UserInterface;
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    /**
+     * Donne `created_at` (la date d'inscription) et `created_by` : null pour
+     * une inscription spontanée, renseigné quand le compte a été créé depuis
+     * le back-office. Rempli automatiquement par TraceabilitySubscriber.
+     */
+    use TraceableTrait;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -48,6 +56,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private bool $isVerified = false;
+
+    /**
+     * Dernière connexion réussie. Écrite hors du cycle de vie Doctrine par
+     * LastLoginSubscriber, pour ne pas polluer `updated_at` à chaque connexion.
+     */
+    #[ORM\Column(nullable: true)]
+    private ?DateTimeImmutable $lastLoginAt = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $firstname = null;
@@ -192,6 +207,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $data = (array) $this;
         $data["\0" . self::class . "\0password"] = hash('crc32c', $this->password);
 
+        // Les relations de traçabilité ne servent qu'à l'affichage back-office.
+        // Les laisser ici embarquerait un graphe d'utilisateurs entier dans le
+        // token stocké en session — et forcerait l'initialisation des proxies
+        // Doctrine à chaque écriture de session.
+        unset(
+            $data["\0" . self::class . "\0created_by"],
+            $data["\0" . self::class . "\0updated_by"],
+        );
+
         return $data;
     }
 
@@ -199,6 +223,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function eraseCredentials(): void
     {
         // @deprecated, to be removed when upgrading to Symfony 8
+    }
+
+    public function getLastLoginAt(): ?DateTimeImmutable
+    {
+        return $this->lastLoginAt;
+    }
+
+    public function setLastLoginAt(?DateTimeImmutable $lastLoginAt): static
+    {
+        $this->lastLoginAt = $lastLoginAt;
+
+        return $this;
     }
 
     public function isVerified(): bool
