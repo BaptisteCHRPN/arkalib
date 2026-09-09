@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\OrganizationRole;
 use App\Repository\OrganizationRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -36,11 +37,15 @@ class Organization
 
 
     /**
-     * @var Collection<int, User>
+     * @var Collection<int, OrganizationMembership>
      */
-    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'organizations')]
-    #[ORM\JoinTable(name: 'organization_user')]
-    private Collection $users;
+    #[ORM\OneToMany(
+        targetEntity: OrganizationMembership::class,
+        mappedBy: 'organization',
+        cascade: ['persist', 'remove'],
+        orphanRemoval: true
+    )]
+    private Collection $memberships;
 
     #[ORM\Column(length: 255, unique: true)]
     private ?string $slug = null;
@@ -57,7 +62,7 @@ class Organization
     public function __construct()
     {
         $this->budgets = new ArrayCollection();
-        $this->users = new ArrayCollection();
+        $this->memberships = new ArrayCollection();
         $this->is_active = true;
         $this->invitations = new ArrayCollection();
     }
@@ -134,26 +139,75 @@ class Organization
     }
 
     /**
+     * @return Collection<int, OrganizationMembership>
+     */
+    public function getMemberships(): Collection
+    {
+        return $this->memberships;
+    }
+
+    public function getMembershipFor(User $user): ?OrganizationMembership
+    {
+        foreach ($this->memberships as $membership) {
+            if ($membership->getUser() === $user) {
+                return $membership;
+            }
+        }
+
+        return null;
+    }
+
+    public function addMembership(OrganizationMembership $membership): static
+    {
+        if (!$this->memberships->contains($membership)) {
+            $this->memberships->add($membership);
+            $membership->setOrganization($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMembership(OrganizationMembership $membership): static
+    {
+        $this->memberships->removeElement($membership);
+
+        return $this;
+    }
+
+    /**
+     * Compatibilité : la liste des membres, dérivée des appartenances.
+     * Attention, c'est une copie : la modifier n'a aucun effet.
+     *
      * @return Collection<int, User>
      */
     public function getUsers(): Collection
     {
-        return $this->users;
+        return $this->memberships->map(
+            fn (OrganizationMembership $membership) => $membership->getUser()
+        );
     }
 
-    public function addUser(User $user): static
+    public function addUser(User $user, OrganizationRole $role = OrganizationRole::READER): static
     {
-        if (!$this->users->contains($user)) {
-            $this->users->add($user);
+        if (null !== $this->getMembershipFor($user)) {
+            return $this;
         }
+
+        $membership = new OrganizationMembership($this, $user, $role);
+        $this->addMembership($membership);
+        $user->addMembership($membership);
 
         return $this;
     }
 
     public function removeUser(User $user): static
     {
-        $this->users->removeElement($user);
-        $user->removeOrganization($this);
+        $membership = $this->getMembershipFor($user);
+
+        if (null !== $membership) {
+            $this->removeMembership($membership);
+            $user->removeMembership($membership);
+        }
 
         return $this;
     }

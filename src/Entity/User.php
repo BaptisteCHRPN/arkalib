@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\OrganizationRole;
 use App\Repository\UserRepository;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -55,10 +56,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $lastname = null;
 
     /**
-     * @var Collection<int, Organization>
+     * @var Collection<int, OrganizationMembership>
      */
-    #[ORM\ManyToMany(targetEntity: Organization::class, mappedBy: 'users')]
-    private Collection $organizations;
+    #[ORM\OneToMany(
+        targetEntity: OrganizationMembership::class,
+        mappedBy: 'user',
+        cascade: ['persist', 'remove'],
+        orphanRemoval: true
+    )]
+    private Collection $memberships;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $profilePicture = null;
@@ -74,7 +80,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function __construct()
     {
-        $this->organizations = new ArrayCollection();
+        $this->memberships = new ArrayCollection();
         $this->invitations = new ArrayCollection();
     }
 
@@ -232,25 +238,54 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
+     * @return Collection<int, OrganizationMembership>
+     */
+    public function getMemberships(): Collection
+    {
+        return $this->memberships;
+    }
+
+    public function addMembership(OrganizationMembership $membership): self
+    {
+        if (!$this->memberships->contains($membership)) {
+            $this->memberships->add($membership);
+            $membership->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMembership(OrganizationMembership $membership): self
+    {
+        $this->memberships->removeElement($membership);
+
+        return $this;
+    }
+
+    /**
+     * Compatibilité : les organisations dont l'utilisateur est membre.
+     * Attention, c'est une copie : la modifier n'a aucun effet.
+     *
      * @return Collection<int, Organization>
      */
     public function getOrganizations(): Collection
     {
-        return $this->organizations;
+        return $this->memberships->map(
+            fn (OrganizationMembership $membership) => $membership->getOrganization()
+        );
     }
 
-    public function addOrganization(Organization $organization): self
+    public function addOrganization(Organization $organization, OrganizationRole $role = OrganizationRole::READER): self
     {
-        if (!$this->organizations->contains($organization)) {
-            $this->organizations->add($organization);
-            $organization->addUser($this);
-        }
+        $organization->addUser($this, $role);
+
         return $this;
     }
 
     public function removeOrganization(Organization $organization): self
     {
-        $this->organizations->removeElement($organization);
+        $organization->removeUser($this);
+
         return $this;
     }
 

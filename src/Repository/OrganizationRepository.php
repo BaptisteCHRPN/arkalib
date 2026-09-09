@@ -21,8 +21,8 @@ class OrganizationRepository extends ServiceEntityRepository
     {
         // This query fetch all active organizations related in connecteed user 
         return $this->createQueryBuilder('o')
-            ->innerJoin('o.users', 'u') 
-            ->where('u.id = :userId')
+            ->innerJoin('o.memberships', 'm')
+            ->where('m.user = :userId')
             ->andWhere('o.is_active = :isActive')
             ->setParameter('userId', $user->getId())
             ->setParameter('isActive', true)
