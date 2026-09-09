@@ -37,4 +37,37 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     {
         return $this->findOneBy(['emailChangeToken' => $token]);
     }
+
+    /**
+     * Recherche un compte par email, prénom ou nom, les trois champs étant
+     * concaténés : une réclamation donne souvent « Marie Dupont » d'un bloc,
+     * jamais un champ isolé.
+     *
+     * Un terme vide renvoie tout le monde, ce qui fait de cette méthode le
+     * point d'entrée unique de la liste des utilisateurs.
+     *
+     * @return User[]
+     */
+    public function search(?string $term): array
+    {
+        $queryBuilder = $this->createQueryBuilder('u')->orderBy('u.id', 'DESC');
+
+        $term = trim((string) $term);
+
+        if ('' === $term) {
+            return $queryBuilder->getQuery()->getResult();
+        }
+
+        // Les jokers SQL saisis au clavier sont neutralisés : sans ça, « % »
+        // ramènerait toute la table et un email contenant « _ » ramènerait des
+        // comptes qui ne lui ressemblent pas. On échappe avec « ! » plutôt
+        // qu'avec l'antislash, dont le sens varie entre MySQL et SQLite.
+        $pattern = '%' . str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $term) . '%';
+
+        return $queryBuilder
+            ->andWhere("CONCAT(u.email, ' ', COALESCE(u.firstname, ''), ' ', COALESCE(u.lastname, '')) LIKE :pattern ESCAPE '!'")
+            ->setParameter('pattern', $pattern)
+            ->getQuery()
+            ->getResult();
+    }
 }
