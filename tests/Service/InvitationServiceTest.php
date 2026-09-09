@@ -5,6 +5,7 @@ namespace App\Tests\Service;
 use App\Entity\Invitation;
 use App\Entity\Organization;
 use App\Entity\User;
+use App\Enum\OrganizationRole;
 use App\Repository\InvitationRepository;
 use App\Repository\UserRepository;
 use App\Service\InvitationService;
@@ -172,6 +173,31 @@ final class InvitationServiceTest extends TestCase
         $this->assertSame(Invitation::STATUS_ACCEPTED, $invitation->getStatus());
     }
 
+    public function testAcceptGrantsTheRoleCarriedByTheInvitation(): void
+    {
+        $organization = new Organization();
+
+        $invitation = new Invitation('peu-importe-le-hash');
+        $invitation->setEmail('invite@example.com');
+        $invitation->setOrganisation($organization);
+        $invitation->setRole(OrganizationRole::TREASURER);
+
+        $invitationRepository = $this->createMock(InvitationRepository::class);
+        $invitationRepository->method('findOneBy')->willReturn($invitation);
+
+        $service = $this->createService(invitationRepository: $invitationRepository);
+
+        $user = new User();
+        $user->setEmail('invite@example.com');
+
+        $service->accept('un-token', $user);
+
+        $this->assertSame(
+            OrganizationRole::TREASURER,
+            $organization->getMembershipFor($user)?->getRole()
+        );
+    }
+
     public function testAcceptIsCaseInsensitiveOnTheEmail(): void
     {
         $organization = new Organization();
@@ -262,6 +288,47 @@ final class InvitationServiceTest extends TestCase
         $this->assertInstanceOf(TemplatedEmail::class, $sentEmail);
         $this->assertSame('Jean Dupont vous invite à rejoindre Mon orga', $sentEmail->getSubject());
         $this->assertSame('nouveau@example.com', $sentEmail->getTo()[0]->getAddress());
+    }
+
+    public function testInviteStoresTheChosenRole(): void
+    {
+        $service = $this->createServiceForASuccessfulInvite();
+
+        $invitation = $service->invite(
+            'nouveau@example.com',
+            new Organization(),
+            new User(),
+            OrganizationRole::ADMIN
+        );
+
+        $this->assertSame(OrganizationRole::ADMIN, $invitation->getRole());
+    }
+
+    /**
+     * Sans rôle explicite, on n'accorde que la lecture : accorder des droits
+     * d'écriture par défaut serait le seul cas où personne n'aurait décidé.
+     */
+    public function testInviteWithoutAnExplicitRoleGrantsReadOnly(): void
+    {
+        $service = $this->createServiceForASuccessfulInvite();
+
+        $invitation = $service->invite('nouveau@example.com', new Organization(), new User());
+
+        $this->assertSame(OrganizationRole::READER, $invitation->getRole());
+    }
+
+    private function createServiceForASuccessfulInvite(): InvitationService
+    {
+        $userRepository = $this->createMock(UserRepository::class);
+        $userRepository->method('findOneBy')->willReturn(null);
+
+        $invitationRepository = $this->createMock(InvitationRepository::class);
+        $invitationRepository->method('findPendingByEmailAndOrga')->willReturn(null);
+
+        return $this->createService(
+            invitationRepository: $invitationRepository,
+            userRepository: $userRepository,
+        );
     }
 
     public function testInviteFallsBackToInviterEmailWhenNameIsEmpty(): void

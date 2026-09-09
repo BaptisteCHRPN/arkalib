@@ -5,9 +5,11 @@ namespace App\Form;
 use App\Entity\Invitation;
 use App\Entity\Organization;
 use App\Entity\User;
+use App\Enum\OrganizationRole;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
+use Symfony\Component\Form\Extension\Core\Type\EnumType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Email;
@@ -24,7 +26,14 @@ class InvitationType extends AbstractType
                     new NotBlank(message: 'Veuillez saisir un email.'),
                     new Email(message: 'Veuillez saisir un email valide.'),
                 ],
-            ],);
+            ],)
+            ->add('role', EnumType::class, [
+                'class' => OrganizationRole::class,
+                'label' => 'Rôle dans l\'organisation',
+                'choice_label' => fn (OrganizationRole $role) => $role->label(),
+                'data' => OrganizationRole::READER,
+                'help' => 'Lecteur : consultation seule. Trésorier : saisie des écritures et clôture des budgets. Administrateur : gestion de l\'organisation et de ses membres.',
+            ]);
     }
 
     // public function configureOptions(OptionsResolver $resolver): void

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Enum\OrganizationRole;
 use App\Repository\InvitationRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -40,6 +41,14 @@ class Invitation
 
     #[ORM\Column(length: 100, unique: true)]
     private ?string $hashedToken = null;
+
+    /**
+     * Rôle que l'invité obtiendra en rejoignant l'organisation. Choisi par
+     * l'inviteur, et figé à l'envoi : modifier le rôle d'un membre déjà entré
+     * relève de la gestion des membres, pas de l'invitation.
+     */
+    #[ORM\Column(length: 20, enumType: OrganizationRole::class)]
+    private OrganizationRole $role = OrganizationRole::READER;
 
     public function __construct(string $hashedToken)
     {
@@ -144,6 +153,18 @@ class Invitation
     public function setHashedToken(string $hashedToken): static
     {
         $this->hashedToken = $hashedToken;
+
+        return $this;
+    }
+
+    public function getRole(): OrganizationRole
+    {
+        return $this->role;
+    }
+
+    public function setRole(OrganizationRole $role): static
+    {
+        $this->role = $role;
 
         return $this;
     }

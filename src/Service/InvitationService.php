@@ -6,6 +6,7 @@ namespace App\Service;
 use App\Entity\Invitation;
 use App\Entity\Organization;
 use App\Entity\User;
+use App\Enum\OrganizationRole;
 use App\Repository\InvitationRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -32,12 +33,17 @@ class InvitationService
      * 
      * Appelé quand un membre d'une orga saisit un email dans le formulaire d'invitation.
      * 
-     * @param string       $email      L'email de la personne à inviter
-     * @param Organization $organisation  L'orga à rejoindre
-     * @param User         $invitedBy    Le membre qui envoie l'invitation
+     * @param string           $email        L'email de la personne à inviter
+     * @param Organization     $organisation L'orga à rejoindre
+     * @param User             $invitedBy    Le membre qui envoie l'invitation
+     * @param OrganizationRole $role         Le rôle que l'invité obtiendra en acceptant
      */
-    public function invite(string $email, Organization $organisation, User $invitedBy): Invitation
-    {
+    public function invite(
+        string $email,
+        Organization $organisation,
+        User $invitedBy,
+        OrganizationRole $role = OrganizationRole::READER,
+    ): Invitation {
         // ── Vérification 1 : l'invité est-il déjà membre ? ──
         // On cherche si un User existe avec cet email
         $existingUser = $this->userRepository->findOneBy(['email' => $email]);
@@ -64,6 +70,7 @@ class InvitationService
         $invitation->setEmail($email);
         $invitation->setOrganisation($organisation);
         $invitation->setInvitedBy($invitedBy);
+        $invitation->setRole($role);
 
         // persist = "prépare l'insertion en BDD"
         // flush = "exécute réellement la requête SQL"
@@ -115,15 +122,15 @@ class InvitationService
         }
 
         // ── Rattachement à l'organisation ──
-        // addOrganization() sur le User ajoute aussi le User côté Organization
-        // grâce à la synchronisation bidirectionnelle
-        $user->addOrganization($invitation->getOrganisation());
+        // addOrganization() crée l'appartenance et l'inscrit des deux côtés.
+        // Le rôle vient de l'invitation : c'est l'inviteur qui l'a choisi.
+        $user->addOrganization($invitation->getOrganisation(), $invitation->getRole());
 
         // ── Marquage comme acceptée ──
         $invitation->setStatus(Invitation::STATUS_ACCEPTED);
 
         // flush = sauvegarde les deux modifications en BDD :
-        // 1. La nouvelle ligne dans la table pivot organization_user
+        // 1. La nouvelle ligne dans organization_membership (avec son rôle)
         // 2. Le status "accepted" sur l'invitation
         $this->em->flush();
 

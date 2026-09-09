@@ -35,9 +35,10 @@ final class MemberInvitationController extends AbstractController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $email = $form->get('email')->getData();
+            $role = $form->get('role')->getData();
 
             try {
-                $invitationService->invite($email, $organization, $user);
+                $invitationService->invite($email, $organization, $user, $role);
                 $this->addFlash('success', "Invitation envoyée à $email !");
             } catch (\LogicException $e) {
                 $this->addFlash('error', $e->getMessage());
