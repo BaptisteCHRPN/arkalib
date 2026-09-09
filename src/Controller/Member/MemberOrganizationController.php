@@ -33,7 +33,7 @@ final class MemberOrganizationController extends AbstractController
     // }
     #[IsGranted('ROLE_USER')]
     #[Route('/organisation/new', name: 'app_membre_organization_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager, Security $security, SluggerInterface $slugger): Response
+    public function new(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $organization = new Organization();
         $form = $this->createForm(OrganizationType::class, $organization);
@@ -121,7 +121,6 @@ final class MemberOrganizationController extends AbstractController
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
         Organization $organization,
         EntityManagerInterface $entityManager,
-        Security $security,
     ): Response {
         $this->denyAccessUnlessGranted(OrganizationVoter::EDIT, $organization);
 
@@ -143,12 +142,6 @@ final class MemberOrganizationController extends AbstractController
                     unlink($this->getParameter('organization_logo') . '/' . $organization->getPicture());
                 }
                 $organization->setPicture($nameFile);
-            }
-
-            // link connecteed user to organization
-            $user = $security->getUser();
-            if ($user) {
-                $organization->addUser($user);
             }
 
             $entityManager->flush();
