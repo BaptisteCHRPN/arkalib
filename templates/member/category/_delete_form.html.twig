@@ -1,7 +1,9 @@
-<form method="post" action="{{ path('app_member_category_delete', {'organizationSlug': category.budget.organization.slug, 'budgetSlug': category.budget.slug, 'id': category.id}) }}"
-	onsubmit="return confirm('{% if category.budgetLines|length > 0 %}Cette catégorie contient {{ category.budgetLines|length }} ligne(s) budgétaire(s) qui deviendront non catégorisées. {% endif %}Voulez-vous vraiment supprimer cette catégorie ?');">
-	<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
-	<button type="submit" class="{{ buttonClass|default('dropdown-item text-danger border-0 bg-transparent w-100 text-start') }}">
-		{{ ux_icon('mdi:trash-can', {'class': 'me-2'}) }}Supprimer
-	</button>
-</form>
+{% if is_granted('ORGANIZATION_CONTRIBUTE', category.budget.organization) %}
+	<form method="post" action="{{ path('app_member_category_delete', {'organizationSlug': category.budget.organization.slug, 'budgetSlug': category.budget.slug, 'id': category.id}) }}"
+		onsubmit="return confirm('{% if category.budgetLines|length > 0 %}Cette catégorie contient {{ category.budgetLines|length }} ligne(s) budgétaire(s) qui deviendront non catégorisées. {% endif %}Voulez-vous vraiment supprimer cette catégorie ?');">
+		<input type="hidden" name="_token" value="{{ csrf_token('delete' ~ category.id) }}">
+		<button type="submit" class="{{ buttonClass|default('dropdown-item text-danger border-0 bg-transparent w-100 text-start') }}">
+			{{ ux_icon('mdi:trash-can', {'class': 'me-2'}) }}Supprimer
+		</button>
+	</form>
+{% endif %}

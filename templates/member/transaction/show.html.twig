@@ -102,9 +102,11 @@
 							{{ ux_icon('mdi:arrow-left', {'class': 'me-1'}) }}Retour
 						</a>
 						<div class="d-flex gap-2">
+							{% if is_granted('ORGANIZATION_CONTRIBUTE', budget.organization) %}
 							<a href="{{ path('app_member_transaction_edit', {'id': transaction.id, 'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-primary">
 								{{ ux_icon('mdi:pencil', {'class': 'me-1'}) }}Modifier
 							</a>
+							{% endif %}
 							{{ include('member/transaction/_delete_form.html.twig') }}
 						</div>
 					</div>

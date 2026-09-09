@@ -29,10 +29,12 @@
                     </p>
                 </div>
                 <div>
+                    {% if is_granted('ORGANIZATION_CONTRIBUTE', organization) %}
                     <a href="{{ path('app_member_transaction_new', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-primary btn-sm">
                         {{ ux_icon('mdi:plus', {'class': 'me-1'}) }}
                         Nouvelle transaction
                     </a>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -110,9 +112,11 @@
                                         <a href="{{ path('app_member_transaction_show', {'id': transaction.id, 'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-sm btn-outline-secondary">
                                             Voir
                                         </a>
+                                        {% if is_granted('ORGANIZATION_CONTRIBUTE', organization) %}
                                         <a href="{{ path('app_member_transaction_edit', {'id': transaction.id, 'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-sm btn-outline-primary">
                                             Éditer
                                         </a>
+                                        {% endif %}
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -129,10 +133,12 @@
                 </div>
                 <h5 class="text-secondary mb-3">Aucune transaction trouvée</h5>
                 <p class="text-secondary mb-4">Commencez par créer votre première transaction pour ce budget.</p>
+                {% if is_granted('ORGANIZATION_CONTRIBUTE', organization) %}
                 <a href="{{ path('app_member_transaction_new', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-primary">
                     {{ ux_icon('mdi:plus', {'class': 'me-1'}) }}
                     Nouvelle transaction
                 </a>
+                {% endif %}
             </div>
         </div>
     {% endif %}

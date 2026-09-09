@@ -20,7 +20,9 @@
 		{% include "member/budget/_mobile_view.html.twig" %}
 	</div>
 
-	{% if not budget.isClosed() %}
+	{# Inutile de laisser les modales dans le DOM d'un lecteur : il n'a aucun
+	   bouton pour les ouvrir, et leur formulaire serait de toute façon refusé. #}
+	{% if not budget.isClosed() and is_granted('ORGANIZATION_CONTRIBUTE', budget.organization) %}
 		{% include "member/budget_line/_new_modal.html.twig" %}
 		{% include "member/budget_line/_edit_modal.html.twig" %}
 	{% endif %}

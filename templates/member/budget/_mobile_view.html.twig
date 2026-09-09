@@ -34,6 +34,7 @@
 								{{ ux_icon('mdi:eye', {'class': 'me-2'}) }}Voir
 							</a>
 						</li>
+						{% if is_granted('ORGANIZATION_CONTRIBUTE', organization) %}
 						<li>
 							<button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#budgetLineEditModal" data-url="{{ path('app_member_budget_line_edit', {'id': line.id, 'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}">
 								{{ ux_icon('mdi:pencil', {'class': 'me-2'}) }}Modifier
@@ -48,6 +49,7 @@
 						<li>
 							{% include "member/budget_line/_delete_form.html.twig" with {'budgetLine': line} %}
 						</li>
+						{% endif %}
 					</ul>
 				</div>
 			</div>
@@ -95,13 +97,13 @@
 
 	{# CTA buttons #}
 	<div class="px-3 mb-4">
-		{% if not budget.isClosed() %}
+		{% if not budget.isClosed() and is_granted('ORGANIZATION_CONTRIBUTE', organization) %}
 			<button type="button" class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#budgetLineFormModal">
 				{{ ux_icon('mdi:plus-circle', {'class': 'me-2'}) }}Nouvelle ligne budgétaire
 			</button>
 		{% endif %}
 		<div class="row g-2">
-			{% if not budget.isClosed() %}
+			{% if not budget.isClosed() and is_granted('ORGANIZATION_CONTRIBUTE', organization) %}
 				<div class="col-6">
 					<a href="{{ path('app_category_new', {'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-outline-primary btn-sm w-100 py-2">
 						{{ ux_icon('mdi:tag', {'class': 'me-1'}) }}Catégorie
@@ -118,6 +120,7 @@
 					{{ ux_icon('tabler:arrows-diff', {'class': 'me-1'}) }}Prévu vs Réel
 				</a>
 			</div>
+			{% if is_granted('ORGANIZATION_CONTRIBUTE', organization) %}
 			<div class="col-6">
 				{% if budget.isClosed() %}
 					<form method="post" action="{{ path('app_member_budget_reopen', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}">
@@ -136,6 +139,7 @@
 					</form>
 				{% endif %}
 			</div>
+			{% endif %}
 		</div>
 	</div>
 
@@ -205,10 +209,12 @@
 			<div class="text-center py-5 bg-white">
 				{{ ux_icon('mdi:inbox', {'class': 'text-secondary', 'style': 'font-size: 3rem;'}) }}
 				<p class="text-secondary mt-3 mb-0">Aucune catégorie ni ligne budgétaire pour l'instant</p>
+				{% if is_granted('ORGANIZATION_CONTRIBUTE', organization) %}
 				<button type="button" class="btn btn-sm btn-outline-primary mt-3" data-bs-toggle="modal" data-bs-target="#budgetLineFormModal">
 					{{ ux_icon('mdi:plus-circle', {'class': 'me-2'}) }}
 					Ajouter une ligne budgétaire
 				</button>
+				{% endif %}
 			</div>
 		{% endif %}
 	</div>

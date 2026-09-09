@@ -190,6 +190,7 @@
                                                             {{ ux_icon('mdi:restore', {class: 'me-1'}) }}Restaurer
                                                         </button>
                                                     </form>
+                                                    {% if is_granted('ORGANIZATION_ADMINISTER', organization) %}
                                                     <form method="post"
                                                           action="{{ path('app_member_trash_hard_delete', {slug: organization.slug, type: type, id: item.id}) }}"
                                                           class="d-inline"
@@ -200,6 +201,7 @@
                                                             {{ ux_icon('mdi:delete-forever', {class: 'me-1'}) }}Supprimer
                                                         </button>
                                                     </form>
+                                                    {% endif %}
                                                 </td>
                                             </tr>
                                         {% endfor %}

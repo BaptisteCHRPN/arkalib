@@ -31,5 +31,7 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_category_new', {'budget': budget.id}) }}">Create new</a>
+    {% if is_granted('ORGANIZATION_CONTRIBUTE', organization) %}
+        <a href="{{ path('app_category_new', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}">Create new</a>
+    {% endif %}
 {% endblock %}
