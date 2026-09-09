@@ -2,8 +2,11 @@
 
 namespace App\Controller\Backoffice;
 
+use App\Entity\Invitation;
 use App\Entity\User;
 use App\Form\UserType;
+use App\Repository\OrganizationMembershipRepository;
+use App\Repository\ResetPasswordRequestRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -59,12 +62,46 @@ final class UserController extends AbstractController
     }
 
     #[Route('/{id}', name: 'app_admin_user_show', methods: ['GET'])]
-    public function show(User $user): Response
-    {
+    public function show(
+        User $user,
+        OrganizationMembershipRepository $membershipRepository,
+        ResetPasswordRequestRepository $resetPasswordRequestRepository,
+    ): Response {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        // Le nombre d'administrateurs est compté ici plutôt que dans le
+        // template : une organisation qui n'en a plus est un état cassé qu'il
+        // faut voir depuis la fiche de n'importe lequel de ses membres.
+        $organizations = [];
+        foreach ($user->getMemberships() as $membership) {
+            $organization = $membership->getOrganization();
+
+            $organizations[] = [
+                'membership' => $membership,
+                'organization' => $organization,
+                'adminCount' => $membershipRepository->countAdmins($organization),
+            ];
+        }
+
+        usort(
+            $organizations,
+            static fn (array $a, array $b) => strcasecmp(
+                (string) $a['organization']->getName(),
+                (string) $b['organization']->getName(),
+            ),
+        );
+
+        $invitations = $user->getInvitations()->toArray();
+        usort(
+            $invitations,
+            static fn (Invitation $a, Invitation $b) => $b->getCreatedAt() <=> $a->getCreatedAt(),
+        );
 
         return $this->render('admin/user/show.html.twig', [
             'user' => $user,
+            'organizations' => $organizations,
+            'invitations' => $invitations,
+            'resetRequest' => $resetPasswordRequestRepository->findMostRecentForUser($user),
         ]);
     }
 

@@ -28,7 +28,13 @@
 			<div class="d-flex align-items-center gap-3">
 				{{ avatarMacros.user_avatar(user.picture, user.email, 56) }}
 				<div>
-					<h1 class="fw-bold fs-2 mb-1">{{ user.firstname }} {{ user.lastname }}</h1>
+					<h1 class="fw-bold fs-2 mb-1">
+						{%- if user.firstname or user.lastname -%}
+							{{ user.firstname }} {{ user.lastname }}
+						{%- else -%}
+							Compte sans nom
+						{%- endif -%}
+					</h1>
 					<p class="text-secondary mb-0">{{ user.email }}</p>
 				</div>
 			</div>
@@ -38,7 +44,266 @@
 			</a>
 		</div>
 
-		{# ─── Detail Card ─── #}
+		{# ─── Diagnostic d'accès ─────────────────────────────────────────────
+		   Les questions auxquelles répond ce bloc sont celles qui arrivent en
+		   réclamation : « je ne peux pas me connecter », « je n'ai rien reçu ».
+		#}
+		<div class="card admin-table-card shadow-sm mb-4">
+			<div class="card-header d-flex align-items-center gap-2">
+				{{ ux_icon('lucide:key-round', { width: '16', height: '16' }) }}
+				<span class="fw-semibold text-dark">Diagnostic d'accès</span>
+			</div>
+			<div class="table-responsive">
+				<table class="table admin-table mb-0">
+					<tbody>
+						<tr>
+							<th class="text-secondary fw-normal" style="width:220px;">Compte vérifié</th>
+							<td>
+								{% if user.isVerified %}
+									<span class="badge rounded-pill px-2 py-1 badge-verified">
+										{{ ux_icon('lucide:check', { width: '12', height: '12', class: 'me-1' }) }}
+										Vérifié
+									</span>
+								{% else %}
+									<span class="badge rounded-pill px-2 py-1 badge-unverified">
+										{{ ux_icon('lucide:x', { width: '12', height: '12', class: 'me-1' }) }}
+										Non vérifié
+									</span>
+									<span class="text-muted small ms-2">Inscription jamais confirmée — la connexion est refusée.</span>
+								{% endif %}
+							</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Changement d'email</th>
+							<td>
+								{% if user.pendingEmail %}
+									<span class="badge rounded-pill px-2 py-1 badge-unverified">En attente</span>
+									<span class="text-dark small ms-2">vers {{ user.pendingEmail }}</span>
+									{% if user.emailChangeTokenExpiresAt %}
+										<div class="text-muted small mt-1">
+											{% if user.emailChangeTokenExpiresAt < date() %}
+												Lien expiré le {{ user.emailChangeTokenExpiresAt|date('d/m/Y à H:i') }} — la personne doit relancer la demande.
+											{% else %}
+												Lien valable jusqu'au {{ user.emailChangeTokenExpiresAt|date('d/m/Y à H:i') }}.
+											{% endif %}
+										</div>
+									{% endif %}
+								{% else %}
+									<span class="text-secondary">Aucun en cours</span>
+								{% endif %}
+							</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Réinitialisation du mot de passe</th>
+							<td>
+								{% if resetRequest %}
+									{% if resetRequest.isExpired %}
+										<span class="badge rounded-pill px-2 py-1 badge-unverified">Expirée</span>
+									{% else %}
+										<span class="badge rounded-pill px-2 py-1 badge-verified">En cours</span>
+									{% endif %}
+									<div class="text-muted small mt-1">
+										Demandée le {{ resetRequest.requestedAt|date('d/m/Y à H:i') }},
+										valable jusqu'au {{ resetRequest.expiresAt|date('d/m/Y à H:i') }}.
+									</div>
+								{% else %}
+									<span class="text-secondary">Aucune demande enregistrée</span>
+								{% endif %}
+							</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Dernière connexion</th>
+							<td class="text-secondary">
+								{{ user.lastLoginAt ? user.lastLoginAt|date('d/m/Y à H:i') : '—' }}
+							</td>
+						</tr>
+						<tr>
+							<th class="text-secondary fw-normal">Rôle global</th>
+							<td>
+								{% for role in user.roles %}
+									{% if role == 'ROLE_ADMIN' %}
+										<span class="badge rounded-pill px-2 py-1 badge-role-admin">Admin</span>
+									{% elseif role == 'ROLE_SUPER_ADMIN' %}
+										<span class="badge rounded-pill px-2 py-1 badge-role-superadmin">Super Admin</span>
+									{% elseif role == 'ROLE_USER' %}
+										<span class="badge rounded-pill px-2 py-1 badge-role-user">Utilisateur</span>
+									{% else %}
+										<span class="badge rounded-pill px-2 py-1 badge-id">{{ role }}</span>
+									{% endif %}
+								{% endfor %}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		{# ─── Organisations ──────────────────────────────────────────────────
+		   Le chemin qui manquait : d'une réclamation vers les données du
+		   client, dans l'interface membre où tous les garde-fous s'appliquent.
+		#}
+		<div class="card admin-table-card shadow-sm mb-4">
+			<div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
+				<div class="d-flex align-items-center gap-2">
+					{{ ux_icon('flowbite:building-outline', { width: '16', height: '16' }) }}
+					<span class="fw-semibold text-dark">Organisations</span>
+					<span class="count-badge">{{ organizations|length }}</span>
+				</div>
+			</div>
+			<div class="table-responsive">
+				<table class="table admin-table mb-0">
+					<thead>
+						<tr>
+							<th>Organisation</th>
+							<th>Rôle</th>
+							<th>Membre depuis</th>
+							<th>Ajouté par</th>
+							<th>Budgets</th>
+							<th class="text-end">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for row in organizations %}
+							{% set organization = row.organization %}
+							<tr>
+								<td>
+									<div class="d-flex align-items-center gap-2">
+										<div class="profile-rounded text-light d-inline-flex align-items-center justify-content-center">
+											{% if organization.picture %}
+												<img src="{{ path('organization_logo_upload', {nameFile: organization.picture}) }}" alt="">
+											{% else %}
+												{{ organization.name|first|upper }}
+											{% endif %}
+										</div>
+										<div>
+											<span class="fw-medium text-dark">{{ organization.name }}</span>
+											{% if not organization.isActive %}
+												<span class="badge rounded-pill px-2 py-1 badge-unverified ms-1">Inactive</span>
+											{% endif %}
+											{% if row.adminCount == 0 %}
+												<div class="text-danger small d-flex align-items-center gap-1 mt-1">
+													{{ ux_icon('lucide:triangle-alert', { width: '12', height: '12' }) }}
+													Plus aucun administrateur
+												</div>
+											{% endif %}
+										</div>
+									</div>
+								</td>
+								<td>
+									{% if row.membership.role.value == 'admin' %}
+										<span class="badge rounded-pill px-2 py-1 badge-role-admin">{{ row.membership.role.label }}</span>
+									{% elseif row.membership.role.value == 'treasurer' %}
+										<span class="badge rounded-pill px-2 py-1 badge-budget">{{ row.membership.role.label }}</span>
+									{% else %}
+										<span class="badge rounded-pill px-2 py-1 badge-role-user">{{ row.membership.role.label }}</span>
+									{% endif %}
+								</td>
+								<td>
+									<span class="text-secondary small">{{ row.membership.createdAt ? row.membership.createdAt|date('d/m/Y') : '—' }}</span>
+								</td>
+								<td>
+									<span class="text-secondary small">
+										{%- if row.membership.createdBy is null -%}
+											—
+										{%- elseif row.membership.createdBy.id == user.id -%}
+											Elle-même / lui-même
+										{%- else -%}
+											{{ row.membership.createdBy.firstname }} {{ row.membership.createdBy.lastname }}
+										{%- endif -%}
+									</span>
+								</td>
+								<td>
+									<span class="text-secondary small">{{ organization.budgets|length }}</span>
+								</td>
+								<td class="text-end">
+									<div class="d-inline-flex gap-2">
+										<a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}" class="btn-action btn-show" title="Ouvrir en tant que membre">
+											{{ ux_icon('lucide:external-link', { width: '16', height: '16', fill: 'none', stroke: 'currentColor' }) }}
+										</a>
+										<a href="{{ path('app_admin_organization_show', {'id': organization.id}) }}" class="btn-action btn-edit" title="Fiche d'administration">
+											{{ ux_icon('gg:eye', { width: '16', height: '16', fill: 'none', stroke: 'currentColor' }) }}
+										</a>
+									</div>
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="6">
+									<div class="empty-state text-center">
+										{{ ux_icon('flowbite:building-outline', { width: '48', height: '48', 'stroke-width': '1', class: 'mb-3' }) }}
+										<p class="text-secondary mb-2 fw-medium">Ce compte n'appartient à aucune organisation</p>
+										<p class="text-muted small mb-0">Il ne peut donc voir aucun budget.</p>
+									</div>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		{# ─── Invitations envoyées ───────────────────────────────────────────
+		   Répond à « mon collègue n'a jamais reçu l'invitation ».
+		#}
+		<div class="card admin-table-card shadow-sm mb-4">
+			<div class="card-header d-flex align-items-center gap-2">
+				{{ ux_icon('lucide:mail', { width: '16', height: '16' }) }}
+				<span class="fw-semibold text-dark">Invitations envoyées</span>
+				<span class="count-badge">{{ invitations|length }}</span>
+			</div>
+			<div class="table-responsive">
+				<table class="table admin-table mb-0">
+					<thead>
+						<tr>
+							<th>Destinataire</th>
+							<th>Organisation</th>
+							<th>Rôle proposé</th>
+							<th>Envoyée le</th>
+							<th>Statut</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for invitation in invitations %}
+							<tr>
+								<td class="fw-medium text-dark">{{ invitation.email }}</td>
+								<td>
+									<span class="text-secondary small">{{ invitation.organisation.name }}</span>
+								</td>
+								<td>
+									<span class="text-secondary small">{{ invitation.role.label }}</span>
+								</td>
+								<td>
+									<span class="text-secondary small">{{ invitation.createdAt|date('d/m/Y') }}</span>
+								</td>
+								<td>
+									{% if invitation.status == 'accepted' %}
+										<span class="badge rounded-pill px-2 py-1 badge-verified">Acceptée</span>
+									{% elseif invitation.status == 'revoked' %}
+										<span class="badge rounded-pill px-2 py-1 badge-unverified">Révoquée</span>
+									{% elseif invitation.isExpired %}
+										<span class="badge rounded-pill px-2 py-1 badge-unverified">Expirée</span>
+										<div class="text-muted small mt-1">le {{ invitation.expiresAt|date('d/m/Y') }}</div>
+									{% else %}
+										<span class="badge rounded-pill px-2 py-1 badge-budget">En attente</span>
+										<div class="text-muted small mt-1">jusqu'au {{ invitation.expiresAt|date('d/m/Y') }}</div>
+									{% endif %}
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="5">
+									<div class="empty-state text-center">
+										<p class="text-secondary mb-0">Aucune invitation envoyée depuis ce compte.</p>
+									</div>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		{# ─── Informations du compte ─── #}
 		<div class="card admin-table-card shadow-sm">
 			<div class="card-header">
 				<span class="fw-semibold text-dark">Informations du compte</span>
@@ -54,11 +319,11 @@
 						</tr>
 						<tr>
 							<th class="text-secondary fw-normal">Prénom</th>
-							<td class="fw-medium text-dark">{{ user.firstname }}</td>
+							<td class="fw-medium text-dark">{{ user.firstname ?: '—' }}</td>
 						</tr>
 						<tr>
 							<th class="text-secondary fw-normal">Nom</th>
-							<td class="fw-medium text-dark">{{ user.lastname }}</td>
+							<td class="fw-medium text-dark">{{ user.lastname ?: '—' }}</td>
 						</tr>
 						<tr>
 							<th class="text-secondary fw-normal">Email</th>
@@ -67,34 +332,11 @@
 							</td>
 						</tr>
 						<tr>
-							<th class="text-secondary fw-normal">Rôles</th>
-							<td>
-								{% for role in user.roles %}
-									{% if role == 'ROLE_ADMIN' %}
-										<span class="badge rounded-pill px-2 py-1 badge-role-admin">Admin</span>
-									{% elseif role == 'ROLE_SUPER_ADMIN' %}
-										<span class="badge rounded-pill px-2 py-1 badge-role-superadmin">Super Admin</span>
-									{% elseif role == 'ROLE_USER' %}
-										<span class="badge rounded-pill px-2 py-1 badge-role-user">Utilisateur</span>
-									{% else %}
-										<span class="badge rounded-pill px-2 py-1 badge-id">{{ role }}</span>
-									{% endif %}
-								{% endfor %}
-							</td>
-						</tr>
-						<tr>
-							<th class="text-secondary fw-normal">Compte vérifié</th>
-							<td>
-								{% if user.isVerified %}
-									<span class="badge rounded-pill px-2 py-1 badge-verified">
-										{{ ux_icon('lucide:check', { width: '12', height: '12', class: 'me-1' }) }}
-										Vérifié
-									</span>
-								{% else %}
-									<span class="badge rounded-pill px-2 py-1 badge-unverified">
-										{{ ux_icon('lucide:x', { width: '12', height: '12', class: 'me-1' }) }}
-										Non vérifié
-									</span>
+							<th class="text-secondary fw-normal">Inscrit le</th>
+							<td class="text-secondary">
+								{{ user.createdAt ? user.createdAt|date('d/m/Y') : '—' }}
+								{% if user.createdBy %}
+									<span class="text-muted small ms-2">— compte créé par {{ user.createdBy.firstname }} {{ user.createdBy.lastname }}</span>
 								{% endif %}
 							</td>
 						</tr>
@@ -109,7 +351,6 @@
 				{{ ux_icon('lucide:arrow-left', { width: '14', height: '14' }) }}
 				Retour à la liste
 			</a>
-			{{ include('admin/user/_delete_form.html.twig') }}
 		</div>
 
 	</div>

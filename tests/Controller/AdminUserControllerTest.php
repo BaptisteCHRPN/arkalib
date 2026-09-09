@@ -2,7 +2,9 @@
 
 namespace App\Tests\Controller;
 
+use App\Entity\Organization;
 use App\Entity\User;
+use App\Enum\OrganizationRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -98,5 +100,127 @@ final class AdminUserControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $this->assertSelectorTextContains('.empty-state', 'introuvable');
         $this->assertSelectorExists('.empty-state a[href="/admin/user"]');
+    }
+
+    private function createOrganization(string $name, string $slug): Organization
+    {
+        $organization = new Organization();
+        $organization->setName($name);
+        $organization->setSlug($slug);
+        $this->entityManager->persist($organization);
+        $this->entityManager->flush();
+
+        return $organization;
+    }
+
+    public function testTheFicheIsClosedToNonAdmins(): void
+    {
+        $target = $this->createUser('cible@example.com');
+        $this->client->loginUser($this->createUser('simple@example.com'));
+
+        $this->client->request('GET', '/admin/user/' . $target->getId());
+
+        $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testTheFicheListsTheOrganizationsTheAccountBelongsTo(): void
+    {
+        $this->loginAsAdmin();
+        $user = $this->createUser('marie@example.com', 'Marie', 'Dupont');
+
+        $assoX = $this->createOrganization('Asso X', 'asso-x');
+        $clubY = $this->createOrganization('Club Y', 'club-y');
+        $assoX->addUser($user, OrganizationRole::ADMIN);
+        $clubY->addUser($user, OrganizationRole::TREASURER);
+        $this->entityManager->flush();
+
+        $this->client->request('GET', '/admin/user/' . $user->getId());
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('body', 'Asso X');
+        $this->assertSelectorTextContains('body', 'Club Y');
+        $this->assertSelectorTextContains('body', 'Administrateur');
+        $this->assertSelectorTextContains('body', 'Trésorier');
+    }
+
+    /**
+     * Le chemin qui n'existait pas : de la réclamation vers les données du
+     * client, dans l'interface membre.
+     */
+    public function testEachOrganizationLinksIntoTheMemberInterface(): void
+    {
+        $this->loginAsAdmin();
+        $user = $this->createUser('marie@example.com', 'Marie', 'Dupont');
+        $organization = $this->createOrganization('Asso X', 'asso-x');
+        $organization->addUser($user, OrganizationRole::READER);
+        $this->entityManager->flush();
+
+        $this->client->request('GET', '/admin/user/' . $user->getId());
+
+        $this->assertSelectorExists('a[href="/asso-x/budgets"]');
+    }
+
+    public function testAnOrganizationLeftWithoutAnAdminIsFlagged(): void
+    {
+        $this->loginAsAdmin();
+        $user = $this->createUser('marie@example.com', 'Marie', 'Dupont');
+        $organization = $this->createOrganization('Orpheline', 'orpheline');
+        $organization->addUser($user, OrganizationRole::TREASURER);
+        $this->entityManager->flush();
+
+        $this->client->request('GET', '/admin/user/' . $user->getId());
+
+        $this->assertSelectorTextContains('body', 'Plus aucun administrateur');
+    }
+
+    public function testAnOrganizationWithAnAdminIsNotFlagged(): void
+    {
+        $this->loginAsAdmin();
+        $user = $this->createUser('marie@example.com', 'Marie', 'Dupont');
+        $organization = $this->createOrganization('Saine', 'saine');
+        $organization->addUser($user, OrganizationRole::ADMIN);
+        $this->entityManager->flush();
+
+        $this->client->request('GET', '/admin/user/' . $user->getId());
+
+        $this->assertSelectorTextNotContains('body', 'Plus aucun administrateur');
+    }
+
+    public function testAPendingEmailChangeIsVisible(): void
+    {
+        $this->loginAsAdmin();
+        $user = $this->createUser('ancienne@example.com', 'Marie', 'Dupont');
+        $user->setPendingEmail('nouvelle@example.com');
+        $user->setEmailChangeTokenExpiresAt(new \DateTimeImmutable('+2 hours'));
+        $this->entityManager->flush();
+
+        $this->client->request('GET', '/admin/user/' . $user->getId());
+
+        $this->assertSelectorTextContains('body', 'nouvelle@example.com');
+        $this->assertSelectorTextContains('body', 'Lien valable jusqu');
+    }
+
+    public function testAnUnverifiedAccountSaysWhyItCannotLogIn(): void
+    {
+        $this->loginAsAdmin();
+        $user = $this->createUser('jamais@example.com');
+
+        $this->client->request('GET', '/admin/user/' . $user->getId());
+
+        $this->assertSelectorTextContains('body', 'Non vérifié');
+        $this->assertSelectorTextContains('body', 'Inscription jamais confirmée');
+    }
+
+    public function testAnAccountWithoutHistoryShowsDashesRatherThanBlanks(): void
+    {
+        $this->loginAsAdmin();
+        $user = $this->createUser('vierge@example.com');
+
+        $this->client->request('GET', '/admin/user/' . $user->getId());
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorTextContains('body', "Ce compte n'appartient à aucune organisation");
+        $this->assertSelectorTextContains('body', 'Aucune invitation envoyée');
+        $this->assertSelectorTextContains('body', 'Aucune demande enregistrée');
     }
 }
