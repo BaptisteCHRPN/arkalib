@@ -38,9 +38,12 @@
         </tbody>
     </table>
 
-    <a href="{{ path('app_user_index') }}">back to list</a>
+    {# Ces deux liens pointaient vers le back-office : « back to list » vers la
+       liste de tous les comptes, « edit » vers le formulaire d'administration.
+       Un membre n'y a pas accès, il récoltait donc un 403 sur sa propre fiche. #}
+    <a href="{{ path('app_dashboard') }}">Retour au tableau de bord</a>
 
-    <a href="{{ path('app_user_edit', {'id': user.id}) }}">edit</a>
+    <a href="{{ path('app_member_user_edit', {'id': user.id}) }}">Modifier mon profil</a>
 
     {{ include('member/user/_delete_form.html.twig') }}
 {% endblock %}

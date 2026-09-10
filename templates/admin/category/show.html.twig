@@ -34,9 +34,9 @@
 				</div>
 			</div>
 			{% if category.budget and category.budget.organization %}
-				<a href="{{ path('app_category_index', {'organizationSlug': category.budget.organization.slug, 'budgetSlug': category.budget.slug}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+				<a href="{{ path('app_category_index', {'organizationSlug': category.budget.organization.slug, 'budgetSlug': category.budget.slug}) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
 					{{ ux_icon('lucide:external-link', { width: '14', height: '14' }) }}
-					Ouvrir dans l'interface membre
+					Ouvrir dans l'interface membre<span class="visually-hidden"> (nouvel onglet)</span>
 				</a>
 			{% endif %}
 		</div>
@@ -79,6 +79,8 @@
 				</table>
 			</div>
 		</div>
+
+		{{ include('admin/_traceability.html.twig', { entity: category }) }}
 
 		{# ─── Footer ─── #}
 		<div class="d-flex justify-content-between align-items-center mt-3 px-1">

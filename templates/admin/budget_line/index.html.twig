@@ -85,7 +85,9 @@
                             </span>
                         </td>
                         <td>
-                            <span class="text-secondary small">{{ budget_line.description|length > 40 ? budget_line.description|slice(0, 20) ~ '…' : budget_line.description }}</span>
+                            {# Le seuil et la coupe doivent coïncider : tester 40 pour couper
+                               à 20 amputait des descriptions qui tenaient déjà. #}
+                            <span class="text-secondary small">{{ budget_line.description|length > 40 ? budget_line.description|slice(0, 40) ~ '…' : budget_line.description }}</span>
                         </td>
                         <td>
                             <span class="text-secondary small">{{ budget_line.createdAt ? budget_line.createdAt|date('d/m/Y') : '—' }}</span>
@@ -131,7 +133,7 @@
                                     {{ ux_icon('gg:eye', { width: '16', height: '16', fill: 'none', stroke: 'currentColor' }) }}
                                 </a>
                                 {% if organization %}
-                                    <a href="{{ path('app_budget_line_show', {'organizationSlug': organization.slug, 'budgetSlug': budget_line.budget.slug, 'id': budget_line.id}) }}" class="btn-action btn-edit" title="Ouvrir dans l'interface membre">
+                                    <a href="{{ path('app_budget_line_show', {'organizationSlug': organization.slug, 'budgetSlug': budget_line.budget.slug, 'id': budget_line.id}) }}" target="_blank" rel="noopener" class="btn-action btn-edit" title="Ouvrir dans l'interface membre (nouvel onglet)">
                                         {{ ux_icon('lucide:external-link', { width: '16', height: '16', fill: 'none', stroke: 'currentColor' }) }}
                                     </a>
                                 {% endif %}

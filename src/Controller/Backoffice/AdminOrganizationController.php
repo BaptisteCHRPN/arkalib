@@ -5,12 +5,14 @@ namespace App\Controller\Backoffice;
 use App\Entity\Invitation;
 use App\Entity\Organization;
 use App\Entity\OrganizationMembership;
+use App\Repository\AdminActionLogRepository;
 use App\Repository\OrganizationMembershipRepository;
 use App\Repository\OrganizationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Annuaire des organisations, en lecture seule.
@@ -23,6 +25,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * la contrainte d'intégrité les rattrapait.
  */
 #[Route('/admin/organization')]
+#[IsGranted('ROLE_ADMIN')]
 final class AdminOrganizationController extends AbstractController
 {
     #[Route(name: 'app_admin_organization_index', methods: ['GET'])]
@@ -40,6 +43,7 @@ final class AdminOrganizationController extends AbstractController
     public function show(
         Organization $organization,
         OrganizationMembershipRepository $membershipRepository,
+        AdminActionLogRepository $actionLogRepository,
     ): Response {
         $memberships = $organization->getMemberships()->toArray();
         usort(
@@ -61,6 +65,7 @@ final class AdminOrganizationController extends AbstractController
             'memberships' => $memberships,
             'invitations' => $invitations,
             'adminCount' => $membershipRepository->countAdmins($organization),
+            'actionLogs' => $actionLogRepository->findForOrganization($organization),
         ]);
     }
 }

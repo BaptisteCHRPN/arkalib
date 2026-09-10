@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Annuaire des lignes budgétaires, en lecture seule.
@@ -17,6 +18,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * contrôles d'appartenance. Un second chemin d'écriture ici les contournerait.
  */
 #[Route('/admin/budgetline')]
+#[IsGranted('ROLE_ADMIN')]
 final class AdminBudgetLineController extends AbstractController
 {
     #[Route(name: 'app_admin_budget_line_index', methods: ['GET'])]

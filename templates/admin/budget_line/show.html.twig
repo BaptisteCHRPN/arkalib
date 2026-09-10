@@ -34,9 +34,9 @@
 				</div>
 			</div>
 			{% if budget_line.budget and budget_line.budget.organization %}
-				<a href="{{ path('app_budget_line_show', {'organizationSlug': budget_line.budget.organization.slug, 'budgetSlug': budget_line.budget.slug, 'id': budget_line.id}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+				<a href="{{ path('app_budget_line_show', {'organizationSlug': budget_line.budget.organization.slug, 'budgetSlug': budget_line.budget.slug, 'id': budget_line.id}) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
 					{{ ux_icon('lucide:external-link', { width: '14', height: '14' }) }}
-					Ouvrir dans l'interface membre
+					Ouvrir dans l'interface membre<span class="visually-hidden"> (nouvel onglet)</span>
 				</a>
 			{% endif %}
 		</div>
@@ -62,10 +62,19 @@
 						<tr>
 							<th class="text-secondary fw-normal">Type</th>
 							<td>
+								{# badge-expense / badge-income, pas les badges d'état : une
+								   dépense n'est pas une anomalie, et le rouge « non vérifié »
+								   la faisait lire comme telle. Même paire que sur l'annuaire. #}
 								{% if budget_line.isExpense %}
-									<span class="badge rounded-pill px-2 py-1 badge-unverified">Dépense</span>
+									<span class="badge rounded-pill px-2 py-1 badge-expense">
+										{{ ux_icon('lucide:arrow-up-right', { width: '12', height: '12', class: 'me-1' }) }}
+										Dépense
+									</span>
 								{% else %}
-									<span class="badge rounded-pill px-2 py-1 badge-verified">Recette</span>
+									<span class="badge rounded-pill px-2 py-1 badge-income">
+										{{ ux_icon('lucide:arrow-down-left', { width: '12', height: '12', class: 'me-1' }) }}
+										Recette
+									</span>
 								{% endif %}
 							</td>
 						</tr>
@@ -101,14 +110,12 @@
 								{% endif %}
 							</td>
 						</tr>
-						<tr>
-							<th class="text-secondary fw-normal">Créée le</th>
-							<td class="text-secondary">{{ budget_line.createdAt ? budget_line.createdAt|date('d/m/Y') : '—' }}</td>
-						</tr>
 					</tbody>
 				</table>
 			</div>
 		</div>
+
+		{{ include('admin/_traceability.html.twig', { entity: budget_line }) }}
 
 		{# ─── Footer ─── #}
 		<div class="d-flex justify-content-between align-items-center mt-3 px-1">

@@ -1,0 +1,136 @@
+{% import 'macros/avatar.html.twig' as avatarMacros %}
+{% extends 'user_base.html.twig' %}
+
+{% block stylesheets %}
+	{{ include('admin/_stylesheets.html.twig') }}
+{% endblock %}
+
+{% block title %}Journal des interventions{% endblock %}
+
+{% block body %}
+	<div class="container py-4 py-md-5">
+
+		{# ─── Breadcrumb ─── #}
+		<nav aria-label="breadcrumb" class="mb-3">
+			<ol class="breadcrumb mb-0 small">
+				<li class="breadcrumb-item">
+					<a href="{{ path('app_back_office') }}">Administration</a>
+				</li>
+				<li class="breadcrumb-item active" aria-current="page">Journal</li>
+			</ol>
+		</nav>
+
+		{# ─── Header ─── #}
+		<div class="mb-4">
+			<h1 class="fw-bold fs-2 mb-1">Journal des interventions</h1>
+			<p class="text-secondary mb-0">
+				Ce que les administrateurs ont fait en dehors de leurs propres organisations.
+			</p>
+		</div>
+
+		{# ─── Table Card ─── #}
+		<div class="card admin-table-card shadow-sm">
+			<div class="card-header d-flex align-items-center gap-2">
+				{{ ux_icon('lucide:history', { width: '16', height: '16' }) }}
+				<span class="fw-semibold text-dark">200 dernières interventions</span>
+				<span class="count-badge">{{ logs|length }}</span>
+			</div>
+			<div class="table-responsive">
+				<table class="table admin-table mb-0">
+					<thead>
+						<tr>
+							<th>Date</th>
+							<th>Qui</th>
+							<th>Action</th>
+							<th>Organisation</th>
+							<th>Objet</th>
+							<th>Résultat</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for log in logs %}
+							<tr>
+								<td>
+									<span class="text-secondary small">{{ log.performedAt|date('d/m/Y à H:i') }}</span>
+								</td>
+								<td>
+									{% if log.actor %}
+										<div class="d-flex align-items-center gap-2">
+											{{ avatarMacros.user_avatar(log.actor.picture, log.actor.email, 28) }}
+											<a href="{{ path('app_admin_user_show', {'id': log.actor.id}) }}" class="fw-medium text-dark text-decoration-none">
+												{%- if log.actor.firstname or log.actor.lastname -%}
+													{{ log.actor.firstname }} {{ log.actor.lastname }}
+												{%- else -%}
+													{{ log.actor.email }}
+												{%- endif -%}
+											</a>
+										</div>
+									{% else %}
+										<span class="text-secondary small">Compte supprimé</span>
+									{% endif %}
+								</td>
+								<td class="fw-medium text-dark">{{ log.action }}</td>
+								<td>
+									{% if log.organizationName %}
+										{# On teste l'identifiant, pas seulement la présence de l'objet :
+										   selon que la base fait respecter ou non le ON DELETE SET NULL,
+										   une organisation supprimée laisse ici soit null, soit un
+										   mandataire Doctrine qui ne s'initialisera jamais. Le journal
+										   doit rester lisible dans les deux cas. #}
+										{% if log.organization is not null and log.organization.id is not null %}
+											<a href="{{ path('app_admin_organization_show', {'id': log.organization.id}) }}" class="text-decoration-none">
+												<span class="badge badge-org rounded-pill px-2 py-1">{{ log.organizationName }}</span>
+											</a>
+										{% else %}
+											<span class="badge badge-org rounded-pill px-2 py-1">{{ log.organizationName }}</span>
+											<span class="text-muted small ms-1">(supprimée)</span>
+										{% endif %}
+									{% else %}
+										<span class="text-secondary small">—</span>
+									{% endif %}
+								</td>
+								<td>
+									<span class="text-secondary small">{{ log.target ?: '—' }}</span>
+								</td>
+								<td>
+									{% if log.wasRefused %}
+										<span class="badge rounded-pill px-2 py-1 badge-unverified">
+											{{ ux_icon('lucide:x', { width: '12', height: '12', class: 'me-1' }) }}
+											Refusée ({{ log.statusCode }})
+										</span>
+									{% else %}
+										<span class="badge rounded-pill px-2 py-1 badge-verified">
+											{{ ux_icon('lucide:check', { width: '12', height: '12', class: 'me-1' }) }}
+											Effectuée
+										</span>
+									{% endif %}
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="6">
+									<div class="empty-state text-center">
+										{{ ux_icon('lucide:history', { width: '48', height: '48', 'stroke-width': '1', class: 'mb-3' }) }}
+										<p class="text-secondary mb-2 fw-medium">Aucune intervention enregistrée</p>
+										<p class="text-muted small mb-0">
+											Le journal ne retient que les actions menées hors de vos propres organisations.
+										</p>
+									</div>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		{# ─── Footer ─── #}
+		<div class="d-flex justify-content-between align-items-center mt-3 px-1">
+			<a href="{{ path('app_back_office') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+				{{ ux_icon('lucide:arrow-left', { width: '14', height: '14' }) }}
+				Retour au tableau de bord
+			</a>
+		</div>
+
+	</div>
+{% endblock %}

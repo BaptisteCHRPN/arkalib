@@ -29,7 +29,7 @@
 				<h1 class="fw-bold fs-2 mb-1">Utilisateurs</h1>
 				<p class="text-secondary mb-0">Gestion des comptes, rôles et permissions</p>
 			</div>
-			<a href="{{ path('app_user_new') }}" class="btn btn-create text-white d-inline-flex align-items-center gap-2">
+			<a href="{{ path('app_admin_user_new') }}" class="btn btn-create text-white d-inline-flex align-items-center gap-2">
 				{{ ux_icon('lucide:plus', {
 				    width: '18',
 				    height: '18'
@@ -50,7 +50,7 @@
 				</div>
 
 				{{ include('admin/_search_form.html.twig', {
-					route: 'app_user_index',
+					route: 'app_admin_user_index',
 					label: 'Rechercher un utilisateur par nom ou adresse e-mail',
 					placeholder: 'Nom ou e-mail...',
 				}) }}
@@ -128,7 +128,7 @@
                                         stroke: 'currentColor'
                                     }) }}
 										</a>
-										<a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn-action btn-edit" title="Modifier">
+										<a href="{{ path('app_admin_user_edit', {'id': user.id}) }}" class="btn-action btn-edit" title="Modifier">
 											{{ ux_icon('lucide:edit', {
                                         width: '16',
                                         height: '16',
@@ -152,14 +152,14 @@
 										{% if search %}
 											<p class="text-secondary mb-2 fw-medium">Aucun compte ne correspond à « {{ search }} »</p>
 											<p class="text-muted small mb-3">La recherche porte sur l'adresse e-mail, le prénom et le nom.</p>
-											<a href="{{ path('app_user_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+											<a href="{{ path('app_admin_user_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
 												{{ ux_icon('lucide:arrow-left', { width: '16', height: '16' }) }}
 												Voir tous les utilisateurs
 											</a>
 										{% else %}
 											<p class="text-secondary mb-2 fw-medium">Aucun utilisateur trouvé</p>
 											<p class="text-muted small mb-3">Commencez par créer votre premier utilisateur.</p>
-											<a href="{{ path('app_user_new') }}" class="btn btn-sm btn-create text-white d-inline-flex align-items-center gap-2">
+											<a href="{{ path('app_admin_user_new') }}" class="btn btn-sm btn-create text-white d-inline-flex align-items-center gap-2">
 												{{ ux_icon('lucide:plus', {
 												    width: '16',
 												    height: '16'

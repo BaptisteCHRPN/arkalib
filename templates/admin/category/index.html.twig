@@ -84,7 +84,7 @@
                                     }) }}
                                 </a>
                                 {% if organization %}
-                                    <a href="{{ path('app_category_index', {'organizationSlug': organization.slug, 'budgetSlug': category.budget.slug}) }}" class="btn-action btn-edit" title="Ouvrir les catégories dans l'interface membre">
+                                    <a href="{{ path('app_category_index', {'organizationSlug': organization.slug, 'budgetSlug': category.budget.slug}) }}" target="_blank" rel="noopener" class="btn-action btn-edit" title="Ouvrir les catégories dans l'interface membre (nouvel onglet)">
                                         {{ ux_icon('lucide:external-link', {
                                             width: '16',
                                             height: '16',

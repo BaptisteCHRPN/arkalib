@@ -17,16 +17,22 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use SymfonyCasts\Bundle\ResetPassword\Exception\ResetPasswordExceptionInterface;
 
-#[Route('admin/user')]
+/**
+ * Le rôle est déclaré une fois sur la classe plutôt que répété dans chacune
+ * des huit méthodes. `access_control` couvre déjà `^/admin`, mais l'écrire ici
+ * garde la garantie attachée au contrôleur : elle survivrait à un déplacement
+ * de ces routes hors du préfixe.
+ */
+#[Route('/admin/user')]
+#[IsGranted('ROLE_ADMIN')]
 final class UserController extends AbstractController
 {
-    #[Route(name: 'app_user_index', methods: ['GET'])]
+    #[Route(name: 'app_admin_user_index', methods: ['GET'])]
     public function index(Request $request, UserRepository $userRepository): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         $search = $request->query->getString('q');
 
         return $this->render('admin/user/index.html.twig', [
@@ -35,14 +41,12 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_user_new', methods: ['GET', 'POST'])]
+    #[Route('/new', name: 'app_admin_user_new', methods: ['GET', 'POST'])]
     public function new(
         Request $request,
         EntityManagerInterface $entityManager,
         PasswordResetMailer $passwordResetMailer,
     ): Response {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         $user = new User();
         $form = $this->createForm(AdminUserCreationType::class, $user);
         $form->handleRequest($request);
@@ -101,8 +105,6 @@ final class UserController extends AbstractController
         ResetPasswordRequestRepository $resetPasswordRequestRepository,
         AccountAnonymizer $anonymizer,
     ): Response {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         // Le nombre d'administrateurs est compté ici plutôt que dans le
         // template : une organisation qui n'en a plus est un état cassé qu'il
         // faut voir depuis la fiche de n'importe lequel de ses membres.
@@ -141,11 +143,9 @@ final class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/admin/{id}/edit', name: 'app_user_edit', methods: ['GET', 'POST'])]
+    #[Route('/{id}/edit', name: 'app_admin_user_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         $form = $this->createForm(UserType::class, $user);
         $form->handleRequest($request);
 
@@ -165,7 +165,7 @@ final class UserController extends AbstractController
         
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_admin_user_index', [], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('admin/user/edit.html.twig', [
@@ -177,8 +177,6 @@ final class UserController extends AbstractController
     #[Route('/{id}/renvoyer-verification', name: 'app_admin_user_resend_verification', methods: ['POST'])]
     public function resendVerification(Request $request, User $user, EmailVerifier $emailVerifier): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         if (!$this->isCsrfTokenValid('resend_verification' . $user->getId(), $request->getPayload()->getString('_token'))) {
             throw $this->createAccessDeniedException();
         }
@@ -198,8 +196,6 @@ final class UserController extends AbstractController
     #[Route('/{id}/reinitialiser-mot-de-passe', name: 'app_admin_user_send_password_reset', methods: ['POST'])]
     public function sendPasswordReset(Request $request, User $user, PasswordResetMailer $passwordResetMailer): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         if (!$this->isCsrfTokenValid('password_reset' . $user->getId(), $request->getPayload()->getString('_token'))) {
             throw $this->createAccessDeniedException();
         }
@@ -219,8 +215,6 @@ final class UserController extends AbstractController
     #[Route('/{id}/role-admin', name: 'app_admin_user_toggle_admin', methods: ['POST'])]
     public function toggleAdmin(Request $request, User $user, EntityManagerInterface $entityManager): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         if (!$this->isCsrfTokenValid('toggle_admin' . $user->getId(), $request->getPayload()->getString('_token'))) {
             throw $this->createAccessDeniedException();
         }
@@ -249,8 +243,6 @@ final class UserController extends AbstractController
     #[Route('/{id}/anonymiser', name: 'app_admin_user_anonymize', methods: ['POST'])]
     public function anonymize(Request $request, User $user, AccountAnonymizer $anonymizer): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         if (!$this->isCsrfTokenValid('anonymize' . $user->getId(), $request->getPayload()->getString('_token'))) {
             throw $this->createAccessDeniedException();
         }
@@ -270,6 +262,6 @@ final class UserController extends AbstractController
             return $this->redirectToRoute('app_admin_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
-        return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+        return $this->redirectToRoute('app_admin_user_index', [], Response::HTTP_SEE_OTHER);
     }
 }

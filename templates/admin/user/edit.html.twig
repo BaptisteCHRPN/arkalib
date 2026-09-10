@@ -16,7 +16,7 @@
 					<a href="{{ path('app_back_office') }}">Administration</a>
 				</li>
 				<li class="breadcrumb-item">
-					<a href="{{ path('app_user_index') }}">Utilisateurs</a>
+					<a href="{{ path('app_admin_user_index') }}">Utilisateurs</a>
 				</li>
 				<li class="breadcrumb-item">
 					<a href="{{ path('app_admin_user_show', {'id': user.id}) }}">{{ user.firstname }} {{ user.lastname }}</a>
@@ -44,7 +44,7 @@
 		{# L'effacement d'un compte vit sur la fiche, pas ici : c'est une
 		   anonymisation irréversible, pas la contrepartie d'un formulaire. #}
 		<div class="d-flex justify-content-between align-items-center mt-3 px-1">
-			<a href="{{ path('app_user_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+			<a href="{{ path('app_admin_user_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
 				{{ ux_icon('lucide:arrow-left', { width: '14', height: '14' }) }}
 				Retour à la liste
 			</a>

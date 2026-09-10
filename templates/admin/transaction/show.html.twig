@@ -38,9 +38,9 @@
 			{% set line = transaction.budgetLine|first %}
 			{% set budget = line ? line.budget : null %}
 			{% if budget and budget.organization %}
-				<a href="{{ path('app_member_transaction_show', {'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug, 'id': transaction.id}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+				<a href="{{ path('app_member_transaction_show', {'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug, 'id': transaction.id}) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
 					{{ ux_icon('lucide:external-link', { width: '14', height: '14' }) }}
-					Ouvrir dans l'interface membre
+					Ouvrir dans l'interface membre<span class="visually-hidden"> (nouvel onglet)</span>
 				</a>
 			{% endif %}
 		</div>
@@ -95,14 +95,12 @@
 								{% endif %}
 							</td>
 						</tr>
-						<tr>
-							<th class="text-secondary fw-normal">Créée le</th>
-							<td class="text-secondary">{{ transaction.createdAt ? transaction.createdAt|date('d/m/Y') : '—' }}</td>
-						</tr>
 					</tbody>
 				</table>
 			</div>
 		</div>
+
+		{{ include('admin/_traceability.html.twig', { entity: transaction }) }}
 
 		{# ─── Footer ─── #}
 		<div class="d-flex justify-content-between align-items-center mt-3 px-1">

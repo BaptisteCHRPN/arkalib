@@ -8,6 +8,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 /**
  * Annuaire des budgets, en lecture seule.
@@ -18,6 +19,7 @@ use Symfony\Component\Routing\Attribute\Route;
  * l'interface membre, où ROLE_ADMIN accède déjà à toutes les organisations.
  */
 #[Route('/admin/budget')]
+#[IsGranted('ROLE_ADMIN')]
 final class AdminBudgetController extends AbstractController
 {
     #[Route(name: 'app_admin_budget_index', methods: ['GET'])]

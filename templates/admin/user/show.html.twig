@@ -17,7 +17,7 @@
 					<a href="{{ path('app_back_office') }}">Administration</a>
 				</li>
 				<li class="breadcrumb-item">
-					<a href="{{ path('app_user_index') }}">Utilisateurs</a>
+					<a href="{{ path('app_admin_user_index') }}">Utilisateurs</a>
 				</li>
 				<li class="breadcrumb-item active" aria-current="page">{{ user.firstname }} {{ user.lastname }}</li>
 			</ol>
@@ -38,7 +38,7 @@
 					<p class="text-secondary mb-0">{{ user.email }}</p>
 				</div>
 			</div>
-			<a href="{{ path('app_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+			<a href="{{ path('app_admin_user_edit', {'id': user.id}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
 				{{ ux_icon('lucide:edit', { width: '14', height: '14' }) }}
 				Modifier
 			</a>
@@ -217,7 +217,7 @@
 								</td>
 								<td class="text-end">
 									<div class="d-inline-flex gap-2">
-										<a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}" class="btn-action btn-show" title="Ouvrir en tant que membre">
+										<a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}" target="_blank" rel="noopener" class="btn-action btn-show" title="Ouvrir en tant que membre (nouvel onglet)">
 											{{ ux_icon('lucide:external-link', { width: '16', height: '16', fill: 'none', stroke: 'currentColor' }) }}
 										</a>
 										<a href="{{ path('app_admin_organization_show', {'id': organization.id}) }}" class="btn-action btn-edit" title="Fiche d'administration">
@@ -331,19 +331,12 @@
 								<span class="text-secondary">{{ user.email }}</span>
 							</td>
 						</tr>
-						<tr>
-							<th class="text-secondary fw-normal">Inscrit le</th>
-							<td class="text-secondary">
-								{{ user.createdAt ? user.createdAt|date('d/m/Y') : '—' }}
-								{% if user.createdBy %}
-									<span class="text-muted small ms-2">— compte créé par {{ user.createdBy.firstname }} {{ user.createdBy.lastname }}</span>
-								{% endif %}
-							</td>
-						</tr>
 					</tbody>
 				</table>
 			</div>
 		</div>
+
+		{{ include('admin/_traceability.html.twig', { entity: user, createdLabel: 'Inscription' }) }}
 
 		{# ─── Actions de dépannage ───────────────────────────────────────────
 		   Les trois premières sont réversibles et se déclenchent sans crainte.
@@ -431,7 +424,7 @@
 
 		{# ─── Footer ─── #}
 		<div class="d-flex justify-content-between align-items-center mt-3 px-1">
-			<a href="{{ path('app_user_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+			<a href="{{ path('app_admin_user_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
 				{{ ux_icon('lucide:arrow-left', { width: '14', height: '14' }) }}
 				Retour à la liste
 			</a>
