@@ -23,7 +23,7 @@ final class AdminReadOnlyControllersTest extends WebTestCase
      */
     public static function writeRouteProvider(): iterable
     {
-        foreach (['budget', 'budget_line', 'category', 'transaction'] as $entity) {
+        foreach (['budget', 'budget_line', 'category', 'transaction', 'organization'] as $entity) {
             foreach (['new', 'edit', 'delete'] as $verb) {
                 $route = 'app_admin_' . $entity . '_' . $verb;
 
@@ -53,6 +53,7 @@ final class AdminReadOnlyControllersTest extends WebTestCase
         yield 'lignes budgétaires' => ['/admin/budgetline'];
         yield 'catégories' => ['/admin/category'];
         yield 'transactions' => ['/admin/transaction'];
+        yield 'organisations' => ['/admin/organization'];
     }
 
     #[DataProvider('readRouteProvider')]

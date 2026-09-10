@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\User;
 use App\Entity\Organization;
+use App\Repository\Trait\SearchesTextFieldsTrait;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 
@@ -12,9 +13,23 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
  */
 class OrganizationRepository extends ServiceEntityRepository
 {
+    use SearchesTextFieldsTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Organization::class);
+    }
+
+    /**
+     * Recherche une organisation par nom, slug ou description.
+     *
+     * @return Organization[]
+     */
+    public function search(?string $term): array
+    {
+        return $this->searchQueryBuilder($term, ['name', 'slug', 'description'], 'o')
+            ->getQuery()
+            ->getResult();
     }
 
    public function findOrganizationsByUser(User $user): array

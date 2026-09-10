@@ -1,3 +1,4 @@
+{% import 'macros/avatar.html.twig' as avatarMacros %}
 {% extends 'user_base.html.twig' %}
 
 {% block stylesheets %}
@@ -34,16 +35,257 @@
 				</div>
 				<div>
 					<h1 class="fw-bold fs-2 mb-1">{{ organization.name }}</h1>
-					<p class="text-secondary mb-0">{{ organization.slug }}</p>
+					<p class="text-secondary mb-0">
+						{{ organization.slug }}
+						{% if not organization.isActive %}
+							<span class="badge rounded-pill px-2 py-1 badge-unverified ms-2">Inactive</span>
+						{% endif %}
+					</p>
 				</div>
 			</div>
-			<a href="{{ path('app_admin_organization_edit', {'id': organization.id}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
-				{{ ux_icon('lucide:edit', { width: '14', height: '14' }) }}
-				Modifier
+			<a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+				{{ ux_icon('lucide:external-link', { width: '14', height: '14' }) }}
+				Ouvrir dans l'interface membre
 			</a>
 		</div>
 
-		{# ─── Detail Card ─── #}
+		{# ─── Alerte : organisation sans pilote ─── #}
+		{% if adminCount == 0 %}
+			<div class="card admin-table-card shadow-sm mb-4">
+				<div class="card-body p-4 d-flex align-items-start gap-2 text-danger">
+					{{ ux_icon('lucide:triangle-alert', { width: '20', height: '20', class: 'flex-shrink-0 mt-1' }) }}
+					<div>
+						<p class="fw-semibold mb-1">Cette organisation n'a plus aucun administrateur</p>
+						<p class="small mb-0 text-secondary">
+							Personne ne peut plus y inviter de membre, changer les rôles ni modifier
+							l'organisation. Promouvez un membre depuis la page des membres.
+						</p>
+					</div>
+				</div>
+			</div>
+		{% endif %}
+
+		{# ─── Membres ─── #}
+		<div class="card admin-table-card shadow-sm mb-4">
+			<div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
+				<div class="d-flex align-items-center gap-2">
+					{{ ux_icon('heroicons:users', { width: '16', height: '16' }) }}
+					<span class="fw-semibold text-dark">Membres</span>
+					<span class="count-badge">{{ memberships|length }}</span>
+				</div>
+				<a href="{{ path('app_member_membership_list', {'organizationSlug': organization.slug}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+					{{ ux_icon('lucide:external-link', { width: '14', height: '14' }) }}
+					Gérer les membres
+				</a>
+			</div>
+			<div class="table-responsive">
+				<table class="table admin-table mb-0">
+					<thead>
+						<tr>
+							<th>Personne</th>
+							<th>Rôle</th>
+							<th>Membre depuis</th>
+							<th>Ajouté par</th>
+							<th class="text-end">Fiche</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for membership in memberships %}
+							{% set member = membership.user %}
+							<tr>
+								<td>
+									<div class="d-flex align-items-center gap-2">
+										{{ avatarMacros.user_avatar(member.picture, member.email, 32) }}
+										<div>
+											<span class="fw-medium text-dark">
+												{%- if member.firstname or member.lastname -%}
+													{{ member.firstname }} {{ member.lastname }}
+												{%- else -%}
+													Compte sans nom
+												{%- endif -%}
+											</span>
+											<div class="text-secondary small">{{ member.email }}</div>
+										</div>
+									</div>
+								</td>
+								<td>
+									{% if membership.role.value == 'admin' %}
+										<span class="badge rounded-pill px-2 py-1 badge-role-admin">{{ membership.role.label }}</span>
+									{% elseif membership.role.value == 'treasurer' %}
+										<span class="badge rounded-pill px-2 py-1 badge-budget">{{ membership.role.label }}</span>
+									{% else %}
+										<span class="badge rounded-pill px-2 py-1 badge-role-user">{{ membership.role.label }}</span>
+									{% endif %}
+								</td>
+								<td>
+									<span class="text-secondary small">{{ membership.createdAt ? membership.createdAt|date('d/m/Y') : '—' }}</span>
+								</td>
+								<td>
+									<span class="text-secondary small">
+										{%- if membership.createdBy is null -%}
+											—
+										{%- elseif membership.createdBy.id == member.id -%}
+											Elle-même / lui-même
+										{%- else -%}
+											{{ membership.createdBy.firstname }} {{ membership.createdBy.lastname }}
+										{%- endif -%}
+									</span>
+								</td>
+								<td class="text-end">
+									<a href="{{ path('app_admin_user_show', {'id': member.id}) }}" class="btn-action btn-show" title="Voir la fiche du compte">
+										{{ ux_icon('gg:eye', { width: '16', height: '16', fill: 'none', stroke: 'currentColor' }) }}
+									</a>
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="5">
+									<div class="empty-state text-center">
+										{{ ux_icon('heroicons:users', { width: '48', height: '48', 'stroke-width': '1', class: 'mb-3' }) }}
+										<p class="text-secondary mb-2 fw-medium">Aucun membre</p>
+										<p class="text-muted small mb-0">Cette organisation est inaccessible à tout le monde.</p>
+									</div>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		{# ─── Budgets ─── #}
+		<div class="card admin-table-card shadow-sm mb-4">
+			<div class="card-header d-flex align-items-center gap-2">
+				{{ ux_icon('heroicons:banknotes', { width: '16', height: '16' }) }}
+				<span class="fw-semibold text-dark">Budgets</span>
+				<span class="count-badge">{{ organization.budgets|length }}</span>
+			</div>
+			<div class="table-responsive">
+				<table class="table admin-table mb-0">
+					<thead>
+						<tr>
+							<th>Nom</th>
+							<th>Période</th>
+							<th>Lignes</th>
+							<th>État</th>
+							<th class="text-end">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for budget in organization.budgets %}
+							<tr>
+								<td class="fw-medium text-dark">{{ budget.name }}</td>
+								<td>
+									<span class="text-secondary small">
+										{{ budget.startDate ? budget.startDate|date('d/m/Y') : '—' }}
+										→
+										{{ budget.endDate ? budget.endDate|date('d/m/Y') : '—' }}
+									</span>
+								</td>
+								<td>
+									<span class="text-secondary small">{{ budget.budgetLine|length }}</span>
+								</td>
+								<td>
+									{% if budget.isClosed %}
+										<span class="badge rounded-pill px-2 py-1 badge-unverified">
+											{{ ux_icon('lucide:lock', { width: '12', height: '12', class: 'me-1' }) }}
+											Clôturé
+										</span>
+									{% else %}
+										<span class="badge rounded-pill px-2 py-1 badge-verified">
+											{{ ux_icon('lucide:lock-open', { width: '12', height: '12', class: 'me-1' }) }}
+											Ouvert
+										</span>
+									{% endif %}
+								</td>
+								<td class="text-end">
+									<div class="d-inline-flex gap-2">
+										<a href="{{ path('app_admin_budget_show', {'id': budget.id}) }}" class="btn-action btn-show" title="Voir la fiche">
+											{{ ux_icon('gg:eye', { width: '16', height: '16', fill: 'none', stroke: 'currentColor' }) }}
+										</a>
+										<a href="{{ path('app_membre_budget_show', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" class="btn-action btn-edit" title="Ouvrir dans l'interface membre">
+											{{ ux_icon('lucide:external-link', { width: '16', height: '16', fill: 'none', stroke: 'currentColor' }) }}
+										</a>
+									</div>
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="5">
+									<div class="empty-state text-center">
+										{{ ux_icon('heroicons:banknotes', { width: '48', height: '48', 'stroke-width': '1', class: 'mb-3' }) }}
+										<p class="text-secondary mb-0">Aucun budget dans cette organisation.</p>
+									</div>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		{# ─── Invitations ─── #}
+		<div class="card admin-table-card shadow-sm mb-4">
+			<div class="card-header d-flex align-items-center gap-2">
+				{{ ux_icon('lucide:mail', { width: '16', height: '16' }) }}
+				<span class="fw-semibold text-dark">Invitations</span>
+				<span class="count-badge">{{ invitations|length }}</span>
+			</div>
+			<div class="table-responsive">
+				<table class="table admin-table mb-0">
+					<thead>
+						<tr>
+							<th>Destinataire</th>
+							<th>Rôle proposé</th>
+							<th>Invité par</th>
+							<th>Envoyée le</th>
+							<th>Statut</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for invitation in invitations %}
+							<tr>
+								<td class="fw-medium text-dark">{{ invitation.email }}</td>
+								<td>
+									<span class="text-secondary small">{{ invitation.role.label }}</span>
+								</td>
+								<td>
+									<span class="text-secondary small">
+										{{ invitation.invitedBy ? invitation.invitedBy.firstname ~ ' ' ~ invitation.invitedBy.lastname : '—' }}
+									</span>
+								</td>
+								<td>
+									<span class="text-secondary small">{{ invitation.createdAt|date('d/m/Y') }}</span>
+								</td>
+								<td>
+									{% if invitation.status == 'accepted' %}
+										<span class="badge rounded-pill px-2 py-1 badge-verified">Acceptée</span>
+									{% elseif invitation.status == 'revoked' %}
+										<span class="badge rounded-pill px-2 py-1 badge-unverified">Révoquée</span>
+									{% elseif invitation.isExpired %}
+										<span class="badge rounded-pill px-2 py-1 badge-unverified">Expirée</span>
+										<div class="text-muted small mt-1">le {{ invitation.expiresAt|date('d/m/Y') }}</div>
+									{% else %}
+										<span class="badge rounded-pill px-2 py-1 badge-budget">En attente</span>
+										<div class="text-muted small mt-1">jusqu'au {{ invitation.expiresAt|date('d/m/Y') }}</div>
+									{% endif %}
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="5">
+									<div class="empty-state text-center">
+										<p class="text-secondary mb-0">Aucune invitation envoyée pour cette organisation.</p>
+									</div>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		{# ─── Informations ─── #}
 		<div class="card admin-table-card shadow-sm">
 			<div class="card-header">
 				<span class="fw-semibold text-dark">Informations de l'organisation</span>
@@ -67,7 +309,7 @@
 						</tr>
 						<tr>
 							<th class="text-secondary fw-normal">Description</th>
-							<td class="text-secondary">{{ organization.description ?? '—' }}</td>
+							<td class="text-secondary">{{ organization.description ?: '—' }}</td>
 						</tr>
 						<tr>
 							<th class="text-secondary fw-normal">Statut</th>
@@ -87,15 +329,12 @@
 						</tr>
 						<tr>
 							<th class="text-secondary fw-normal">Créée le</th>
-							<td class="text-secondary">{{ organization.createdAt ? organization.createdAt|date('d/m/Y') : '—' }}</td>
-						</tr>
-						<tr>
-							<th class="text-secondary fw-normal">Membres</th>
-							<td class="text-secondary">{{ organization.users|length }}</td>
-						</tr>
-						<tr>
-							<th class="text-secondary fw-normal">Budgets</th>
-							<td class="text-secondary">{{ organization.budgets|length }}</td>
+							<td class="text-secondary">
+								{{ organization.createdAt ? organization.createdAt|date('d/m/Y') : '—' }}
+								{% if organization.createdBy %}
+									<span class="text-muted small ms-2">— par {{ organization.createdBy.firstname }} {{ organization.createdBy.lastname }}</span>
+								{% endif %}
+							</td>
 						</tr>
 					</tbody>
 				</table>
@@ -103,12 +342,13 @@
 		</div>
 
 		{# ─── Footer ─── #}
+		{# Pas de suppression ici : elle vit côté membre, où le filtre
+		   soft_delete est désactivé le temps d'emporter les budgets en corbeille. #}
 		<div class="d-flex justify-content-between align-items-center mt-3 px-1">
 			<a href="{{ path('app_admin_organization_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
 				{{ ux_icon('lucide:arrow-left', { width: '14', height: '14' }) }}
 				Retour à la liste
 			</a>
-			{{ include('admin/organization/_delete_form.html.twig') }}
 		</div>
 
 	</div>
