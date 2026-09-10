@@ -217,7 +217,7 @@
 								</td>
 								<td class="text-end">
 									<div class="d-inline-flex gap-2">
-										<a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}" class="btn-action btn-show" title="Ouvrir en tant que membre">
+										<a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}" target="_blank" rel="noopener" class="btn-action btn-show" title="Ouvrir en tant que membre (nouvel onglet)">
 											{{ ux_icon('lucide:external-link', { width: '16', height: '16', fill: 'none', stroke: 'currentColor' }) }}
 										</a>
 										<a href="{{ path('app_admin_organization_show', {'id': organization.id}) }}" class="btn-action btn-edit" title="Fiche d'administration">

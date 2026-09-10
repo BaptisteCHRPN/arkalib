@@ -43,9 +43,9 @@
 					</p>
 				</div>
 			</div>
-			<a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+			<a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
 				{{ ux_icon('lucide:external-link', { width: '14', height: '14' }) }}
-				Ouvrir dans l'interface membre
+				Ouvrir dans l'interface membre<span class="visually-hidden"> (nouvel onglet)</span>
 			</a>
 		</div>
 
@@ -73,9 +73,9 @@
 					<span class="fw-semibold text-dark">Membres</span>
 					<span class="count-badge">{{ memberships|length }}</span>
 				</div>
-				<a href="{{ path('app_member_membership_list', {'organizationSlug': organization.slug}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+				<a href="{{ path('app_member_membership_list', {'organizationSlug': organization.slug}) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
 					{{ ux_icon('lucide:external-link', { width: '14', height: '14' }) }}
-					Gérer les membres
+					Gérer les membres<span class="visually-hidden"> (nouvel onglet)</span>
 				</a>
 			</div>
 			<div class="table-responsive">
@@ -203,7 +203,7 @@
 										<a href="{{ path('app_admin_budget_show', {'id': budget.id}) }}" class="btn-action btn-show" title="Voir la fiche">
 											{{ ux_icon('gg:eye', { width: '16', height: '16', fill: 'none', stroke: 'currentColor' }) }}
 										</a>
-										<a href="{{ path('app_membre_budget_show', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" class="btn-action btn-edit" title="Ouvrir dans l'interface membre">
+										<a href="{{ path('app_membre_budget_show', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" target="_blank" rel="noopener" class="btn-action btn-edit" title="Ouvrir dans l'interface membre (nouvel onglet)">
 											{{ ux_icon('lucide:external-link', { width: '16', height: '16', fill: 'none', stroke: 'currentColor' }) }}
 										</a>
 									</div>

@@ -115,7 +115,7 @@
                                         stroke: 'currentColor'
                                     }) }}
 										</a>
-										<a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}" class="btn-action btn-edit" title="Ouvrir dans l'interface membre">
+										<a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}" target="_blank" rel="noopener" class="btn-action btn-edit" title="Ouvrir dans l'interface membre (nouvel onglet)">
 											{{ ux_icon('lucide:external-link', {
                                         width: '16',
                                         height: '16',
