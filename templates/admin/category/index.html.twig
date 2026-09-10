@@ -21,14 +21,8 @@
     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 mb-4">
         <div>
             <h1 class="fw-bold fs-2 mb-1">Catégories</h1>
-            <p class="text-secondary mb-0">Gestion des catégories de dépense et de recette</p>
+            <p class="text-secondary mb-0">Annuaire de toutes les catégories, toutes organisations confondues</p>
         </div>
-        <a href="{{ path('app_admin_category_new') }}" class="btn btn-create text-white d-inline-flex align-items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-            </svg>
-            Nouvelle catégorie
-        </a>
     </div>
 
     {# ─── Table Card ─── #}
@@ -68,13 +62,16 @@
                             </span>
                         </td>
                         <td>
-                            <span class="badge badge-org rounded-pill px-2 py-1">
-                                {{ category.budget.organization.name }}
-                            </span>
+                            {% set organization = category.budget.organization %}
+                            {% if organization %}
+                                <span class="badge badge-org rounded-pill px-2 py-1">{{ organization.name }}</span>
+                            {% else %}
+                                <span class="text-secondary small">—</span>
+                            {% endif %}
                         </td>
                         <td class="text-end">
                             <div class="d-inline-flex gap-2">
-                                <a href="{{ path('app_admin_category_show', {'id': category.id}) }}" class="btn-action btn-show" title="Voir">
+                                <a href="{{ path('app_admin_category_show', {'id': category.id}) }}" class="btn-action btn-show" title="Voir la fiche">
                                     {{ ux_icon('gg:eye', {
                                         width: '16',
                                         height: '16',
@@ -82,14 +79,16 @@
                                         stroke: 'currentColor'
                                     }) }}
                                 </a>
-                                <a href="{{ path('app_admin_category_edit', {'id': category.id}) }}" class="btn-action btn-edit" title="Modifier">
-                                    {{ ux_icon('lucide:edit', {
-                                        width: '16',
-                                        height: '16',
-                                        fill: 'none',
-                                        stroke: 'currentColor'
-                                    }) }}
-                                </a>
+                                {% if organization %}
+                                    <a href="{{ path('app_category_index', {'organizationSlug': organization.slug, 'budgetSlug': category.budget.slug}) }}" class="btn-action btn-edit" title="Ouvrir les catégories dans l'interface membre">
+                                        {{ ux_icon('lucide:external-link', {
+                                            width: '16',
+                                            height: '16',
+                                            fill: 'none',
+                                            stroke: 'currentColor'
+                                        }) }}
+                                    </a>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -97,18 +96,9 @@
                     <tr>
                         <td colspan="5">
                             <div class="empty-state text-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" class="mb-3">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z"/>
-                                </svg>
+                                {{ ux_icon('akar-icons:tag', { width: '48', height: '48', 'stroke-width': '1', class: 'mb-3' }) }}
                                 <p class="text-secondary mb-2 fw-medium">Aucune catégorie trouvée</p>
-                                <p class="text-muted small mb-3">Commencez par créer votre première catégorie.</p>
-                                <a href="{{ path('app_admin_category_new') }}" class="btn btn-sm btn-create text-white d-inline-flex align-items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-                                    </svg>
-                                    Créer une catégorie
-                                </a>
+                                <p class="text-muted small mb-0">Les catégories se créent depuis l'interface membre, dans un budget.</p>
                             </div>
                         </td>
                     </tr>
@@ -123,9 +113,7 @@
     <div class="d-flex justify-content-between align-items-center mt-3 px-1">
         <p class="small mb-0">{{ categories|length }} catégorie{{ categories|length > 1 ? 's' : '' }} au total</p>
         <a href="{{ path('app_back_office') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/>
-            </svg>
+            {{ ux_icon('lucide:arrow-left', { width: '14', height: '14' }) }}
             Retour au tableau de bord
         </a>
     </div>

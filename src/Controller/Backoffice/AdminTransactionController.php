@@ -3,14 +3,20 @@
 namespace App\Controller\Backoffice;
 
 use App\Entity\Transaction;
-use App\Form\TransactionType;
 use App\Repository\TransactionRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
+/**
+ * Annuaire des transactions, en lecture seule.
+ *
+ * L'écriture depuis ici était particulièrement risquée : une transaction ne
+ * peut regrouper que des lignes d'un même budget, invariant qu'aucune
+ * contrainte de modèle ne garantit et que seul le query_builder de
+ * TransactionType applique — à partir du budget de l'URL, que le back-office
+ * n'a pas. Écrire passe donc par l'interface membre.
+ */
 #[Route('/admin/transaction')]
 final class AdminTransactionController extends AbstractController
 {
@@ -22,60 +28,11 @@ final class AdminTransactionController extends AbstractController
         ]);
     }
 
-    #[Route('/new', name: 'app_admin_transaction_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
-        $transaction = new Transaction();
-        $form = $this->createForm(TransactionType::class, $transaction);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($transaction);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_transaction_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('admin/transaction/new.html.twig', [
-            'transaction' => $transaction,
-            'form' => $form,
-        ]);
-    }
-
     #[Route('/{id}', name: 'app_admin_transaction_show', methods: ['GET'])]
     public function show(Transaction $transaction): Response
     {
         return $this->render('admin/transaction/show.html.twig', [
             'transaction' => $transaction,
         ]);
-    }
-
-    #[Route('/{id}/edit', name: 'app_admin_transaction_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Transaction $transaction, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(TransactionType::class, $transaction);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
-
-            return $this->redirectToRoute('app_transaction_index', [], Response::HTTP_SEE_OTHER);
-        }
-
-        return $this->render('admin/transaction/edit.html.twig', [
-            'transaction' => $transaction,
-            'form' => $form,
-        ]);
-    }
-
-    #[Route('/{id}', name: 'app_admin_transaction_delete', methods: ['POST'])]
-    public function delete(Request $request, Transaction $transaction, EntityManagerInterface $entityManager): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$transaction->getId(), $request->getPayload()->getString('_token'))) {
-            $entityManager->remove($transaction);
-            $entityManager->flush();
-        }
-
-        return $this->redirectToRoute('app_transaction_index', [], Response::HTTP_SEE_OTHER);
     }
 }

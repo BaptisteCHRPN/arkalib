@@ -33,10 +33,12 @@
 					<p class="text-secondary mb-0">{{ category.budget ? category.budget.name : '—' }}</p>
 				</div>
 			</div>
-			<a href="{{ path('app_admin_category_edit', {'id': category.id}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
-				{{ ux_icon('lucide:edit', { width: '14', height: '14' }) }}
-				Modifier
-			</a>
+			{% if category.budget and category.budget.organization %}
+				<a href="{{ path('app_category_index', {'organizationSlug': category.budget.organization.slug, 'budgetSlug': category.budget.slug}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+					{{ ux_icon('lucide:external-link', { width: '14', height: '14' }) }}
+					Ouvrir dans l'interface membre
+				</a>
+			{% endif %}
 		</div>
 
 		{# ─── Detail Card ─── #}
@@ -84,7 +86,6 @@
 				{{ ux_icon('lucide:arrow-left', { width: '14', height: '14' }) }}
 				Retour à la liste
 			</a>
-			{{ include('admin/category/_delete_form.html.twig') }}
 		</div>
 
 	</div>

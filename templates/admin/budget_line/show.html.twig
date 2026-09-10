@@ -33,10 +33,12 @@
 					<p class="text-secondary mb-0">{{ budget_line.budget ? budget_line.budget.name : '—' }}</p>
 				</div>
 			</div>
-			<a href="{{ path('app_admin_budget_line_edit', {'id': budget_line.id}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
-				{{ ux_icon('lucide:edit', { width: '14', height: '14' }) }}
-				Modifier
-			</a>
+			{% if budget_line.budget and budget_line.budget.organization %}
+				<a href="{{ path('app_budget_line_show', {'organizationSlug': budget_line.budget.organization.slug, 'budgetSlug': budget_line.budget.slug, 'id': budget_line.id}) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+					{{ ux_icon('lucide:external-link', { width: '14', height: '14' }) }}
+					Ouvrir dans l'interface membre
+				</a>
+			{% endif %}
 		</div>
 
 		{# ─── Detail Card ─── #}
@@ -114,7 +116,6 @@
 				{{ ux_icon('lucide:arrow-left', { width: '14', height: '14' }) }}
 				Retour à la liste
 			</a>
-			{{ include('admin/budget_line/_delete_form.html.twig') }}
 		</div>
 
 	</div>
