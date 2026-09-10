@@ -12,13 +12,18 @@ use SymfonyCasts\Bundle\ResetPassword\Model\ResetPasswordToken;
 use SymfonyCasts\Bundle\ResetPassword\ResetPasswordHelperInterface;
 
 /**
- * Envoie un lien de réinitialisation de mot de passe.
+ * Envoie un lien permettant de choisir un mot de passe.
+ *
+ * Deux usages, un même mécanisme de jeton mais deux messages : on ne dit pas
+ * la même chose à quelqu'un qui a oublié son mot de passe qu'à quelqu'un dont
+ * on vient de créer le compte — à ce dernier, « ignorez cet e-mail » rendrait
+ * le compte inutilisable.
  *
  * La logique vivait dans une méthode privée de ResetPasswordController, donc
- * inatteignable depuis le back-office. Une différence assumée entre les deux
+ * inatteignable depuis le back-office. Autre différence assumée entre les deux
  * appelants : le formulaire public tait les échecs pour ne pas révéler
- * l'existence d'un compte, alors que l'exploitant, lui, a besoin de savoir
- * pourquoi son envoi n'est pas parti.
+ * l'existence d'un compte, alors que l'exploitant a besoin de savoir pourquoi
+ * son envoi n'est pas parti.
  */
 class PasswordResetMailer
 {
@@ -33,7 +38,28 @@ class PasswordResetMailer
      * @throws ResetPasswordExceptionInterface si un lien a déjà été demandé
      *                                         trop récemment (limitation de débit)
      */
-    public function sendTo(User $user): ResetPasswordToken
+    public function sendResetTo(User $user): ResetPasswordToken
+    {
+        return $this->send(
+            $user,
+            'Réinitialisation de votre mot de passe',
+            'public/reset_password/email.html.twig',
+        );
+    }
+
+    /**
+     * @throws ResetPasswordExceptionInterface
+     */
+    public function sendAccountInitializationTo(User $user): ResetPasswordToken
+    {
+        return $this->send(
+            $user,
+            'Votre compte Arkalib a été créé',
+            'admin/user/account_created_email.html.twig',
+        );
+    }
+
+    private function send(User $user, string $subject, string $template): ResetPasswordToken
     {
         $resetToken = $this->resetPasswordHelper->generateResetToken($user);
 
@@ -41,9 +67,9 @@ class PasswordResetMailer
             (new TemplatedEmail())
                 ->from(new Address($this->mailerFromAddress, $this->mailerFromName))
                 ->to((string) $user->getEmail())
-                ->subject('Réinitialisation de votre mot de passe')
-                ->htmlTemplate('public/reset_password/email.html.twig')
-                ->context(['resetToken' => $resetToken])
+                ->subject($subject)
+                ->htmlTemplate($template)
+                ->context(['resetToken' => $resetToken, 'user' => $user])
         );
 
         return $resetToken;

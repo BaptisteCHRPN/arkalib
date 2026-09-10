@@ -348,6 +348,56 @@ final class AdminUserControllerTest extends WebTestCase
         $this->assertSelectorNotExists('form[action$="/anonymiser"]');
     }
 
+    public function testCreatingAnAccountSendsAnInitializationLink(): void
+    {
+        $this->loginAsAdmin();
+
+        $crawler = $this->client->request('GET', '/admin/user/new');
+        $this->assertResponseIsSuccessful();
+
+        $this->client->submit($crawler->selectButton('Créer le compte')->form([
+            'admin_user_creation[email]' => 'nouvelle@example.com',
+            'admin_user_creation[firstname]' => 'Marie',
+            'admin_user_creation[lastname]' => 'Dupont',
+        ]));
+
+        $this->assertResponseRedirects();
+        $this->assertEmailCount(1);
+        $this->assertEmailAddressContains($this->getMailerMessage(), 'To', 'nouvelle@example.com');
+        $this->assertEmailHtmlBodyContains($this->getMailerMessage(), 'Choisir mon mot de passe');
+    }
+
+    /**
+     * UserChecker refuse la connexion d'un compte non vérifié : un compte
+     * ouvert par l'exploitant doit naître utilisable.
+     */
+    public function testACreatedAccountIsVerifiedAndHasNoUsablePassword(): void
+    {
+        $this->loginAsAdmin();
+
+        $crawler = $this->client->request('GET', '/admin/user/new');
+        $this->client->submit($crawler->selectButton('Créer le compte')->form([
+            'admin_user_creation[email]' => 'nouvelle@example.com',
+        ]));
+
+        $created = static::getContainer()->get(EntityManagerInterface::class)
+            ->getRepository(User::class)
+            ->findOneBy(['email' => 'nouvelle@example.com']);
+
+        $this->assertNotNull($created);
+        $this->assertTrue($created->isVerified());
+        $this->assertFalse(password_verify('', (string) $created->getPassword()));
+    }
+
+    public function testTheCreationFormAsksForNoPassword(): void
+    {
+        $this->loginAsAdmin();
+
+        $this->client->request('GET', '/admin/user/new');
+
+        $this->assertSelectorNotExists('input[type="password"]');
+    }
+
     public function testTheFicheExplainsWhyAnonymizationIsBlocked(): void
     {
         $this->loginAsAdmin();

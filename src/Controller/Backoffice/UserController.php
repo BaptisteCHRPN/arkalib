@@ -4,6 +4,7 @@ namespace App\Controller\Backoffice;
 
 use App\Entity\Invitation;
 use App\Entity\User;
+use App\Form\AdminUserCreationType;
 use App\Form\UserType;
 use App\Repository\OrganizationMembershipRepository;
 use App\Repository\ResetPasswordRequestRepository;
@@ -35,12 +36,15 @@ final class UserController extends AbstractController
     }
 
     #[Route('/new', name: 'app_user_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
-    {
+    public function new(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        PasswordResetMailer $passwordResetMailer,
+    ): Response {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
         $user = new User();
-        $form = $this->createForm(UserType::class, $user);
+        $form = $this->createForm(AdminUserCreationType::class, $user);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -49,14 +53,39 @@ final class UserController extends AbstractController
             if($picture) {
                 $userFirstName = $user->getFirstName() ? preg_replace('/[^a-z0-9]/i', '', strtolower($user->getFirstName())) : 'user';
                 $nameFile = date('YmdHis') . '-' . $userFirstName . '-' . rand(1000, 9999) . '.' . $picture->getClientOriginalExtension();
-                $picture->move($this->getParameter('avatar_user'), $nameFile);
+                $picture->move($this->getParameter('user_avatar'), $nameFile);
                 $user->setPicture($nameFile);
             }
+
+            // Le compte naît avec un secret qu'aucun mot de passe ne peut
+            // produire : la personne choisira le sien par le lien reçu.
+            $user->setPassword(bin2hex(random_bytes(32)));
+
+            // UserChecker refuse la connexion d'un compte non vérifié. Ouvrir
+            // un compte depuis le back-office vaut vérification : c'est
+            // l'exploitant qui répond de l'adresse, et le lien envoyé la
+            // confirme de toute façon.
+            $user->setIsVerified(true);
 
             $entityManager->persist($user);
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+            try {
+                $passwordResetMailer->sendAccountInitializationTo($user);
+                $this->addFlash('success', sprintf(
+                    'Compte créé. Un lien d\'initialisation du mot de passe a été envoyé à %s.',
+                    $user->getEmail(),
+                ));
+            } catch (ResetPasswordExceptionInterface) {
+                // Le compte existe bel et bien : on ne le perd pas pour un
+                // envoi raté, on dit comment rattraper.
+                $this->addFlash('warning', sprintf(
+                    'Compte créé, mais l\'email n\'a pas pu être envoyé. Utilisez « Envoyer un lien de réinitialisation » sur la fiche de %s.',
+                    $user->getEmail(),
+                ));
+            }
+
+            return $this->redirectToRoute('app_admin_user_show', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->render('admin/user/new.html.twig', [
@@ -176,7 +205,7 @@ final class UserController extends AbstractController
         }
 
         try {
-            $passwordResetMailer->sendTo($user);
+            $passwordResetMailer->sendResetTo($user);
             $this->addFlash('success', sprintf('Lien de réinitialisation envoyé à %s.', $user->getEmail()));
         } catch (ResetPasswordExceptionInterface $exception) {
             // Contrairement au formulaire public, on dit ici pourquoi l'envoi
