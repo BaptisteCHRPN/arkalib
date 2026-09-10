@@ -62,10 +62,19 @@
 						<tr>
 							<th class="text-secondary fw-normal">Type</th>
 							<td>
+								{# badge-expense / badge-income, pas les badges d'état : une
+								   dépense n'est pas une anomalie, et le rouge « non vérifié »
+								   la faisait lire comme telle. Même paire que sur l'annuaire. #}
 								{% if budget_line.isExpense %}
-									<span class="badge rounded-pill px-2 py-1 badge-unverified">Dépense</span>
+									<span class="badge rounded-pill px-2 py-1 badge-expense">
+										{{ ux_icon('lucide:arrow-up-right', { width: '12', height: '12', class: 'me-1' }) }}
+										Dépense
+									</span>
 								{% else %}
-									<span class="badge rounded-pill px-2 py-1 badge-verified">Recette</span>
+									<span class="badge rounded-pill px-2 py-1 badge-income">
+										{{ ux_icon('lucide:arrow-down-left', { width: '12', height: '12', class: 'me-1' }) }}
+										Recette
+									</span>
 								{% endif %}
 							</td>
 						</tr>

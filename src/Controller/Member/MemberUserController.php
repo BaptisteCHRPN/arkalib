@@ -161,13 +161,19 @@ final class MemberUserController extends AbstractController
         if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->getPayload()->getString('_token'))) {
 
             if ($user->getPicture()) {
-                unlink($this->getParameter('user_avatar') . '/');
+                // Le nom du fichier manquait : l'appel portait sur le dossier.
+                $avatarPath = $this->getParameter('user_avatar') . '/' . $user->getPicture();
+                if (file_exists($avatarPath)) {
+                    unlink($avatarPath);
+                }
             }
 
             $entityManager->remove($user);
             $entityManager->flush();
         }
 
-        return $this->redirectToRoute('app_user_index', [], Response::HTTP_SEE_OTHER);
+        // Le compte vient de disparaître : renvoyer vers la liste des comptes
+        // du back-office donnait un 403 juste après la suppression.
+        return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
     }
 }

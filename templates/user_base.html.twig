@@ -6,7 +6,7 @@
 		<link rel="icon" href="{{ asset('/img/logo.svg') }}"/>
 		<title>
 			{% block title %}{% endblock %}
-		</title>
+			| Arkalib</title>
 		<link rel="stylesheet" href="{{ asset('vendor/bootstrap/css/bootstrap.min.css') }}">
 		<script src="{{ asset('vendor/bootstrap/js/bootstrap.bundle.min.js') }}" defer></script>
 		<link rel="stylesheet" href="{{ asset('css/main-style.css') }}?v=4">
@@ -29,7 +29,7 @@
 			</main>
 
 			{% if not app.user %}
-				{% include "_home_footer.html.twig" %}
+				{% include "components/_home_footer.html.twig" %}
 			{% endif %}
 
 			{% include "_toasts.html.twig" %}
