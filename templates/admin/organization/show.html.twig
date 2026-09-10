@@ -332,6 +332,76 @@
 			</div>
 		</div>
 
+		{# ─── Interventions de l'exploitant ──────────────────────────────────
+		   La liste que l'on montre au client qui demande des comptes : ce qui
+		   a été fait sur ses données par quelqu'un qui n'est pas des siens.
+		#}
+		<div class="card admin-table-card shadow-sm mb-4">
+			<div class="card-header d-flex align-items-center gap-2">
+				{{ ux_icon('lucide:history', { width: '16', height: '16' }) }}
+				<span class="fw-semibold text-dark">Interventions de l'exploitant</span>
+				<span class="count-badge">{{ actionLogs|length }}</span>
+			</div>
+			<div class="table-responsive">
+				<table class="table admin-table mb-0">
+					<thead>
+						<tr>
+							<th>Date</th>
+							<th>Qui</th>
+							<th>Action</th>
+							<th>Objet</th>
+							<th>Résultat</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for log in actionLogs %}
+							<tr>
+								<td>
+									<span class="text-secondary small">{{ log.performedAt|date('d/m/Y à H:i') }}</span>
+								</td>
+								<td>
+									{% if log.actor %}
+										<a href="{{ path('app_admin_user_show', {'id': log.actor.id}) }}" class="fw-medium text-dark text-decoration-none">
+											{%- if log.actor.firstname or log.actor.lastname -%}
+												{{ log.actor.firstname }} {{ log.actor.lastname }}
+											{%- else -%}
+												{{ log.actor.email }}
+											{%- endif -%}
+										</a>
+									{% else %}
+										<span class="text-secondary small">Compte supprimé</span>
+									{% endif %}
+								</td>
+								<td class="fw-medium text-dark">{{ log.action }}</td>
+								<td>
+									<span class="text-secondary small">{{ log.target ?: '—' }}</span>
+								</td>
+								<td>
+									{% if log.wasRefused %}
+										<span class="badge rounded-pill px-2 py-1 badge-unverified">Refusée</span>
+									{% else %}
+										<span class="badge rounded-pill px-2 py-1 badge-verified">Effectuée</span>
+									{% endif %}
+								</td>
+							</tr>
+						{% else %}
+							<tr>
+								<td colspan="5">
+									<div class="empty-state text-center">
+										{{ ux_icon('lucide:shield-check', { width: '48', height: '48', 'stroke-width': '1', class: 'mb-3' }) }}
+										<p class="text-secondary mb-2 fw-medium">Aucune intervention sur cette organisation</p>
+										<p class="text-muted small mb-0">
+											Personne d'extérieur n'a modifié les données de cette organisation.
+										</p>
+									</div>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
 		{{ include('admin/_traceability.html.twig', { entity: organization }) }}
 
 		{# ─── Footer ─── #}

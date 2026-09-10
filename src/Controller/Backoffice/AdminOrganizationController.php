@@ -5,6 +5,7 @@ namespace App\Controller\Backoffice;
 use App\Entity\Invitation;
 use App\Entity\Organization;
 use App\Entity\OrganizationMembership;
+use App\Repository\AdminActionLogRepository;
 use App\Repository\OrganizationMembershipRepository;
 use App\Repository\OrganizationRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -42,6 +43,7 @@ final class AdminOrganizationController extends AbstractController
     public function show(
         Organization $organization,
         OrganizationMembershipRepository $membershipRepository,
+        AdminActionLogRepository $actionLogRepository,
     ): Response {
         $memberships = $organization->getMemberships()->toArray();
         usort(
@@ -63,6 +65,7 @@ final class AdminOrganizationController extends AbstractController
             'memberships' => $memberships,
             'invitations' => $invitations,
             'adminCount' => $membershipRepository->countAdmins($organization),
+            'actionLogs' => $actionLogRepository->findForOrganization($organization),
         ]);
     }
 }
