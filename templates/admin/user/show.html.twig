@@ -2,7 +2,7 @@
 {% extends 'user_base.html.twig' %}
 
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ asset('css/back-office.css') }}">
+	{{ include('admin/_stylesheets.html.twig') }}
 {% endblock %}
 
 {% block title %}{{ user.firstname }} {{ user.lastname }}{% endblock %}

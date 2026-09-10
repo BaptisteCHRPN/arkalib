@@ -1,6 +1,6 @@
 {% extends 'user_base.html.twig' %}
 {% block stylesheets %}
-	<link rel="stylesheet" href="{{ asset('css/back-office.css') }}">
+	{{ include('admin/_stylesheets.html.twig') }}
 {% endblock %}
 
 {% block title %}Administration
@@ -14,6 +14,162 @@
 		<div class="mb-4">
 			<h1 class="fw-bold fs-2 mb-1">Administration</h1>
 			<p class="text-secondary mb-0">Tableau de bord — Gérez l'ensemble des ressources de votre application</p>
+		</div>
+
+		{# ─── Indicateurs ─────────────────────────────────────────────────────
+		   Quatre nombres, pas un graphique : une poignée de valeurs isolées se
+		   lit mieux en pastilles qu'en histogramme à une barre.
+		#}
+		<div class="row g-3 g-md-4 mb-4">
+
+			<div class="col-6 col-lg-3">
+				<div class="stat-tile tile-orgs shadow-sm">
+					<div class="d-flex align-items-center justify-content-between gap-2">
+						<p class="stat-label">Organisations</p>
+						<div class="stat-icon icon-orgs d-flex align-items-center justify-content-center">
+							{{ ux_icon('flowbite:building-outline', { width: '16', height: '16' }) }}
+						</div>
+					</div>
+					<div class="stat-value">{{ counts.organizations }}</div>
+					<p class="stat-detail">
+						{%- if counts.inactiveOrganizations > 0 -%}
+							dont {{ counts.inactiveOrganizations }} inactive{{ counts.inactiveOrganizations > 1 ? 's' : '' }}
+						{%- else -%}
+							toutes actives
+						{%- endif -%}
+					</p>
+				</div>
+			</div>
+
+			<div class="col-6 col-lg-3">
+				<div class="stat-tile tile-users shadow-sm">
+					<div class="d-flex align-items-center justify-content-between gap-2">
+						<p class="stat-label">Comptes</p>
+						<div class="stat-icon icon-users d-flex align-items-center justify-content-center">
+							{{ ux_icon('heroicons:users', { width: '16', height: '16' }) }}
+						</div>
+					</div>
+					<div class="stat-value">{{ counts.users }}</div>
+					<p class="stat-detail">
+						{%- if counts.neverLoggedIn > 0 -%}
+							{{ counts.neverLoggedIn }} jamais connecté{{ counts.neverLoggedIn > 1 ? 's' : '' }}
+						{%- else -%}
+							tous se sont connectés
+						{%- endif -%}
+					</p>
+				</div>
+			</div>
+
+			<div class="col-6 col-lg-3">
+				<div class="stat-tile tile-budgets shadow-sm">
+					<div class="d-flex align-items-center justify-content-between gap-2">
+						<p class="stat-label">Budgets</p>
+						<div class="stat-icon icon-budgets d-flex align-items-center justify-content-center">
+							{{ ux_icon('iconoir:lot-of-cash', { width: '16', height: '16' }) }}
+						</div>
+					</div>
+					<div class="stat-value">{{ counts.budgets }}</div>
+					<p class="stat-detail">
+						{%- if counts.closedBudgets > 0 -%}
+							dont {{ counts.closedBudgets }} clôturé{{ counts.closedBudgets > 1 ? 's' : '' }}
+						{%- else -%}
+							tous ouverts
+						{%- endif -%}
+					</p>
+				</div>
+			</div>
+
+			<div class="col-6 col-lg-3">
+				<div class="stat-tile tile-trans shadow-sm">
+					<div class="d-flex align-items-center justify-content-between gap-2">
+						<p class="stat-label">Transactions</p>
+						<div class="stat-icon icon-trans d-flex align-items-center justify-content-center">
+							{{ ux_icon('basil:exchange-outline', { width: '16', height: '16' }) }}
+						</div>
+					</div>
+					<div class="stat-value">{{ counts.transactions }}</div>
+					<p class="stat-detail">{{ counts.budgetLines }} ligne{{ counts.budgetLines > 1 ? 's' : '' }} budgétaire{{ counts.budgetLines > 1 ? 's' : '' }}</p>
+				</div>
+			</div>
+
+		</div>
+
+		{# ─── Points d'attention ──────────────────────────────────────────────
+		   Chaque état porte une icône et un libellé : la couleur seule ne dit
+		   rien à qui ne la distingue pas.
+		#}
+		<div class="card admin-table-card shadow-sm mb-4">
+			<div class="card-header d-flex align-items-center gap-2">
+				{{ ux_icon('lucide:list-checks', { width: '16', height: '16' }) }}
+				<span class="fw-semibold text-dark">Points d'attention</span>
+			</div>
+			<div class="card-body p-3 d-flex flex-column gap-2">
+
+				{% if organizationsWithoutAdmin is empty and counts.unverifiedUsers == 0 and staleInvitations == 0 %}
+					<div class="attention-row attention-good d-flex align-items-center gap-2">
+						{{ ux_icon('lucide:check', { width: '16', height: '16', class: 'flex-shrink-0' }) }}
+						<span class="small">Rien à signaler.</span>
+					</div>
+				{% endif %}
+
+				{% if organizationsWithoutAdmin is not empty %}
+					<div class="attention-row attention-serious d-flex align-items-start gap-2">
+						{{ ux_icon('lucide:triangle-alert', { width: '16', height: '16', class: 'flex-shrink-0 mt-1' }) }}
+						<div class="small">
+							<span class="fw-semibold">
+								{{ organizationsWithoutAdmin|length }}
+								organisation{{ organizationsWithoutAdmin|length > 1 ? 's' : '' }}
+								sans administrateur
+							</span>
+							<div class="mt-1">
+								Personne ne peut plus y inviter de membre ni changer les rôles.
+							</div>
+							<div class="mt-1 d-flex flex-wrap gap-2">
+								{% for organization in organizationsWithoutAdmin|slice(0, 8) %}
+									<a href="{{ path('app_admin_organization_show', {'id': organization.id}) }}" class="text-decoration-underline">{{ organization.name }}</a>
+								{% endfor %}
+								{% if organizationsWithoutAdmin|length > 8 %}
+									<span class="text-secondary">et {{ organizationsWithoutAdmin|length - 8 }} autre{{ organizationsWithoutAdmin|length - 8 > 1 ? 's' : '' }}</span>
+								{% endif %}
+							</div>
+						</div>
+					</div>
+				{% endif %}
+
+				{% if counts.unverifiedUsers > 0 %}
+					<div class="attention-row attention-warning d-flex align-items-start gap-2">
+						{{ ux_icon('lucide:mail-question-mark', { width: '16', height: '16', class: 'flex-shrink-0 mt-1' }) }}
+						<div class="small">
+							<span class="fw-semibold">
+								{{ counts.unverifiedUsers }}
+								compte{{ counts.unverifiedUsers > 1 ? 's' : '' }}
+								non vérifié{{ counts.unverifiedUsers > 1 ? 's' : '' }}
+							</span>
+							<div class="mt-1">
+								Leur inscription n'a jamais été confirmée : la connexion leur est refusée.
+								<a href="{{ path('app_user_index') }}" class="text-decoration-underline">Voir les comptes</a>
+							</div>
+						</div>
+					</div>
+				{% endif %}
+
+				{% if staleInvitations > 0 %}
+					<div class="attention-row attention-warning d-flex align-items-start gap-2">
+						{{ ux_icon('lucide:mail-x', { width: '16', height: '16', class: 'flex-shrink-0 mt-1' }) }}
+						<div class="small">
+							<span class="fw-semibold">
+								{{ staleInvitations }}
+								invitation{{ staleInvitations > 1 ? 's' : '' }}
+								expirée{{ staleInvitations > 1 ? 's' : '' }} encore en attente
+							</span>
+							<div class="mt-1">
+								Leurs destinataires ont un lien qui ne fonctionne plus.
+							</div>
+						</div>
+					</div>
+				{% endif %}
+
+			</div>
 		</div>
 
 

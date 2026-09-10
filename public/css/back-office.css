@@ -28,12 +28,101 @@
     --gray-700: #374151;
     --gray-900: #1a1d23;
 
+    /* Statuts — réservés aux états, jamais réutilisés comme couleur de module */
+    --status-serious:    #b91c1c;
+    --status-serious-bg: #fef2f2;
+    --status-warning:    #b45309;
+    --status-warning-bg: #fffbeb;
+    --status-good:       #15803d;
+    --status-good-bg:    #f0fdf4;
+
     /* Rayons & transitions */
     --radius-sm: 8px;
     --radius-md: 10px;
     --radius-lg: 1rem;
     --transition-fast: 0.15s ease;
     --transition-normal: 0.2s ease;
+}
+
+
+/* ============================================
+   1 bis. Dashboard — Indicateurs
+   ============================================ */
+
+.stat-tile {
+    position: relative;
+    background: #fff;
+    border-radius: var(--radius-lg);
+    padding: 1.15rem 1.35rem 1.25rem;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Même barre d'accent que les cartes de navigation, mais toujours visible :
+   elle relie chaque chiffre à son module et donne sa structure à la rangée. */
+.stat-tile::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--gray-200);
+}
+
+.stat-tile.tile-orgs::before    { background: var(--color-orgs); }
+.stat-tile.tile-users::before   { background: var(--color-users); }
+.stat-tile.tile-budgets::before { background: var(--color-budgets); }
+.stat-tile.tile-trans::before   { background: var(--color-trans); }
+
+.stat-tile .stat-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--gray-500);
+    margin: 0;
+}
+
+.stat-tile .stat-icon {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: var(--radius-sm);
+}
+
+/* Chiffres proportionnels, pas tabulaires : à cette taille, tabular-nums
+   donnerait à chaque chiffre la largeur d'un 0 et « 121 » paraîtrait lâche.
+   Le tabulaire est réservé aux colonnes de nombres. */
+.stat-tile .stat-value {
+    font-size: 2.25rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--gray-900);
+    margin-top: 0.65rem;
+}
+
+.stat-tile .stat-detail {
+    font-size: 0.78rem;
+    color: var(--gray-400);
+    margin-top: 0.4rem;
+    margin-bottom: 0;
+}
+
+/* Les états portent toujours une icône et un libellé : la couleur seule ne
+   dit rien à qui ne la distingue pas. */
+.attention-row {
+    border-radius: var(--radius-md);
+    padding: 0.8rem 1rem;
+    line-height: 1.5;
+}
+
+.attention-serious { background: var(--status-serious-bg); color: var(--status-serious); }
+.attention-warning { background: var(--status-warning-bg); color: var(--status-warning); }
+.attention-good    { background: var(--status-good-bg);    color: var(--status-good); }
+
+.attention-row a {
+    color: inherit;
+    font-weight: 500;
 }
 
 
