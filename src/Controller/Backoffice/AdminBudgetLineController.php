@@ -5,6 +5,7 @@ namespace App\Controller\Backoffice;
 use App\Entity\BudgetLine;
 use App\Repository\BudgetLineRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -19,10 +20,13 @@ use Symfony\Component\Routing\Attribute\Route;
 final class AdminBudgetLineController extends AbstractController
 {
     #[Route(name: 'app_admin_budget_line_index', methods: ['GET'])]
-    public function index(BudgetLineRepository $budgetLineRepository): Response
+    public function index(Request $request, BudgetLineRepository $budgetLineRepository): Response
     {
+        $search = $request->query->getString('q');
+
         return $this->render('admin/budget_line/index.html.twig', [
-            'budget_lines' => $budgetLineRepository->findAll(),
+            'budget_lines' => $budgetLineRepository->search($search),
+            'search' => $search,
         ]);
     }
 

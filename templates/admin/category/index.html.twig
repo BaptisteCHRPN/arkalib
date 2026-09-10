@@ -31,10 +31,14 @@
         {# Card Header with search and count #}
         <div class="card-header d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
             <div class="d-flex align-items-center gap-2">
-                <span class="fw-semibold text-dark">Toutes les catégories</span>
+                <span class="fw-semibold text-dark">{{ search ? 'Résultats' : 'Toutes les catégories' }}</span>
                 <span class="count-badge">{{ categories|length }}</span>
             </div>
-            <input type="text" class="form-control search-input" id="searchInput" placeholder="Rechercher..." style="max-width: 260px;" onkeyup="filterTable()">
+            {{ include('admin/_search_form.html.twig', {
+                route: 'app_admin_category_index',
+                label: 'Rechercher une catégorie par nom, budget ou organisation',
+                placeholder: 'Catégorie ou budget...',
+            }) }}
         </div>
 
         {# Table #}
@@ -97,8 +101,17 @@
                         <td colspan="5">
                             <div class="empty-state text-center">
                                 {{ ux_icon('akar-icons:tag', { width: '48', height: '48', 'stroke-width': '1', class: 'mb-3' }) }}
-                                <p class="text-secondary mb-2 fw-medium">Aucune catégorie trouvée</p>
-                                <p class="text-muted small mb-0">Les catégories se créent depuis l'interface membre, dans un budget.</p>
+                                {% if search %}
+                                    <p class="text-secondary mb-2 fw-medium">Aucune catégorie ne correspond à « {{ search }} »</p>
+                                    <p class="text-muted small mb-3">La recherche porte sur le nom, le budget et l'organisation.</p>
+                                    <a href="{{ path('app_admin_category_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+                                        {{ ux_icon('lucide:arrow-left', { width: '16', height: '16' }) }}
+                                        Voir toutes les catégories
+                                    </a>
+                                {% else %}
+                                    <p class="text-secondary mb-2 fw-medium">Aucune catégorie trouvée</p>
+                                    <p class="text-muted small mb-0">Les catégories se créent depuis l'interface membre, dans un budget.</p>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -111,7 +124,7 @@
     {# ─── Footer info ─── #}
     {% if categories|length > 0 %}
     <div class="d-flex justify-content-between align-items-center mt-3 px-1">
-        <p class="small mb-0">{{ categories|length }} catégorie{{ categories|length > 1 ? 's' : '' }} au total</p>
+        <p class="small mb-0">{{ categories|length }} catégorie{{ categories|length > 1 ? 's' : '' }} {{ search ? 'trouvée' ~ (categories|length > 1 ? 's' : '') : 'au total' }}</p>
         <a href="{{ path('app_back_office') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
             {{ ux_icon('lucide:arrow-left', { width: '14', height: '14' }) }}
             Retour au tableau de bord
@@ -119,17 +132,5 @@
     </div>
     {% endif %}
 </div>
-
-{# ─── Search script ─── #}
-<script>
-function filterTable() {
-    const input = document.getElementById('searchInput').value.toLowerCase();
-    const rows = document.querySelectorAll('#categoryTable tbody tr');
-    rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(input) ? '' : 'none';
-    });
-}
-</script>
 
 {% endblock %}

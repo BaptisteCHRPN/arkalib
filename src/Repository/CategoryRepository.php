@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Budget;
 use App\Entity\Category;
 use App\Entity\Organization;
+use App\Repository\Trait\SearchesTextFieldsTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -13,9 +14,26 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CategoryRepository extends ServiceEntityRepository
 {
+    use SearchesTextFieldsTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Category::class);
+    }
+
+    /**
+     * Recherche une catégorie par nom, budget ou organisation.
+     *
+     * @return Category[]
+     */
+    public function search(?string $term): array
+    {
+        return $this->searchQueryBuilder($term, ['name', 'b.name', 'o.name'], 'c')
+            ->leftJoin('c.budget', 'b')
+            ->leftJoin('b.organization', 'o')
+            ->addSelect('b', 'o')
+            ->getQuery()
+            ->getResult();
     }
 
     //    /**

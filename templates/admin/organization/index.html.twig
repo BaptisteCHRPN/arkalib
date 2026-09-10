@@ -40,22 +40,11 @@
 					<span class="count-badge">{{ organizations|length }}</span>
 				</div>
 
-				{# La recherche est faite en base : elle porte sur toutes les
-				   organisations, pas seulement sur celles déjà affichées. #}
-				<form method="get" action="{{ path('app_admin_organization_index') }}" class="d-flex gap-2" role="search">
-					<label for="searchInput" class="visually-hidden">Rechercher une organisation par nom, slug ou description</label>
-					<input type="search" name="q" id="searchInput" value="{{ search }}" class="form-control search-input" placeholder="Nom ou slug..." style="max-width: 260px;">
-					<button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
-						{{ ux_icon('lucide:search', { width: '14', height: '14' }) }}
-						<span class="visually-hidden">Rechercher</span>
-					</button>
-					{% if search %}
-						<a href="{{ path('app_admin_organization_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2" title="Effacer la recherche">
-							{{ ux_icon('lucide:x', { width: '14', height: '14' }) }}
-							<span class="visually-hidden">Effacer la recherche</span>
-						</a>
-					{% endif %}
-				</form>
+				{{ include('admin/_search_form.html.twig', {
+					route: 'app_admin_organization_index',
+					label: 'Rechercher une organisation par nom, slug ou description',
+					placeholder: 'Nom ou slug...',
+				}) }}
 			</div>
 
 			{# Table #}

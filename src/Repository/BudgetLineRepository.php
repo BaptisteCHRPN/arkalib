@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Budget;
 use App\Entity\BudgetLine;
 use App\Entity\Organization;
+use App\Repository\Trait\SearchesTextFieldsTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -13,9 +14,26 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class BudgetLineRepository extends ServiceEntityRepository
 {
+    use SearchesTextFieldsTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, BudgetLine::class);
+    }
+
+    /**
+     * Recherche une ligne par nom, description, budget ou organisation.
+     *
+     * @return BudgetLine[]
+     */
+    public function search(?string $term): array
+    {
+        return $this->searchQueryBuilder($term, ['name', 'description', 'b.name', 'o.name'], 'bl')
+            ->leftJoin('bl.budget', 'b')
+            ->leftJoin('b.organization', 'o')
+            ->addSelect('b', 'o')
+            ->getQuery()
+            ->getResult();
     }
 
     public function findBudgetByOrganisation(Organization $organization): array

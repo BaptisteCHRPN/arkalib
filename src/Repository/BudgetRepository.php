@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Budget;
 use App\Entity\Organization;
+use App\Repository\Trait\SearchesTextFieldsTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -12,9 +13,26 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class BudgetRepository extends ServiceEntityRepository
 {
+    use SearchesTextFieldsTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Budget::class);
+    }
+
+    /**
+     * Recherche un budget par nom, slug ou nom d'organisation — « les budgets
+     * de l'asso X » est la question la plus fréquente sur cet annuaire.
+     *
+     * @return Budget[]
+     */
+    public function search(?string $term): array
+    {
+        return $this->searchQueryBuilder($term, ['name', 'slug', 'o.name'], 'b')
+            ->leftJoin('b.organization', 'o')
+            ->addSelect('o')
+            ->getQuery()
+            ->getResult();
     }
 
     //    /**

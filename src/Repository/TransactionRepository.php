@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Budget;
 use App\Entity\Organization;
 use App\Entity\Transaction;
+use App\Repository\Trait\SearchesTextFieldsTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -13,9 +14,26 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class TransactionRepository extends ServiceEntityRepository
 {
+    use SearchesTextFieldsTrait;
+
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Transaction::class);
+    }
+
+    /**
+     * Recherche une transaction par référence, commentaire ou moyen de
+     * paiement. Pas de recherche par organisation ici : une transaction n'y est
+     * reliée que par ses lignes, et une jointure ManyToMany multiplierait les
+     * résultats.
+     *
+     * @return Transaction[]
+     */
+    public function search(?string $term): array
+    {
+        return $this->searchQueryBuilder($term, ['reference', 'comment', 'payment_method'], 't')
+            ->getQuery()
+            ->getResult();
     }
 
     public function findByBudget(Budget $budget): array

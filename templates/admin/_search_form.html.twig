@@ -1,0 +1,26 @@
+{# Recherche serveur des annuaires du back-office.
+
+   Elle porte sur toute la table, pas seulement sur les lignes déjà rendues :
+   un filtre JavaScript ne voit que la page courante, au moment précis où l'on
+   commence à en avoir besoin.
+
+   Paramètres :
+     route       nom de la route de l'annuaire (sert au submit et à l'effacement)
+     search      terme courant, réaffiché dans le champ
+     label       intitulé accessible, qui doit dire sur quoi porte la recherche
+     placeholder facultatif
+#}
+<form method="get" action="{{ path(route) }}" class="d-flex gap-2" role="search">
+	<label for="searchInput" class="visually-hidden">{{ label }}</label>
+	<input type="search" name="q" id="searchInput" value="{{ search }}" class="form-control search-input" placeholder="{{ placeholder|default('Rechercher...') }}" style="max-width: 260px;">
+	<button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
+		{{ ux_icon('lucide:search', { width: '14', height: '14' }) }}
+		<span class="visually-hidden">Rechercher</span>
+	</button>
+	{% if search %}
+		<a href="{{ path(route) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2" title="Effacer la recherche">
+			{{ ux_icon('lucide:x', { width: '14', height: '14' }) }}
+			<span class="visually-hidden">Effacer la recherche</span>
+		</a>
+	{% endif %}
+</form>

@@ -15,7 +15,10 @@ use Doctrine\ORM\QueryBuilder;
 trait SearchesTextFieldsTrait
 {
     /**
-     * @param string[] $fields noms de propriétés de l'entité, sans l'alias
+     * @param string[] $fields propriétés de l'entité, sans l'alias ; une valeur
+     *                         contenant un point est prise telle quelle, ce qui
+     *                         permet de chercher sur une entité jointe — au
+     *                         requêteur d'ajouter la jointure correspondante.
      */
     private function searchQueryBuilder(?string $term, array $fields, string $alias = 'e'): QueryBuilder
     {
@@ -51,7 +54,8 @@ trait SearchesTextFieldsTrait
         $parts = [];
 
         foreach ($fields as $field) {
-            $parts[] = sprintf("COALESCE(%s.%s, '')", $alias, $field);
+            $expression = str_contains($field, '.') ? $field : $alias . '.' . $field;
+            $parts[] = sprintf("COALESCE(%s, '')", $expression);
         }
 
         // CONCAT exige au moins deux arguments ; un champ seul se compare tel quel.

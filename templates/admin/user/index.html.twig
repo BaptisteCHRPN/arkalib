@@ -49,22 +49,11 @@
 					<span class="count-badge">{{ users|length }}</span>
 				</div>
 
-				{# La recherche est faite en base : elle porte sur tous les comptes,
-				   pas seulement sur ceux déjà affichés. #}
-				<form method="get" action="{{ path('app_user_index') }}" class="d-flex gap-2" role="search">
-					<label for="searchInput" class="visually-hidden">Rechercher un utilisateur par nom ou adresse e-mail</label>
-					<input type="search" name="q" id="searchInput" value="{{ search }}" class="form-control search-input" placeholder="Nom ou e-mail..." style="max-width: 260px;">
-					<button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">
-						{{ ux_icon('lucide:search', { width: '14', height: '14' }) }}
-						<span class="visually-hidden">Rechercher</span>
-					</button>
-					{% if search %}
-						<a href="{{ path('app_user_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2" title="Effacer la recherche">
-							{{ ux_icon('lucide:x', { width: '14', height: '14' }) }}
-							<span class="visually-hidden">Effacer la recherche</span>
-						</a>
-					{% endif %}
-				</form>
+				{{ include('admin/_search_form.html.twig', {
+					route: 'app_user_index',
+					label: 'Rechercher un utilisateur par nom ou adresse e-mail',
+					placeholder: 'Nom ou e-mail...',
+				}) }}
 			</div>
 
 			{# Table #}

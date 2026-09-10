@@ -5,6 +5,7 @@ namespace App\Controller\Backoffice;
 use App\Entity\Category;
 use App\Repository\CategoryRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -19,10 +20,13 @@ use Symfony\Component\Routing\Attribute\Route;
 final class AdminCategoryController extends AbstractController
 {
     #[Route(name: 'app_admin_category_index', methods: ['GET'])]
-    public function index(CategoryRepository $categoryRepository): Response
+    public function index(Request $request, CategoryRepository $categoryRepository): Response
     {
+        $search = $request->query->getString('q');
+
         return $this->render('admin/category/index.html.twig', [
-            'categories' => $categoryRepository->findAll(),
+            'categories' => $categoryRepository->search($search),
+            'search' => $search,
         ]);
     }
 
