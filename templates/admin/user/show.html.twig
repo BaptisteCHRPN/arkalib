@@ -331,19 +331,12 @@
 								<span class="text-secondary">{{ user.email }}</span>
 							</td>
 						</tr>
-						<tr>
-							<th class="text-secondary fw-normal">Inscrit le</th>
-							<td class="text-secondary">
-								{{ user.createdAt ? user.createdAt|date('d/m/Y') : '—' }}
-								{% if user.createdBy %}
-									<span class="text-muted small ms-2">— compte créé par {{ user.createdBy.firstname }} {{ user.createdBy.lastname }}</span>
-								{% endif %}
-							</td>
-						</tr>
 					</tbody>
 				</table>
 			</div>
 		</div>
+
+		{{ include('admin/_traceability.html.twig', { entity: user, createdLabel: 'Inscription' }) }}
 
 		{# ─── Actions de dépannage ───────────────────────────────────────────
 		   Les trois premières sont réversibles et se déclenchent sans crainte.

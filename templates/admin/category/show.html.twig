@@ -80,6 +80,8 @@
 			</div>
 		</div>
 
+		{{ include('admin/_traceability.html.twig', { entity: category }) }}
+
 		{# ─── Footer ─── #}
 		<div class="d-flex justify-content-between align-items-center mt-3 px-1">
 			<a href="{{ path('app_admin_category_index') }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3 d-inline-flex align-items-center gap-2">

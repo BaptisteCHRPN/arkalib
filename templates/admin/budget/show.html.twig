@@ -112,6 +112,8 @@
 			</div>
 		</div>
 
+		{{ include('admin/_traceability.html.twig', { entity: budget }) }}
+
 		{# ─── Footer ─── #}
 		{# Pas de suppression ici : mettre un budget à la corbeille est un geste
 		   du trésorier, réversible, qui vit dans l'interface membre. #}

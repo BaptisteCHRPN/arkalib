@@ -327,19 +327,12 @@
 								{% endif %}
 							</td>
 						</tr>
-						<tr>
-							<th class="text-secondary fw-normal">Créée le</th>
-							<td class="text-secondary">
-								{{ organization.createdAt ? organization.createdAt|date('d/m/Y') : '—' }}
-								{% if organization.createdBy %}
-									<span class="text-muted small ms-2">— par {{ organization.createdBy.firstname }} {{ organization.createdBy.lastname }}</span>
-								{% endif %}
-							</td>
-						</tr>
 					</tbody>
 				</table>
 			</div>
 		</div>
+
+		{{ include('admin/_traceability.html.twig', { entity: organization }) }}
 
 		{# ─── Footer ─── #}
 		{# Pas de suppression ici : elle vit côté membre, où le filtre

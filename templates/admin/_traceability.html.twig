@@ -1,0 +1,76 @@
+{# Qui a créé, modifié ou mis à la corbeille, et quand.
+
+   Ces colonnes sont renseignées par TraceabilitySubscriber depuis l'origine et
+   n'étaient affichées nulle part : « qui a supprimé ce budget ? » est pourtant
+   la question de dépannage la plus fréquente, et la réponse était déjà en base.
+
+   Paramètres :
+     entity        l'entité tracée
+     createdLabel  facultatif, pour les cas où « Création » sonne faux
+
+   La ligne « corbeille » n'apparaît que sur les entités qui savent être
+   supprimées en douceur ; `is defined` couvre celles qui n'ont pas le trait.
+
+   Un auteur absent se lit « — » : il signifie qu'aucun utilisateur n'était
+   connecté au moment de l'écriture — inscription spontanée, commande console,
+   ou jeu de données de départ.
+#}
+<div class="card admin-table-card shadow-sm mt-4">
+	<div class="card-header d-flex align-items-center gap-2">
+		{{ ux_icon('lucide:history', { width: '16', height: '16' }) }}
+		<span class="fw-semibold text-dark">Traçabilité</span>
+	</div>
+	<div class="table-responsive">
+		<table class="table admin-table mb-0">
+			<tbody>
+				<tr>
+					<th class="text-secondary fw-normal" style="width:220px;">{{ createdLabel|default('Création') }}</th>
+					<td class="text-secondary">
+						{%- if entity.createdAt -%}
+							le {{ entity.createdAt|date('d/m/Y à H:i') }}
+							{% if entity.createdBy %}
+								<span class="text-dark">par {{ entity.createdBy.firstname }} {{ entity.createdBy.lastname }}</span>
+							{% endif %}
+						{%- else -%}
+							—
+						{%- endif -%}
+					</td>
+				</tr>
+				<tr>
+					<th class="text-secondary fw-normal">Dernière modification</th>
+					<td class="text-secondary">
+						{%- if entity.updatedAt -%}
+							le {{ entity.updatedAt|date('d/m/Y à H:i') }}
+							{% if entity.updatedBy %}
+								<span class="text-dark">par {{ entity.updatedBy.firstname }} {{ entity.updatedBy.lastname }}</span>
+							{% endif %}
+						{%- else -%}
+							jamais modifié depuis sa création
+						{%- endif -%}
+					</td>
+				</tr>
+				{% if entity.deletedAt is defined %}
+					<tr>
+						<th class="text-secondary fw-normal">Corbeille</th>
+						<td>
+							{% if entity.deletedAt %}
+								<span class="badge rounded-pill px-2 py-1 badge-unverified">
+									{{ ux_icon('lucide:trash-2', { width: '12', height: '12', class: 'me-1' }) }}
+									À la corbeille
+								</span>
+								<span class="text-secondary ms-2">
+									depuis le {{ entity.deletedAt|date('d/m/Y à H:i') }}
+									{% if entity.deletedBy %}
+										<span class="text-dark">par {{ entity.deletedBy.firstname }} {{ entity.deletedBy.lastname }}</span>
+									{% endif %}
+								</span>
+							{% else %}
+								<span class="text-secondary">Non</span>
+							{% endif %}
+						</td>
+					</tr>
+				{% endif %}
+			</tbody>
+		</table>
+	</div>
+</div>
