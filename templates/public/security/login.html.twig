@@ -30,7 +30,11 @@
 						<input type="password" name="password" class="form-control login-input" placeholder="Mot de passe" autocomplete="current-password" required>
 					</div>
 
-					<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+					{# `data-controller` ne sert que si la protection CSRF « stateless »
+					   est réactivée (voir config/packages/csrf.yaml) : c'est ce que
+					   prévoit la recette Symfony pour un formulaire de connexion écrit
+					   à la main. Inoffensif tant qu'elle ne l'est pas. #}
+					<input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
 					<div class="checkbox mb-3">
 						<label>
 							<input type="checkbox" name="_remember_me">

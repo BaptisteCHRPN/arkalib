@@ -24,6 +24,7 @@ final class MemberOrganizationControllerTest extends WebTestCase
         $outsider = new User();
         $outsider->setEmail('outsider@example.com');
         $outsider->setPassword('not-checked-by-loginUser');
+        $outsider->setFirstname('Test');
         $entityManager->persist($outsider);
 
         $entityManager->flush();
@@ -48,6 +49,7 @@ final class MemberOrganizationControllerTest extends WebTestCase
         $member = new User();
         $member->setEmail('membre@example.com');
         $member->setPassword('not-checked-by-loginUser');
+        $member->setFirstname('Test');
 
         $organization->addUser($member, OrganizationRole::ADMIN);
 
@@ -80,6 +82,7 @@ final class MemberOrganizationControllerTest extends WebTestCase
         $outsider = new User();
         $outsider->setEmail('outsider-edit@example.com');
         $outsider->setPassword('not-checked-by-loginUser');
+        $outsider->setFirstname('Test');
 
         $em->persist($organization);
         $em->persist($outsider);
@@ -116,6 +119,7 @@ final class MemberOrganizationControllerTest extends WebTestCase
         $reader = new User();
         $reader->setEmail('lecteur-boutons@example.com');
         $reader->setPassword('not-checked-by-loginUser');
+        $reader->setFirstname('Test');
         $organization->addUser($reader, OrganizationRole::READER);
 
         $em->persist($organization);
@@ -146,6 +150,7 @@ final class MemberOrganizationControllerTest extends WebTestCase
         $treasurer = new User();
         $treasurer->setEmail('tresorier-boutons@example.com');
         $treasurer->setPassword('not-checked-by-loginUser');
+        $treasurer->setFirstname('Test');
         $organization->addUser($treasurer, OrganizationRole::TREASURER);
 
         $em->persist($organization);
@@ -174,6 +179,7 @@ final class MemberOrganizationControllerTest extends WebTestCase
         $admin = new User();
         $admin->setEmail('admin-boutons@example.com');
         $admin->setPassword('not-checked-by-loginUser');
+        $admin->setFirstname('Test');
         $organization->addUser($admin, OrganizationRole::ADMIN);
 
         $em->persist($organization);

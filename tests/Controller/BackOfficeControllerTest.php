@@ -27,6 +27,7 @@ final class BackOfficeControllerTest extends WebTestCase
         $user = new User();
         $user->setEmail($email);
         $user->setPassword('not-checked-by-loginUser');
+        $user->setFirstname('Test');
         $user->setRoles($roles);
         $user->setIsVerified($verified);
         $this->entityManager->persist($user);

@@ -24,6 +24,7 @@ final class MemberBudgetLineControllerTest extends WebTestCase
         $member = new User();
         $member->setEmail('membre-a@example.com');
         $member->setPassword('not-checked-by-loginUser');
+        $member->setFirstname('Test');
         $orgA->addUser($member);
 
         $orgB = new Organization();

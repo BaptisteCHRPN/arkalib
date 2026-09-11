@@ -127,7 +127,7 @@
 										{%- elseif membership.createdBy.id == member.id -%}
 											Elle-même / lui-même
 										{%- else -%}
-											{{ membership.createdBy.firstname }} {{ membership.createdBy.lastname }}
+											{{ membership.createdBy.displayName }}
 										{%- endif -%}
 									</span>
 								</td>
@@ -251,7 +251,7 @@
 								</td>
 								<td>
 									<span class="text-secondary small">
-										{{ invitation.invitedBy ? invitation.invitedBy.firstname ~ ' ' ~ invitation.invitedBy.lastname : '—' }}
+										{{ invitation.invitedBy ? invitation.invitedBy.displayName : '—' }}
 									</span>
 								</td>
 								<td>
@@ -362,11 +362,7 @@
 								<td>
 									{% if log.actor %}
 										<a href="{{ path('app_admin_user_show', {'id': log.actor.id}) }}" class="fw-medium text-dark text-decoration-none">
-											{%- if log.actor.firstname or log.actor.lastname -%}
-												{{ log.actor.firstname }} {{ log.actor.lastname }}
-											{%- else -%}
-												{{ log.actor.email }}
-											{%- endif -%}
+											{{ log.actor.displayName }}
 										</a>
 									{% else %}
 										<span class="text-secondary small">Compte supprimé</span>

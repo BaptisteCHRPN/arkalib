@@ -58,11 +58,7 @@
 										<div class="d-flex align-items-center gap-2">
 											{{ avatarMacros.user_avatar(log.actor.picture, log.actor.email, 28) }}
 											<a href="{{ path('app_admin_user_show', {'id': log.actor.id}) }}" class="fw-medium text-dark text-decoration-none">
-												{%- if log.actor.firstname or log.actor.lastname -%}
-													{{ log.actor.firstname }} {{ log.actor.lastname }}
-												{%- else -%}
-													{{ log.actor.email }}
-												{%- endif -%}
+												{{ log.actor.displayName }}
 											</a>
 										</div>
 									{% else %}
