@@ -172,13 +172,11 @@ class InvitationService
         ], UrlGeneratorInterface::ABSOLUTE_URL);
 
         // ── Nom de l'inviteur ──
-        // Si firstname/lastname sont remplis → "Jean Dupont"
-        // Sinon → on utilise l'email comme fallback
+        // "Jean Dupont" si le profil est rempli, l'e-mail sinon : c'est
+        // exactement ce que fait User::getDisplayName(), utilisé partout
+        // ailleurs pour nommer quelqu'un.
         $invitedBy = $invitation->getInvitedBy();
-        $inviterName = trim($invitedBy->getFirstname() . ' ' . $invitedBy->getLastname());
-        if (empty($inviterName)) {
-            $inviterName = $invitedBy->getEmail();
-        }
+        $inviterName = $invitedBy->getDisplayName();
 
         // ── Construction de l'email ──
         // TemplatedEmail = email dont le contenu HTML est un template Twig

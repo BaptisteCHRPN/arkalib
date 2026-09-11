@@ -4,7 +4,7 @@
 	{{ include('admin/_stylesheets.html.twig') }}
 {% endblock %}
 
-{% block title %}Modifier – {{ user.firstname }} {{ user.lastname }}{% endblock %}
+{% block title %}Modifier – {{ user.displayName }}{% endblock %}
 
 {% block body %}
 	<div class="container py-4 py-md-5">
@@ -19,7 +19,7 @@
 					<a href="{{ path('app_admin_user_index') }}">Utilisateurs</a>
 				</li>
 				<li class="breadcrumb-item">
-					<a href="{{ path('app_admin_user_show', {'id': user.id}) }}">{{ user.firstname }} {{ user.lastname }}</a>
+					<a href="{{ path('app_admin_user_show', {'id': user.id}) }}">{{ user.displayName }}</a>
 				</li>
 				<li class="breadcrumb-item active" aria-current="page">Modifier</li>
 			</ol>
@@ -33,7 +33,7 @@
 		{# ─── Form Card ─── #}
 		<div class="card admin-table-card shadow-sm">
 			<div class="card-header">
-				<span class="fw-semibold text-dark">{{ user.firstname }} {{ user.lastname }}</span>
+				<span class="fw-semibold text-dark">{{ user.displayName }}</span>
 			</div>
 			<div class="card-body p-4">
 				{{ include('admin/user/_form.html.twig', {'button_label': 'Enregistrer'}) }}

@@ -5,7 +5,7 @@
 	{{ include('admin/_stylesheets.html.twig') }}
 {% endblock %}
 
-{% block title %}{{ user.firstname }} {{ user.lastname }}{% endblock %}
+{% block title %}{{ user.displayName }}{% endblock %}
 
 {% block body %}
 	<div class="container py-4 py-md-5">
@@ -19,7 +19,7 @@
 				<li class="breadcrumb-item">
 					<a href="{{ path('app_admin_user_index') }}">Utilisateurs</a>
 				</li>
-				<li class="breadcrumb-item active" aria-current="page">{{ user.firstname }} {{ user.lastname }}</li>
+				<li class="breadcrumb-item active" aria-current="page">{{ user.displayName }}</li>
 			</ol>
 		</nav>
 
@@ -208,7 +208,7 @@
 										{%- elseif row.membership.createdBy.id == user.id -%}
 											Elle-même / lui-même
 										{%- else -%}
-											{{ row.membership.createdBy.firstname }} {{ row.membership.createdBy.lastname }}
+											{{ row.membership.createdBy.displayName }}
 										{%- endif -%}
 									</span>
 								</td>

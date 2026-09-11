@@ -61,11 +61,7 @@
                                             <span class="fw-semibold">{{ invitation.email }}</span>
                                         </td>
                                         <td>
-                                            {% if invitation.invitedBy.firstname %}
-                                                {{ invitation.invitedBy.firstname }} {{ invitation.invitedBy.lastname ?? '' }}
-                                            {% else %}
-                                                {{ invitation.invitedBy.email }}
-                                            {% endif %}
+                                            {{ invitation.invitedBy.displayName }}
                                         </td>
                                         <td class="text-center">
                                             {% if invitation.status == 'accepted' %}

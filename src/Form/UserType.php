@@ -26,8 +26,9 @@ class UserType extends AbstractType
                 'label_html' => true,
             ])
             ->add('lastname', null, [
-                'label' => 'Nom<span class="text-danger">*</span>',
-                'label_html' => true,
+                'label' => 'Nom',
+                'required' => false,
+                'help' => 'Facultatif.',
             ])
             ->add('picture', FileType::class, [
                 'label' => 'Avatar',

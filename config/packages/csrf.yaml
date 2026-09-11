@@ -1,11 +1,17 @@
-# Enable stateless CSRF protection for forms and logins/logouts
+# La protection CSRF « stateless » (double-submit cookie) est volontairement
+# désactivée : elle repose entièrement sur le contrôleur Stimulus
+# csrf-protection, qui remplace le nom de jeton rendu par le serveur par un vrai
+# jeton et pose le cookie correspondant.
+#
+# Or les pages publiques — connexion, inscription, mot de passe oublié — étendent
+# base.html.twig, qui ne charge aucun JavaScript AssetMapper : `importmap('app')`
+# n'apparaît que dans user_base.html.twig. Aucun cookie n'était donc posé, et
+# toute connexion échouait sur « Invalid CSRF token ».
+#
+# Le mode par défaut stocke le jeton en session et ne dépend d'aucun JavaScript.
+# Pour revenir au stateless, il faudrait d'abord charger l'importmap sur les
+# pages publiques — ce qui y activerait aussi Turbo, importé par app.js.
 framework:
     form:
         csrf_protection:
             token_id: submit
-
-    csrf_protection:
-        stateless_token_ids:
-            - submit
-            - authenticate
-            - logout

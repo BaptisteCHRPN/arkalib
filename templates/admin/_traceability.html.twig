@@ -29,7 +29,7 @@
 						{%- if entity.createdAt -%}
 							le {{ entity.createdAt|date('d/m/Y à H:i') }}
 							{% if entity.createdBy %}
-								<span class="text-dark">par {{ entity.createdBy.firstname }} {{ entity.createdBy.lastname }}</span>
+								<span class="text-dark">par {{ entity.createdBy.displayName }}</span>
 							{% endif %}
 						{%- else -%}
 							—
@@ -42,7 +42,7 @@
 						{%- if entity.updatedAt -%}
 							le {{ entity.updatedAt|date('d/m/Y à H:i') }}
 							{% if entity.updatedBy %}
-								<span class="text-dark">par {{ entity.updatedBy.firstname }} {{ entity.updatedBy.lastname }}</span>
+								<span class="text-dark">par {{ entity.updatedBy.displayName }}</span>
 							{% endif %}
 						{%- else -%}
 							jamais modifié depuis sa création
@@ -61,7 +61,7 @@
 								<span class="text-secondary ms-2">
 									depuis le {{ entity.deletedAt|date('d/m/Y à H:i') }}
 									{% if entity.deletedBy %}
-										<span class="text-dark">par {{ entity.deletedBy.firstname }} {{ entity.deletedBy.lastname }}</span>
+										<span class="text-dark">par {{ entity.deletedBy.displayName }}</span>
 									{% endif %}
 								</span>
 							{% else %}
