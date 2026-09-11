@@ -52,6 +52,7 @@ final class MemberCategoryControllerTest extends WebTestCase
         $user = new User();
         $user->setEmail($email);
         $user->setPassword('not-checked-by-loginUser');
+        $user->setFirstname('Test');
 
         return $user;
     }

@@ -16,11 +16,13 @@ final class MemberUserControllerTest extends WebTestCase
         $owner = new User();
         $owner->setEmail('owner@example.com');
         $owner->setPassword('not-checked-by-loginUser');
+        $owner->setFirstname('Test');
         $entityManager->persist($owner);
 
         $someoneElse = new User();
         $someoneElse->setEmail('someone-else@example.com');
         $someoneElse->setPassword('not-checked-by-loginUser');
+        $someoneElse->setFirstname('Test');
         $entityManager->persist($someoneElse);
 
         $entityManager->flush();
@@ -40,6 +42,7 @@ final class MemberUserControllerTest extends WebTestCase
         $user = new User();
         $user->setEmail('self@example.com');
         $user->setPassword('not-checked-by-loginUser');
+        $user->setFirstname('Test');
         $entityManager->persist($user);
         $entityManager->flush();
 

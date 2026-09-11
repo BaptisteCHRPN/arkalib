@@ -65,6 +65,7 @@ final class AdminReadOnlyControllersTest extends WebTestCase
         $admin = new User();
         $admin->setEmail('admin@example.com');
         $admin->setPassword('not-checked-by-loginUser');
+        $admin->setFirstname('Test');
         $admin->setRoles(['ROLE_ADMIN']);
         $entityManager->persist($admin);
         $entityManager->flush();

@@ -60,6 +60,7 @@ final class UploadsControllerTest extends WebTestCase
         $outsider = new User();
         $outsider->setEmail('outsider-upload@example.com');
         $outsider->setPassword('not-checked-by-loginUser');
+        $outsider->setFirstname('Test');
 
         $em->persist($organization);
         $em->persist($budget);
