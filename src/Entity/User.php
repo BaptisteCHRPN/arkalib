@@ -274,6 +274,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
+     * Nom affiché partout dans l'interface.
+     *
+     * Le prénom est demandé à la première connexion et peut très bien être un
+     * pseudo : c'est un nom d'usage, pas une identité civile. Le repli sur
+     * l'e-mail couvre les comptes antérieurs à cette règle et ceux créés depuis
+     * le back-office, qui n'ont pas encore traversé l'écran de complétion.
+     */
+    public function getDisplayName(): string
+    {
+        $name = trim($this->firstname . ' ' . $this->lastname);
+
+        return '' !== $name ? $name : (string) $this->email;
+    }
+
+
+    /**
      * @return Collection<int, OrganizationMembership>
      */
     public function getMemberships(): Collection
@@ -307,7 +323,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getOrganizations(): Collection
     {
         return $this->memberships->map(
-            fn (OrganizationMembership $membership) => $membership->getOrganization()
+            fn(OrganizationMembership $membership) => $membership->getOrganization()
         );
     }
 

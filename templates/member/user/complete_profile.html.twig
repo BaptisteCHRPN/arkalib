@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Complétez votre profil{% endblock %}
+
+{% block body %}
+	<div class="login-container">
+		<div class="login-card">
+			<h1 class="login-title">Bienvenue sur Arkalib</h1>
+
+			<p class="text-center text-muted mb-4">
+				Encore une étape : indiquez-nous comment vous appeler.
+			</p>
+
+			{{ form_errors(form) }}
+
+			{{ form_start(form) }}
+
+			<div class="mb-3">
+				{{ form_label(form.firstname) }}
+				{{ form_widget(form.firstname, {'attr': {'class': 'form-control login-input'}}) }}
+				{{ form_help(form.firstname) }}
+				{{ form_errors(form.firstname) }}
+			</div>
+
+			<div class="mb-4">
+				{{ form_label(form.lastname) }}
+				{{ form_widget(form.lastname, {'attr': {'class': 'form-control login-input'}}) }}
+				{{ form_help(form.lastname) }}
+				{{ form_errors(form.lastname) }}
+			</div>
+
+			<button type="submit" class="w-100 btn btn-primary login-button">Continuer</button>
+			{{ form_end(form) }}
+		</div>
+	</div>
+{% endblock %}
