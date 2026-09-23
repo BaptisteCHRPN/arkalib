@@ -1,0 +1,4 @@
+# Surcharge les traductions du domaine « security » fournies par Symfony
+# (vendor/symfony/security-core/Resources/translations/security.fr.xlf).
+# La clé est la chaîne anglaise d'origine, point final compris.
+'Invalid credentials.': "Adresse e-mail ou mot de passe incorrect."

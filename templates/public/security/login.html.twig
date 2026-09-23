@@ -8,9 +8,13 @@
 		<div class="login-card">
 			<h1 class="login-title">Connexion</h1>
 
+			{# `messageKey` et non `message` : `message` est le message interne de
+			   Symfony, qui diffère selon que le mot de passe est faux ou que le
+			   compte n'existe pas — ce qui permettrait d'énumérer les comptes.
+			   `messageKey` vaut « Invalid credentials. » dans les deux cas. #}
 			{% if error %}
 				<div class="alert alert-danger text-center">
-					{{ error.message|raw }}
+					{{ error.messageKey|trans(error.messageData, 'security')|raw }}
 				</div>
 			{% endif %}
 
