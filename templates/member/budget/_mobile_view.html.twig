@@ -140,6 +140,13 @@
 				{% endif %}
 			</div>
 			{% endif %}
+			<div class="col-12">
+				{% include 'member/trash/_link.html.twig' with {
+					organization: organization,
+					classes: 'btn-outline-secondary btn-sm w-100 py-2',
+					label: "Corbeille de l'organisation"
+				} only %}
+			</div>
 		</div>
 	</div>
 

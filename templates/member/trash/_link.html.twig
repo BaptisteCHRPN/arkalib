@@ -1,0 +1,9 @@
+{# Lien vers la corbeille de l'organisation.
+   Params : organization (requis), classes (optionnel), label (optionnel) #}
+{% if is_granted('ORGANIZATION_CONTRIBUTE', organization) %}
+	<a class="btn {{ classes|default('btn-outline-secondary btn-sm') }}"
+	   href="{{ path('app_member_trash_index', {slug: organization.slug}) }}">
+		{{ ux_icon('mdi:trash-can', {'class': 'me-1'}) }}
+		<span>{{ label|default('Corbeille') }}</span>
+	</a>
+{% endif %}

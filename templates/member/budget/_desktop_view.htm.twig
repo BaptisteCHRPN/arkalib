@@ -124,6 +124,11 @@
 					{{ ux_icon('hugeicons:transaction', {'class': 'me-2'}) }}
 					Voir les transactions
 				</a>
+				{% include 'member/trash/_link.html.twig' with {
+					organization: organization,
+					classes: 'btn-outline-secondary',
+					label: "Corbeille de l'organisation"
+				} only %}
 				<a href="{{ path('app_membre_actuel_budget_show', {'budgetSlug': budget.slug, 'organizationSlug': organization.slug}) }}" class="btn btn-primary ms-md-auto">
 					{{ ux_icon('tabler:arrows-diff', {'class': 'me-2'}) }}Prévu vs Réel
 				</a>
