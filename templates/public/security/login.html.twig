@@ -30,8 +30,19 @@
 						<input type="email" value="{{ last_username }}" name="email" class="form-control login-input" placeholder="Adresse e-mail" autocomplete="email" required>
 					</div>
 
-					<div class="mb-3">
-						<input type="password" name="password" class="form-control login-input" placeholder="Mot de passe" autocomplete="current-password" required>
+					<div class="mb-3 password-wrapper">
+						<input type="password" id="login-password" name="password" class="form-control login-input" placeholder="Mot de passe" autocomplete="current-password" required>
+						<button
+							type="button"
+							class="password-toggle"
+							data-password-toggle="login-password"
+							aria-controles="login-password"
+							aria-pressed="false"
+							aria-label="Afficher le mot de passe"
+						>
+							{{ ux_icon('mdi:eye', { class: 'icon-show' }) }}
+							{{ ux_icon('mdi:eye-off', { class: 'icon-hide' }) }}
+						</button>
 					</div>
 
 					{# `data-controller` ne sert que si la protection CSRF « stateless »
@@ -64,4 +75,8 @@
 			{% endif %}
 		</div>
 	</div>
+{% endblock %}
+
+{% block javascripts %}
+	<script src="{{ asset('js/password-toggle.js') }}" defer></script>
 {% endblock %}

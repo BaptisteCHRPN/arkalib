@@ -17,9 +17,7 @@ class LoginType extends AbstractType
     {
         $builder
             ->add('email', EmailType::class)
-            ->add('password', PasswordType::class, [
-                'toggle' => true,
-            ])
+            ->add('password', PasswordType::class)
         ;
     }
 
