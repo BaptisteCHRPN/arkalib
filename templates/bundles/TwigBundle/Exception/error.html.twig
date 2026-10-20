@@ -1,0 +1,70 @@
+{# templates/bundles/TwigBundle/Exception/error.html.twig #}
+{# Page générique : utilisée pour tout code sans template dédié (400, 405, 429, 503…) #}
+
+{% extends 'base.html.twig' %}
+
+{% set errors = {
+	400: {
+		title: "La requête n'a pas pu être traitée.",
+		text: "Les informations envoyées sont incomplètes ou invalides. Revenez à la page précédente et réessayez.",
+	},
+	405: {
+		title: "Cette action n'est pas autorisée ici.",
+		text: "Cette adresse ne peut pas être ouverte directement depuis le navigateur. Utilisez les boutons de l'application pour effectuer cette action.",
+	},
+	429: {
+		title: "Trop de tentatives.",
+		text: "Vous avez effectué trop de demandes en peu de temps. Patientez quelques minutes avant de réessayer.",
+	},
+	503: {
+		title: "Arkalib est en maintenance.",
+		text: "Le service est momentanément indisponible. Revenez dans quelques instants, merci de votre patience.",
+	},
+} %}
+
+{% set error = errors[status_code] ?? {
+	title: "Une erreur est survenue.",
+	text: "La page n'a pas pu être affichée. Réessayez dans quelques instants.",
+} %}
+
+{% set image = status_code in errors|keys ? 'img/error_' ~ status_code ~ '.svg' : 'img/error_400.svg' %}
+
+{% block title %}Erreur {{ status_code }}{% endblock %}
+
+{% block h1 %}Erreur {{ status_code }} – {{ error.title }}{% endblock %}
+
+{% block body %}
+	<section class="error-page py-5" aria-labelledby="error-heading">
+		<div class="container">
+			<div class="row align-items-center">
+				<div class="col-md-6 mb-4 mb-md-0">
+					<p class="error-page-code" aria-hidden="true">{{ status_code }}</p>
+					<h2 id="error-heading" class="error-page-title">
+						{{ error.title }}
+					</h2>
+					<p class="error-page-subtitle">
+						{{ error.text }}
+					</p>
+
+					<div class="d-flex flex-wrap gap-3 mb-4">
+						<a href="{{ path('app_home') }}" class="btn btn-primary fs-5 px-4">
+							Retour à l'accueil
+						</a>
+						<a href="{{ path('app_contact') }}" class="btn btn-outline-primary fs-5 px-4">
+							Nous contacter
+						</a>
+					</div>
+				</div>
+				<div class="col-md-6 d-flex justify-content-center">
+					<img
+						src="{{ asset(image) }}"
+						alt=""
+						class="error-page-image img-fluid"
+						width="500"
+						height="500"
+					>
+				</div>
+			</div>
+		</div>
+	</section>
+{% endblock %}
