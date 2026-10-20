@@ -295,6 +295,44 @@ body.loading * {
 
 
 /* =============================================
+   PAGES D'ERREUR (404…)
+   ============================================= */
+
+.error-page {
+    background-color: var(--ark-light-gray);
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+}
+
+.error-page-code {
+    font-size: 6rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--ark-primary);
+    margin-bottom: 0.5rem;
+}
+
+.error-page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--ark-secondary);
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+}
+
+.error-page-subtitle {
+    font-size: 1.25rem;
+    color: var(--ark-text-muted);
+    margin-bottom: 2rem;
+}
+
+.error-page-image {
+    max-width: 420px;
+}
+
+
+/* =============================================
    PAGE D'ACCUEIL – Cards (valeurs)
    ============================================= */
 

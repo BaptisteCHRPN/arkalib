@@ -1,0 +1,56 @@
+{# templates/bundles/TwigBundle/Exception/error404.html.twig #}
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Page introuvable{% endblock %}
+
+{% block h1 %}Erreur 404 – Page introuvable{% endblock %}
+
+{% block body %}
+	<section class="error-page py-5" aria-labelledby="error-heading">
+		<div class="container">
+			<div class="row align-items-center">
+				<div class="col-md-6 mb-4 mb-md-0">
+					<p class="error-page-code" aria-hidden="true">404</p>
+					<h2 id="error-heading" class="error-page-title">
+						Oups, cette page est introuvable.
+					</h2>
+					<p class="error-page-subtitle">
+						La page que vous cherchez n'existe pas, a été déplacée ou n'est plus disponible.
+						Vérifiez l'adresse saisie ou utilisez l'un des liens ci-dessous.
+					</p>
+
+					<div class="d-flex flex-wrap gap-3 mb-4">
+						<a href="{{ path('app_home') }}" class="btn btn-primary fs-5 px-4">
+							Retour à l'accueil
+						</a>
+						{% if app.user %}
+							<a href="{{ path('app_dashboard') }}" class="btn btn-outline-primary fs-5 px-4">
+								Mon tableau de bord
+							</a>
+						{% else %}
+							<a href="{{ path('app_login') }}" class="btn btn-outline-primary fs-5 px-4">
+								Se connecter
+							</a>
+						{% endif %}
+					</div>
+
+					<p class="text-muted mb-0">
+						Vous pensez qu'il s'agit d'une erreur ?
+						<a href="{{ path('app_contact') }}" class="login-link">Contactez-nous</a>
+						pour nous le signaler.
+					</p>
+				</div>
+				<div class="col-md-6 d-flex justify-content-center">
+					<img
+						src="{{ asset('img/error_404.svg') }}"
+						alt=""
+						class="error-page-image img-fluid"
+						width="500"
+						height="500"
+					>
+				</div>
+			</div>
+		</div>
+	</section>
+{% endblock %}
