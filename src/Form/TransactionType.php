@@ -25,7 +25,8 @@ class TransactionType extends AbstractType
                 'widget' => 'single_text',
                 'html5' => false,
                 'format' => 'dd/MM/yyyy',
-                'label' => 'Date de la transaction',
+                'label' => 'Date de la transaction <span class="text-danger">*</span>',
+                'label_html' => true,
                 'attr' => [
                     'data-controller' => 'date-paste',
                     'autocomplete' => 'off',
@@ -33,13 +34,15 @@ class TransactionType extends AbstractType
             ])
 
             ->add('amount', null, [
-                'label' => 'Montant',
+                'label' => 'Montant <span class="text-danger">*</span>',
+                'label_html' => true,
                 'attr' => [
                     'data-controller' => 'money-input',
                 ],
             ])
             ->add('payment_method', null, [
-                'label' => 'Moyen de paiement',
+                'label' => 'Moyen de paiement <span class="text-danger">*</span>',
+                'label_html' => true,
             ])
             ->add('comment', null, [
                 'label' => 'Information complémentaire',
@@ -48,7 +51,7 @@ class TransactionType extends AbstractType
                 'label' => 'Référence de la transaction',
             ])
             ->add('budget_line', EntityType::class, [
-                'label' => 'Recettes ou dépenses correspondantes',
+                'label' => 'Recettes ou dépenses correspondantes <span class="text-danger">*</span>',
                 'label_html' => true,
                 'class' => BudgetLine::class,
                 'query_builder' => function (EntityRepository $er) use ($budget) {
@@ -62,6 +65,10 @@ class TransactionType extends AbstractType
                 },
                 'multiple' => true,
                 'required' => false,
+                'constraints' => [
+                    new Assert\Count(min: 1, minMessage: 'Sélectionne au moins une recette ou dépense.'),
+                ],
+
                 'attr' => [
                     'class' => 'form-select'
                 ]
