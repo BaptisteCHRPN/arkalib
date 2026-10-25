@@ -35,6 +35,17 @@ class Organization
     #[ORM\OneToMany(targetEntity: Budget::class, mappedBy: 'organization', cascade: ['remove'])]
     private Collection $budgets;
 
+    /**
+     * Uniquement pour la suppression en cascade : sans elle, supprimer
+     * l'organisation tenterait d'effacer des budgets encore référencés par
+     * des réaffectations (clés étrangères en RESTRICT).
+     *
+     * @var Collection<int, Reallocation>
+     */
+    #[ORM\OneToMany(targetEntity: Reallocation::class, mappedBy: 'organization', cascade: ['remove'])]
+    private Collection $reallocations;
+
+
 
     /**
      * @var Collection<int, OrganizationMembership>
@@ -62,6 +73,7 @@ class Organization
     public function __construct()
     {
         $this->budgets = new ArrayCollection();
+        $this->reallocations = new ArrayCollection();
         $this->memberships = new ArrayCollection();
         $this->is_active = true;
         $this->invitations = new ArrayCollection();
@@ -183,7 +195,7 @@ class Organization
     public function getUsers(): Collection
     {
         return $this->memberships->map(
-            fn (OrganizationMembership $membership) => $membership->getUser()
+            fn(OrganizationMembership $membership) => $membership->getUser()
         );
     }
 
