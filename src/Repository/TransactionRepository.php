@@ -48,6 +48,37 @@ class TransactionRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Transactions d'un budget, chacune une seule fois, avec toutes leurs
+     * lignes chargées : Transaction::getDirection() en a besoin.
+     *
+     * On ne filtre pas directement la jointure sur le budget : Doctrine
+     * hydraterait alors des collections partielles. La sous-requête choisit
+     * les transactions, la requête principale charge leurs lignes.
+     *
+     * Les transactions et lignes à la corbeille sont exclues par le filtre
+     * soft_delete.
+     *
+     * @return Transaction[]
+     */
+    public function findRealizedByBudget(Budget $budget): array
+    {
+        $transactionsOfBudget = $this->createQueryBuilder('t2')
+            ->select('t2.id')
+            ->join('t2.budget_line', 'bl2')
+            ->where('bl2.budget = :budget');
+
+        $qb = $this->createQueryBuilder('t');
+
+        return $qb
+            ->addSelect('bl')
+            ->join('t.budget_line', 'bl')
+            ->where($qb->expr()->in('t.id', $transactionsOfBudget->getDQL()))
+            ->setParameter('budget', $budget)
+            ->getQuery()
+            ->getResult();
+    }
+
     public function findDeletedByOrganization(Organization $organization): array
     {
         $this->getEntityManager()->getFilters()->disable('soft_delete');

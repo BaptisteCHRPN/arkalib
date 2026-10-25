@@ -20,6 +20,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use App\Service\BudgetBalanceCalculator;
+
 
 final class MemberBudgetController extends AbstractController
 {
@@ -119,6 +121,8 @@ final class MemberBudgetController extends AbstractController
     public function showActuelBudget(
         BudgetLineRepository $budgetLineRepository,
         BudgetCalculatorService $budgetCalculatorService,
+        BudgetBalanceCalculator $budgetBalanceCalculator,
+
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         EntityManagerInterface $entityManager,
         string $budgetSlug
@@ -164,18 +168,14 @@ final class MemberBudgetController extends AbstractController
         $expensesByCategory = $budgetLineRepository->sumExpensesByCategory($budget);
         $incomesByCategory = $budgetLineRepository->sumIncomesByCategory($budget);
 
-        // Calculer les totaux réels
-        $sumRealExpenses = 0;
-        foreach ($expensesByCategory as $expense) {
-            $sumRealExpenses += $expense['real_total'] ?? 0;
-        }
+        // Totaux réels : uniquement via BudgetBalanceCalculator (chaque
+        // transaction comptée une fois, lignes sans catégorie incluses).
+        // Conversion en euros pour l'affichage seulement.
+        $balance = $budgetBalanceCalculator->balanceOf($budget);
+        $sumRealIncomes = $balance->cashIn / 100;
+        $sumRealExpenses = $balance->cashOut / 100;
+        $realBalance = $balance->realizedBalance() / 100;
 
-        $sumRealIncomes = 0;
-        foreach ($incomesByCategory as $income) {
-            $sumRealIncomes += $income['real_total'] ?? 0;
-        }
-
-        $realBalance = $sumRealIncomes - $sumRealExpenses;
 
         return $this->render('member/budget/actual_budget.html.twig', [
             'budget' => $budget,
