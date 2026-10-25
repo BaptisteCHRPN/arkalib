@@ -9,6 +9,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Trait\TraceableTrait;
 use App\Entity\Trait\SoftDeleteTrait;
+use App\Enum\TransactionDirection;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
+
+
 
 #[ORM\Entity(repositoryClass: TransactionRepository::class)]
 #[ORM\Table(name: '`transaction`')]
@@ -142,6 +147,38 @@ class Transaction
         $this->budget_line->removeElement($budgetLine);
 
         return $this;
+    }
+
+    /**
+     * Encaissement si toutes les lignes rattachées sont des recettes,
+     * décaissement si ce sont toutes des dépenses.
+     *
+     * Null s'il n'y a aucune ligne, ou si les lignes mélangent recettes et
+     * dépenses : ce mélange est interdit à la saisie, mais des données
+     * antérieures à cette règle peuvent encore le contenir.
+     */
+    public function getDirection(): ?TransactionDirection
+    {
+        $hasIncome = $this->budget_line->exists(fn(int $i, BudgetLine $line) => !$line->isExpense());
+        $hasExpense = $this->budget_line->exists(fn(int $i, BudgetLine $line) => $line->isExpense());
+
+        return match (true) {
+            $hasIncome && !$hasExpense => TransactionDirection::CASH_IN,
+            $hasExpense && !$hasIncome => TransactionDirection::CASH_OUT,
+            default => null,
+        };
+    }
+
+    #[Assert\Callback]
+    public function validateSingleDirection(ExecutionContextInterface $context): void
+    {
+        // L'absence de ligne est déjà refusée par le formulaire (Count min 1) :
+        // on ne signale ici que le mélange recettes / dépenses.
+        if (!$this->budget_line->isEmpty() && null === $this->getDirection()) {
+            $context->buildViolation('Une transaction est soit un encaissement, soit un décaissement : sélectionne uniquement des recettes, ou uniquement des dépenses.')
+                ->atPath('budget_line')
+                ->addViolation();
+        }
     }
 
     public function getReference(): ?string

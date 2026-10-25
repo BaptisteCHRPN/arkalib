@@ -1,0 +1,17 @@
+{#
+    Sens réel d'une transaction, déduit de ses lignes (Transaction::getDirection()).
+    Attend : direction (TransactionDirection ou null)
+#}
+{% if direction is null %}
+    <span class="badge bg-warning bg-opacity-25 text-warning-emphasis" title="Aucune ligne rattachée, ou lignes mêlant recettes et dépenses">
+        Sens indéterminé
+    </span>
+{% elseif direction is same as(constant('App\\Enum\\TransactionDirection::CASH_IN')) %}
+    <span class="badge bg-success bg-opacity-25 text-success">
+        {{ ux_icon('mdi:arrow-up-circle', {'class': 'me-1'}) }}{{ direction.label }}
+    </span>
+{% else %}
+    <span class="badge bg-danger bg-opacity-25 text-danger">
+        {{ ux_icon('mdi:arrow-down-circle', {'class': 'me-1'}) }}{{ direction.label }}
+    </span>
+{% endif %}

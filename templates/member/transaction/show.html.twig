@@ -50,6 +50,13 @@
 									</td>
 								</tr>
 								<tr>
+									<th class="text-muted">Sens</th>
+									<td>
+										{% include 'member/transaction/_direction_badge.html.twig' with {direction: transaction.direction} only %}
+									</td>
+								</tr>
+
+								<tr>
 									<th class="text-muted">Moyen de paiement</th>
 									<td>
 										{% if transaction.paymentMethod %}

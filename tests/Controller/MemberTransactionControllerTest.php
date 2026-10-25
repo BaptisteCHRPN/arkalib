@@ -72,4 +72,57 @@ final class MemberTransactionControllerTest extends WebTestCase
 
         $this->assertResponseStatusCodeSame(404);
     }
+
+    public function testTransactionListShowsCashInBadgeForIncomeTransaction(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+
+        $organization = new Organization();
+        $organization->setName('Org sens');
+        $organization->setSlug('org-direction-badge-test');
+        $organization->setIsActive(true);
+
+        $member = new User();
+        $member->setEmail('membre-direction-badge@example.com');
+        $member->setPassword('not-checked-by-loginUser');
+        $member->setFirstname('Test');
+        $organization->addUser($member);
+
+        $budget = new Budget();
+        $budget->setName('Budget sens');
+        $budget->setSlug('budget-direction-badge-test');
+        $budget->setOrganization($organization);
+        $budget->setStartDate(new \DateTime('2026-01-01'));
+        $budget->setEndDate(new \DateTime('2026-12-31'));
+
+        $incomeLine = new BudgetLine();
+        $incomeLine->setName('Don');
+        $incomeLine->setAmount(500.0);
+        $incomeLine->setIsExpense(false);
+        $incomeLine->setBudget($budget);
+
+        $transaction = new Transaction();
+        $transaction->setDate(new \DateTime('2026-06-01'));
+        $transaction->setAmount(500.0);
+        $transaction->setPaymentMethod('Chèque');
+        $transaction->addBudgetLine($incomeLine);
+
+        $em->persist($organization);
+        $em->persist($member);
+        $em->persist($budget);
+        $em->persist($incomeLine);
+        $em->persist($transaction);
+        $em->flush();
+
+        $client->loginUser($member);
+        $client->request('GET', sprintf(
+            '/budget/%s/%s/transaction',
+            $organization->getSlug(),
+            $budget->getSlug(),
+        ));
+
+        $this->assertResponseIsSuccessful();
+        $this->assertAnySelectorTextContains('.badge', 'Encaissement');
+    }
 }
