@@ -36,15 +36,7 @@ final readonly class RevenueProtectionResult
             throw new \LogicException('Aucun message : l\'opération est autorisée.');
         }
 
-        $descriptions = array_map(
-            fn(Reallocation $reallocation) => sprintf(
-                'du %s (%s) – %s',
-                $reallocation->getDecidedAt()?->format('d/m/Y'),
-                $reallocation->getInstance()?->shortLabel(),
-                $reallocation->getReason(),
-            ),
-            $this->reallocationsToCancel,
-        );
+        $descriptions = $this->describeReallocations();
 
         if (1 === count($descriptions)) {
             return sprintf(
@@ -61,6 +53,25 @@ final readonly class RevenueProtectionResult
             $action,
             implode(', ', $descriptions),
             $last,
+        );
+    }
+
+    /**
+     * Une description par réaffectation, ex. « du 12/10/2026 (CA) – Répartition don ».
+     * Partagée par le message et la trace d'un forçage.
+     *
+     * @return string[]
+     */
+    public function describeReallocations(): array
+    {
+        return array_map(
+            fn(Reallocation $reallocation) => sprintf(
+                'du %s (%s) – %s',
+                $reallocation->getDecidedAt()?->format('d/m/Y'),
+                $reallocation->getInstance()?->shortLabel(),
+                $reallocation->getReason(),
+            ),
+            $this->reallocationsToCancel,
         );
     }
 }
