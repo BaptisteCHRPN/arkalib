@@ -66,7 +66,7 @@ class TransactionType extends AbstractType
                 'multiple' => true,
                 'required' => false,
                 'constraints' => [
-                    new Assert\Count(min: 1, minMessage: 'Sélectionne au moins une recette ou dépense.'),
+                    new Assert\Count(min: 1, minMessage: 'Sélectionnez au moins une recette ou dépense.'),
                 ],
 
                 'attr' => [

@@ -49,10 +49,12 @@ final class BudgetBalanceCalculator
     }
 
     /**
+     * Public pour que tout le code convertisse les montants de la même façon.
+     *
      * round() avant (int) : 19.99 * 100 vaut 1998.9999… en float, et un
      * simple (int) tronquerait à 1998.
      */
-    private static function toCents(float|string|null $amount): int
+    public static function toCents(float|string|null $amount): int
     {
         return (int) round((float) $amount * 100);
     }

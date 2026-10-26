@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\ReallocationLineRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Part d'une réaffectation attribuée à un budget cible.
@@ -26,6 +27,7 @@ class ReallocationLine
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false, onDelete: 'RESTRICT')]
+    #[Assert\NotNull(message: 'Choisissez le budget qui reçoit ce montant.')]
     private ?Budget $targetBudget = null;
 
     /**
@@ -33,6 +35,8 @@ class ReallocationLine
      * exacte. Les calculs se font en centimes (voir BudgetBalanceCalculator).
      */
     #[ORM\Column(type: Types::DECIMAL, precision: 12, scale: 2)]
+    #[Assert\NotBlank(message: 'Indiquez un montant.')]
+    #[Assert\Positive(message: 'Le montant doit être supérieur à zéro.')]
     private ?string $amount = null;
 
     public function getId(): ?int
