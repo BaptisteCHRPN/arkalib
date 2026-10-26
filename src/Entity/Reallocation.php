@@ -234,6 +234,17 @@ class Reallocation
             return;
         }
 
+        // Cas de la restauration : le budget a pu passer à la corbeille
+        // après l'annulation de la réaffectation.
+        if (null !== $budget->getDeletedAt()) {
+            $context->buildViolation('Le budget « {{ name }} » est dans la corbeille : restaurez-le d\'abord.')
+                ->setParameter('{{ name }}', (string) $budget->getName())
+                ->atPath($path)
+                ->addViolation();
+
+            return;
+        }
+
         if ($budget->isClosed()) {
             $context->buildViolation('Le budget « {{ name }} » est clôturé : il ne peut ni donner ni recevoir de réaffectation. Rouvrez-le d\'abord si cette décision doit s\'y appliquer.')
                 ->setParameter('{{ name }}', (string) $budget->getName())

@@ -117,6 +117,17 @@ final class ReallocationTest extends TestCase
         $this->assertSame('lines[0].targetBudget', $violations[0]->getPropertyPath());
     }
 
+    public function testTrashedBudgetIsRejectedWithItsName(): void
+    {
+        $trashedTarget = $this->budget('Chauffage')->setDeletedAt(new \DateTimeImmutable());
+
+        $violations = $this->validate($this->reallocation($this->budget('Fête'), $trashedTarget));
+
+        $this->assertCount(1, $violations);
+        $this->assertSame('lines[0].targetBudget', $violations[0]->getPropertyPath());
+        $this->assertStringContainsString('« Chauffage » est dans la corbeille', $violations[0]->getMessage());
+    }
+
     public function testDecisionDetailsAreRequired(): void
     {
         $reallocation = (new Reallocation())
