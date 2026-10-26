@@ -8,6 +8,8 @@ use App\Entity\Organization;
 use App\Entity\Transaction;
 use App\Form\TransactionType;
 use App\Repository\TransactionRepository;
+use App\Service\BudgetBalanceCalculator;
+use App\Service\RevenueProtectionService;
 use App\Service\SoftDeleteService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -16,11 +18,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Security\Voter\OrganizationVoter;
 
 final class MemberTransactionController extends AbstractController
 {
     use \App\Security\AssertsOwnershipTrait;
+    use RevenueProtectionTrait;
 
     #[IsGranted('ROLE_USER')]
     #[Route('/budget/{organizationSlug}/{budgetSlug}/transaction', name: 'app_member_transaction_index', methods: ['GET'])]
@@ -179,6 +183,9 @@ final class MemberTransactionController extends AbstractController
         Transaction $transaction,
         EntityManagerInterface $entityManager,
         SoftDeleteService $softDeleteService,
+        BudgetBalanceCalculator $balanceCalculator,
+        RevenueProtectionService $revenueProtection,
+        ValidatorInterface $validator,
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
     ): Response {
@@ -194,15 +201,61 @@ final class MemberTransactionController extends AbstractController
             ], Response::HTTP_SEE_OTHER);
         }
 
-        if ($this->isCsrfTokenValid('delete' . $transaction->getId(), $request->getPayload()->getString('_token'))) {
-            $softDeleteService->softDelete($transaction, $this->getUser());
-            $entityManager->flush();
-            $this->addFlash('success', 'La transaction a été déplacée dans la corbeille.');
-        }
-
-        return $this->redirectToRoute('app_member_transaction_index', [
+        $indexUrl = $this->generateUrl('app_member_transaction_index', [
             'organizationSlug' => $organization->getSlug(),
             'budgetSlug' => $budget->getSlug(),
-        ], Response::HTTP_SEE_OTHER);
+        ]);
+
+        if (!$this->isCsrfTokenValid('delete' . $transaction->getId(), $request->getPayload()->getString('_token'))) {
+            return $this->redirect($indexUrl, Response::HTTP_SEE_OTHER);
+        }
+
+        // Photo avant / après, la suppression n'étant faite qu'en mémoire :
+        // tant qu'on ne flushe pas, un refus ne laisse aucune trace en base.
+        $before = $balanceCalculator->balanceOfTransactions($budget, [$transaction]);
+        $softDeleteService->softDelete($transaction, $this->getUser());
+        $after = $balanceCalculator->balanceOfTransactions($budget, [$transaction]);
+        $protection = $revenueProtection->checkChange($budget, $before, $after);
+
+        $stop = $this->stopIfRevenueProtected(
+            $request,
+            $protection,
+            $budget,
+            'supprimer cette transaction',
+            sprintf('Suppression de la transaction %s', self::describe($transaction)),
+            $indexUrl,
+            $validator,
+            $entityManager,
+        );
+
+        if (null !== $stop) {
+            return $stop;
+        }
+
+        $entityManager->flush();
+        $this->addFlash('success', 'La transaction a été déplacée dans la corbeille.');
+
+        if ($protection->isBlocked()) {
+            $this->addFlash('warning', sprintf(
+                'Blocage levé : le budget « %s » est maintenant à %s € de disponible. Votre motif a été enregistré.',
+                $budget->getName(),
+                number_format($protection->availableAfter / 100, 2, ',', ' '),
+            ));
+        }
+
+        return $this->redirect($indexUrl, Response::HTTP_SEE_OTHER);
+    }
+
+    /**
+     * Ex. « du 01/06/2026 de 1 000,00 € (réf. DON-12) », pour les traces.
+     */
+    private static function describe(Transaction $transaction): string
+    {
+        return sprintf(
+            'du %s de %s €%s',
+            $transaction->getDate()?->format('d/m/Y'),
+            number_format((float) $transaction->getAmount(), 2, ',', ' '),
+            $transaction->getReference() ? sprintf(' (réf. %s)', $transaction->getReference()) : '',
+        );
     }
 }

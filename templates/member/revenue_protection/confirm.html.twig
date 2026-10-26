@@ -1,0 +1,61 @@
+{% extends 'user_base.html.twig' %}
+
+{% block title %}Opération bloquée{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-4 py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="dashboard-title">Opération bloquée</h1>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+                    <div class="alert alert-danger" role="alert">
+                        {{ message }}
+                    </div>
+
+                    <p>
+                        Opération demandée : {{ operation }}.
+                    </p>
+                    <p>
+                        En tant qu'administrateur, vous pouvez passer outre, par exemple si un don a été remboursé alors
+                        que l'argent réaffecté est déjà dépensé. Le budget « {{ budget.name }} » passera alors à
+                        <strong class="text-danger">{{ availableAfter|number_format(2, ',', ' ') }} €</strong>
+                        de disponible, et votre motif sera enregistré.
+                    </p>
+
+                    <form method="post" action="{{ formAction }}" id="force-form">
+                        {% for name, value in fields %}
+                            <input type="hidden" name="{{ name }}" value="{{ value }}">
+                        {% endfor %}
+
+                        <div class="mb-3">
+                            <label for="force_reason" class="form-label">
+                                Motif <span class="text-danger">*</span>
+                            </label>
+                            <textarea id="force_reason" name="force_reason" maxlength="255" rows="3"
+                                      class="form-control{{ errors is not empty ? ' is-invalid' }}"
+                                      required>{{ app.request.payload.get('force_reason') }}</textarea>
+                            {% for error in errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-transparent border-top d-flex justify-content-between align-items-center px-4 py-3">
+                    <a href="{{ cancelUrl }}" class="btn btn-outline-secondary">
+                        {{ ux_icon('mdi:arrow-left', {'class': 'me-1'}) }}Annuler
+                    </a>
+                    <button type="submit" form="force-form" class="btn btn-danger">
+                        Passer outre et enregistrer le motif
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
