@@ -31,10 +31,42 @@ trait RevenueProtectionTrait
      * L'écran de confirmation renvoie les champs simples de la requête
      * (ex. le jeton CSRF) : il convient aux formulaires de suppression.
      *
-     * @param string $action    ce que l'utilisateur voulait faire, ex. « supprimer cette transaction »
-     * @param string $operation description figée pour la trace
+     * @param string   $action         ce que l'utilisateur voulait faire, ex. « supprimer cette transaction »
+     * @param string   $operation      description figée pour la trace
+     * @param object[] $changedEntities objets modifiés en mémoire par l'opération
      */
     private function stopIfRevenueProtected(
+        Request $request,
+        RevenueProtectionResult $result,
+        Budget $budget,
+        string $action,
+        string $operation,
+        string $cancelUrl,
+        array $changedEntities,
+        ValidatorInterface $validator,
+        EntityManagerInterface $entityManager,
+    ): ?Response {
+        if (!$result->isBlocked()) {
+            return null;
+        }
+
+        $response = $this->revenueProtectionResponse($request, $result, $budget, $action, $operation, $cancelUrl, $validator, $entityManager);
+
+        if (null !== $response) {
+            // Opération arrêtée : on relit ces objets depuis la base pour
+            // annuler la modification faite en mémoire. Sinon, un flush
+            // ultérieur de la même requête l'enregistrerait quand même (ex.
+            // AdminActionLogSubscriber, qui flushe en fin de requête pour un
+            // administrateur global).
+            foreach ($changedEntities as $entity) {
+                $entityManager->refresh($entity);
+            }
+        }
+
+        return $response;
+    }
+
+    private function revenueProtectionResponse(
         Request $request,
         RevenueProtectionResult $result,
         Budget $budget,
@@ -44,10 +76,6 @@ trait RevenueProtectionTrait
         ValidatorInterface $validator,
         EntityManagerInterface $entityManager,
     ): ?Response {
-        if (!$result->isBlocked()) {
-            return null;
-        }
-
         $message = $result->message($action);
 
         if (!$this->isGranted(OrganizationVoter::ADMINISTER, $budget->getOrganization())) {

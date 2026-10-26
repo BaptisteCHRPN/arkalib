@@ -9,7 +9,6 @@ use App\Entity\Reallocation;
 use App\Entity\ReallocationLine;
 use App\Entity\Transaction;
 use App\Enum\ReallocationInstance;
-use App\Model\BudgetBalance;
 use App\Model\RevenueProtectionResult;
 use App\Service\BudgetBalanceCalculator;
 use App\Service\RevenueProtectionService;
@@ -145,10 +144,11 @@ final class RevenueProtectionServiceTest extends KernelTestCase
     public function testIncomeTurnedIntoExpenseCountsTwice(): void
     {
         $source = $this->budget('Fête');
-        $this->transaction($source, 1000.0, false);
+        $this->transaction($source, 700.0, false);
+        $moved = $this->transaction($source, 300.0, false);
         $this->reallocation($source, '600.00', '2026-10-12');
 
-        $result = $this->checkChange($source, new BudgetBalance(30000, 0, 0, 0), new BudgetBalance(0, 30000, 0, 0));
+        $result = $this->checkChange($source, [$moved], fn() => $moved->getBudgetLine()->first()->setIsExpense(true));
 
         $this->assertTrue($result->isBlocked());
         $this->assertSame(-20000, $result->availableAfter);
@@ -162,30 +162,56 @@ final class RevenueProtectionServiceTest extends KernelTestCase
         $source = $this->budget('Fête');
         $this->transaction($source, 1000.0, false);
         $this->reallocation($source, '1000.00', '2026-10-12');
+        $expense = $this->transaction($source, 100.0, true);
 
-        $result = $this->checkChange($source, new BudgetBalance(0, 10000, 0, 0), new BudgetBalance(0, 50000, 0, 0));
+        $result = $this->checkChange($source, [$expense], fn() => $expense->setAmount(500.0));
 
         $this->assertFalse($result->isBlocked());
-        $this->assertSame(-40000, $result->availableAfter);
+        $this->assertSame(-50000, $result->availableAfter);
     }
 
     public function testLowerIncomeWithinAvailableIsAllowed(): void
     {
         $source = $this->budget('Fête');
-        $this->transaction($source, 1000.0, false);
+        $donation = $this->transaction($source, 1000.0, false);
         $this->reallocation($source, '600.00', '2026-10-12');
 
-        $result = $this->checkChange($source, new BudgetBalance(100000, 0, 0, 0), new BudgetBalance(70000, 0, 0, 0));
+        $result = $this->checkChange($source, [$donation], fn() => $donation->setAmount(700.0));
 
         $this->assertFalse($result->isBlocked());
         $this->assertSame(10000, $result->availableAfter);
     }
 
-    private function checkChange(Budget $budget, BudgetBalance $before, BudgetBalance $after): RevenueProtectionResult
+    /**
+     * Régression : la ligne mise à la corbeille en mémoire ne doit pas
+     * fausser le disponible « avant ». Sans snapshot pris avant la
+     * modification, on lisait −800 € au lieu de 200 €.
+     */
+    public function testInMemoryTrashedLineDoesNotDistortTheAvailableBefore(): void
+    {
+        $source = $this->budget('Fête');
+        $donation = $this->transaction($source, 1000.0, false);
+        $this->reallocation($source, '800.00', '2026-10-12');
+
+        $result = $this->checkChange($source, [$donation], fn() => $donation->getBudgetLine()->first()->setDeletedAt(new \DateTimeImmutable()));
+
+        $this->assertTrue($result->isBlocked());
+        $this->assertSame(-80000, $result->availableAfter);
+    }
+
+    /**
+     * Comme dans un contrôleur : photo, modification en mémoire, vérification.
+     *
+     * @param Transaction[] $transactions
+     */
+    private function checkChange(Budget $budget, array $transactions, callable $change): RevenueProtectionResult
     {
         $this->em->flush();
 
-        return $this->service->checkChange($budget, $before, $after);
+        $snapshot = $this->service->snapshot($budget, $transactions);
+        $change();
+
+        return $this->service->checkChange($snapshot);
     }
 
     private function check(Budget $budget, int $lostCashIn): RevenueProtectionResult
@@ -208,7 +234,7 @@ final class RevenueProtectionServiceTest extends KernelTestCase
         return $budget;
     }
 
-    private function transaction(Budget $budget, float $amount, bool $isExpense): void
+    private function transaction(Budget $budget, float $amount, bool $isExpense): Transaction
     {
         $line = new BudgetLine();
         $line->setName($isExpense ? 'Dépense' : 'Recette');
@@ -223,6 +249,8 @@ final class RevenueProtectionServiceTest extends KernelTestCase
         $transaction->setPaymentMethod('Virement');
         $transaction->addBudgetLine($line);
         $this->em->persist($transaction);
+
+        return $transaction;
     }
 
     /**

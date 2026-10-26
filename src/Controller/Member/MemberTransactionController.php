@@ -8,7 +8,6 @@ use App\Entity\Organization;
 use App\Entity\Transaction;
 use App\Form\TransactionType;
 use App\Repository\TransactionRepository;
-use App\Service\BudgetBalanceCalculator;
 use App\Service\RevenueProtectionService;
 use App\Service\SoftDeleteService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -183,7 +182,6 @@ final class MemberTransactionController extends AbstractController
         Transaction $transaction,
         EntityManagerInterface $entityManager,
         SoftDeleteService $softDeleteService,
-        BudgetBalanceCalculator $balanceCalculator,
         RevenueProtectionService $revenueProtection,
         ValidatorInterface $validator,
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
@@ -212,10 +210,9 @@ final class MemberTransactionController extends AbstractController
 
         // Photo avant / après, la suppression n'étant faite qu'en mémoire :
         // tant qu'on ne flushe pas, un refus ne laisse aucune trace en base.
-        $before = $balanceCalculator->balanceOfTransactions($budget, [$transaction]);
+        $snapshot = $revenueProtection->snapshot($budget, [$transaction]);
         $softDeleteService->softDelete($transaction, $this->getUser());
-        $after = $balanceCalculator->balanceOfTransactions($budget, [$transaction]);
-        $protection = $revenueProtection->checkChange($budget, $before, $after);
+        $protection = $revenueProtection->checkChange($snapshot);
 
         $stop = $this->stopIfRevenueProtected(
             $request,
@@ -224,6 +221,7 @@ final class MemberTransactionController extends AbstractController
             'supprimer cette transaction',
             sprintf('Suppression de la transaction %s', self::describe($transaction)),
             $indexUrl,
+            [$transaction],
             $validator,
             $entityManager,
         );

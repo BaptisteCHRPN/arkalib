@@ -10,6 +10,7 @@ use App\Repository\BudgetLineRepository;
 use App\Security\AssertsOwnershipTrait;
 use App\Security\Voter\OrganizationVoter;
 use App\Service\BudgetCalculatorServie;
+use App\Service\RevenueProtectionService;
 use App\Service\SoftDeleteService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -18,12 +19,14 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[IsGranted('ROLE_USER')]
 #[Route('/member/budgetline')]
 final class MemberBudgetLineController extends AbstractController
 {
     use AssertsOwnershipTrait;
+    use RevenueProtectionTrait;
 
     #[Route('/new/{organizationSlug}/{budgetSlug}', name: 'app_budget_line_new', methods: ['GET', 'POST'])]
     public function new(
@@ -216,6 +219,8 @@ final class MemberBudgetLineController extends AbstractController
         BudgetLine $budgetLine,
         EntityManagerInterface $entityManager,
         SoftDeleteService $softDeleteService,
+        RevenueProtectionService $revenueProtection,
+        ValidatorInterface $validator,
     ): Response {
         $budget = $budgetLine->getBudget();
         $organization = $budget->getOrganization();
@@ -230,21 +235,53 @@ final class MemberBudgetLineController extends AbstractController
             ], Response::HTTP_SEE_OTHER);
         }
 
-        if ($this->isCsrfTokenValid('delete' . $budgetLine->getId(), $request->getPayload()->getString('_token'))) {
-            $softDeleteService->softDelete($budgetLine, $this->getUser());
-            $entityManager->flush();
-            $this->addFlash('undo_delete', [
-                'message'          => $budgetLine->isExpense() ? 'La dépense a été déplacée dans la corbeille.' : 'La recette a été déplacée dans la corbeille.',
-                'id'               => $budgetLine->getId(),
-                'type'             => $budgetLine->isExpense() ? 'depenses' : 'recettes',
-                'organizationSlug' => $organization->getSlug(),
-            ]);
-        }
-
-
-        return $this->redirectToRoute('app_membre_budget_show', [
+        $budgetUrl = $this->generateUrl('app_membre_budget_show', [
             'organizationSlug' => $organization->getSlug(),
             'budgetSlug' => $budget->getSlug(),
-        ], Response::HTTP_SEE_OTHER);
+        ]);
+
+        if (!$this->isCsrfTokenValid('delete' . $budgetLine->getId(), $request->getPayload()->getString('_token'))) {
+            return $this->redirect($budgetUrl, Response::HTTP_SEE_OTHER);
+        }
+
+        // Toutes les transactions de la ligne : celles rattachées aussi à une
+        // autre ligne restent comptées, les autres sortent du réel.
+        $snapshot = $revenueProtection->snapshot($budget, $budgetLine->getTransactions());
+        $softDeleteService->softDelete($budgetLine, $this->getUser());
+        $protection = $revenueProtection->checkChange($snapshot);
+
+        $stop = $this->stopIfRevenueProtected(
+            $request,
+            $protection,
+            $budget,
+            'supprimer cette ligne',
+            sprintf('Suppression de la ligne de %s « %s »', $budgetLine->isExpense() ? 'dépense' : 'recette', $budgetLine->getName()),
+            $budgetUrl,
+            [$budgetLine],
+            $validator,
+            $entityManager,
+        );
+
+        if (null !== $stop) {
+            return $stop;
+        }
+
+        $entityManager->flush();
+        $this->addFlash('undo_delete', [
+            'message'          => $budgetLine->isExpense() ? 'La dépense a été déplacée dans la corbeille.' : 'La recette a été déplacée dans la corbeille.',
+            'id'               => $budgetLine->getId(),
+            'type'             => $budgetLine->isExpense() ? 'depenses' : 'recettes',
+            'organizationSlug' => $organization->getSlug(),
+        ]);
+
+        if ($protection->isBlocked()) {
+            $this->addFlash('warning', sprintf(
+                'Blocage levé : le budget « %s » est maintenant à %s € de disponible. Votre motif a été enregistré.',
+                $budget->getName(),
+                number_format($protection->availableAfter / 100, 2, ',', ' '),
+            ));
+        }
+
+        return $this->redirect($budgetUrl, Response::HTTP_SEE_OTHER);
     }
 }
