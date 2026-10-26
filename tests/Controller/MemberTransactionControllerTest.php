@@ -10,6 +10,7 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 
 final class MemberTransactionControllerTest extends WebTestCase
 {
@@ -200,12 +201,136 @@ final class MemberTransactionControllerTest extends WebTestCase
         $this->assertCount(1, $overrides);
         $this->assertSame('Don remboursé au donateur le 03/11', $overrides[0]->getReason());
         $this->assertSame('admin-protection@example.com', $overrides[0]->getForcedBy()->getEmail());
-        $this->assertSame('Suppression de la transaction du 01/06/2026 de 1 000,00 € (réf. DON-12)', $overrides[0]->getOperation());
+        $this->assertSame('Suppression de la transaction du 01/06/2026 de 1 000,00 € sur « Dons » (réf. DON-12)', $overrides[0]->getOperation());
         $this->assertSame(['du 12/10/2026 (CA) – Répartition don chauffage'], $overrides[0]->getReallocations());
         $this->assertSame(-80000, $overrides[0]->getAvailableAfterInCents());
 
         $client->followRedirect();
         $this->assertSelectorTextContains('.alert-warning', 'Blocage levé');
+    }
+
+    public function testTreasurerCannotLowerAnIncomeThatFundsAReallocation(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+
+        $this->submitEdit($client, $scenario['treasurer'], $scenario['donation'], ['transaction[amount]' => '100']);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSelectorTextContains('.alert-danger', 'Impossible de modifier cette transaction');
+        $this->assertSelectorTextContains('.alert-danger', 'Seul un administrateur');
+        $this->assertSelectorNotExists('textarea[name="transaction[force_reason]"]');
+        $this->assertSame(1000.0, $this->reloadIncludingTrash(Transaction::class, $scenario['donation']->getId())->getAmount());
+    }
+
+    public function testIncomeCanBeLoweredWithinTheAvailable(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+
+        // 1 000 − 800 = 200 € de disponible : baisser de 100 € passe.
+        $this->submitEdit($client, $scenario['treasurer'], $scenario['donation'], ['transaction[amount]' => '900']);
+
+        $this->assertResponseRedirects();
+        $this->assertSame(900.0, $this->reloadIncludingTrash(Transaction::class, $scenario['donation']->getId())->getAmount());
+    }
+
+    /**
+     * Changer les lignes d'une transaction peut aussi faire perdre une recette.
+     */
+    public function testTreasurerCannotMoveAnIncomeToAnExpenseLine(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $expenseLine = $this->scenarioLine($scenario['source'], 'Achats', true);
+        $em->persist($expenseLine);
+        $em->flush();
+
+        $this->submitEdit($client, $scenario['treasurer'], $scenario['donation'], [
+            'transaction[budget_line]' => [(string) $expenseLine->getId()],
+        ]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSelectorTextContains('.alert-danger', 'Impossible de modifier cette transaction');
+
+        $reloaded = $this->reloadIncludingTrash(Transaction::class, $scenario['donation']->getId());
+        $this->assertSame(['Dons'], $reloaded->getBudgetLine()->map(fn(BudgetLine $line) => $line->getName())->getValues());
+    }
+
+    public function testAdminForcesALowerIncomeFromTheEditForm(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+
+        $crawler = $this->submitEdit($client, $scenario['admin'], $scenario['donation'], ['transaction[amount]' => '100']);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSelectorTextContains('.alert-danger', 'vous pouvez passer outre');
+        $this->assertSelectorExists('textarea[name="transaction[force_reason]"]');
+
+        // La saisie est conservée : l'admin n'ajoute que le motif.
+        $form = $crawler->filter('#transaction-form')->form();
+        $this->assertSame('100', $form['transaction[amount]']->getValue());
+        $form['transaction[force_reason]'] = 'Don remboursé en partie au donateur';
+        $client->submit($form);
+
+        $this->assertResponseRedirects();
+        $this->assertSame(100.0, $this->reloadIncludingTrash(Transaction::class, $scenario['donation']->getId())->getAmount());
+
+        $overrides = $this->overrides();
+        $this->assertCount(1, $overrides);
+        $this->assertSame(
+            'Modification de la transaction du 01/06/2026 de 1 000,00 € sur « Dons » (réf. DON-12), devenue du 01/06/2026 de 100,00 € sur « Dons » (réf. DON-12)',
+            $overrides[0]->getOperation(),
+        );
+        $this->assertSame(-70000, $overrides[0]->getAvailableAfterInCents());
+    }
+
+    public function testAdminForcingWithBlankReasonFromTheEditFormIsAskedAgain(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+
+        $this->submitEdit($client, $scenario['admin'], $scenario['donation'], [
+            'transaction[amount]' => '100',
+            'transaction[force_reason]' => '   ',
+        ]);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSelectorTextContains('.invalid-feedback', 'Indiquez pourquoi');
+        $this->assertSame(1000.0, $this->reloadIncludingTrash(Transaction::class, $scenario['donation']->getId())->getAmount());
+        $this->assertCount(0, $this->overrides());
+    }
+
+    /**
+     * Ouvre le formulaire de modification, change ces champs et l'envoie.
+     *
+     * @param array<string, string|string[]> $values
+     */
+    private function submitEdit(KernelBrowser $client, User $user, Transaction $transaction, array $values): Crawler
+    {
+        $budget = $transaction->getBudgetLine()->first()->getBudget();
+        $this->startRequestsAs($client, $user);
+
+        $crawler = $client->request('GET', sprintf(
+            '/budget/%s/%s/transaction/%d/edit',
+            $budget->getOrganization()->getSlug(),
+            $budget->getSlug(),
+            $transaction->getId(),
+        ));
+
+        // Le champ motif n'est affiché qu'en cas de blocage : on l'ajoute à la
+        // main pour simuler un admin qui le remplit d'emblée.
+        $form = $crawler->filter('#transaction-form')->form();
+        $parameters = $form->getPhpValues();
+
+        foreach ($values as $name => $value) {
+            preg_match('/^transaction\[(\w+)\]$/', $name, $match);
+            $parameters['transaction'][$match[1]] = $value;
+        }
+
+        return $client->request($form->getMethod(), $form->getUri(), $parameters);
     }
 
     private function deleteTransaction(KernelBrowser $client, User $user, Transaction $transaction, ?string $forceReason = null): void

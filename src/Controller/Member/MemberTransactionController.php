@@ -123,6 +123,8 @@ final class MemberTransactionController extends AbstractController
         Request $request,
         Transaction $transaction,
         EntityManagerInterface $entityManager,
+        RevenueProtectionService $revenueProtection,
+        ValidatorInterface $validator,
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
     ): Response {
@@ -130,7 +132,14 @@ final class MemberTransactionController extends AbstractController
         $this->assertBudgetBelongsToOrganization($budget, $organization);
         $this->assertTransactionBelongsToBudget($transaction, $budget);
 
-        $form = $this->createForm(TransactionType::class, $transaction, ['budget' => $budget]);
+        // Photo avant que le formulaire ne recopie la saisie dans la transaction.
+        $snapshot = $request->isMethod('POST') ? $revenueProtection->snapshot($budget, [$transaction]) : null;
+        $descriptionBefore = self::describe($transaction);
+
+        $form = $this->createForm(TransactionType::class, $transaction, [
+            'budget' => $budget,
+            'allow_force' => $this->isGranted(OrganizationVoter::ADMINISTER, $organization),
+        ]);
         $form->handleRequest($request);
 
         if ($budget->isClosed()) {
@@ -143,6 +152,29 @@ final class MemberTransactionController extends AbstractController
 
 
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $protection = $revenueProtection->checkChange($snapshot);
+            $blockedMessage = $this->revenueProtectionMessageForForm(
+                $request,
+                $form,
+                $protection,
+                $budget,
+                'modifier cette transaction',
+                sprintf('Modification de la transaction %s, devenue %s', $descriptionBefore, self::describe($transaction)),
+                $validator,
+                $entityManager,
+            );
+
+            // Contrôle avant la pièce jointe : rien ne doit être écrit sur le
+            // disque pour une modification refusée.
+            if (null !== $blockedMessage) {
+                return $this->renderBlockedForm('member/transaction/edit.html.twig', [
+                    'transaction' => $transaction,
+                    'organization' => $organization,
+                    'budget' => $budget,
+                    'blockedMessage' => $blockedMessage,
+                ], $form, [$transaction], $entityManager);
+            }
 
             $attachment = $form->get('attachment')->getData();
             $transactionName = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $transaction->getReference()), '-'));
@@ -160,6 +192,14 @@ final class MemberTransactionController extends AbstractController
 
             $entityManager->flush();
             $this->addFlash('success', 'La transaction à été modifiée avec succès !');
+
+            if ($protection->isBlocked()) {
+                $this->addFlash('warning', sprintf(
+                    'Blocage levé : le budget « %s » est maintenant à %s € de disponible. Votre motif a été enregistré.',
+                    $budget->getName(),
+                    number_format($protection->availableAfter / 100, 2, ',', ' '),
+                ));
+            }
 
             return $this->redirectToRoute('app_member_transaction_index', [
                 'organizationSlug' => $organization->getSlug(),
@@ -245,14 +285,19 @@ final class MemberTransactionController extends AbstractController
     }
 
     /**
-     * Ex. « du 01/06/2026 de 1 000,00 € (réf. DON-12) », pour les traces.
+     * Ex. « du 01/06/2026 de 1 000,00 € sur « Dons » (réf. DON-12) », pour
+     * les traces. Les lignes y figurent : passer d'une recette à une dépense
+     * doit s'y voir.
      */
     private static function describe(Transaction $transaction): string
     {
+        $lines = $transaction->getBudgetLine()->map(fn(BudgetLine $line) => sprintf('« %s »', $line->getName()))->toArray();
+
         return sprintf(
-            'du %s de %s €%s',
+            'du %s de %s € sur %s%s',
             $transaction->getDate()?->format('d/m/Y'),
             number_format((float) $transaction->getAmount(), 2, ',', ' '),
+            implode(', ', $lines),
             $transaction->getReference() ? sprintf(' (réf. %s)', $transaction->getReference()) : '',
         );
     }

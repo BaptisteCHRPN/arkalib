@@ -10,6 +10,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -88,6 +89,21 @@ class TransactionType extends AbstractType
                 ]
             ])
         ;
+
+        // Champ affiché seulement quand la protection des recettes bloque la
+        // modification : un admin y indique pourquoi il passe outre.
+        if ($options['allow_force']) {
+            $builder->add('force_reason', TextareaType::class, [
+                'label' => 'Motif pour passer outre <span class="text-danger">*</span>',
+                'label_html' => true,
+                'mapped' => false,
+                'required' => false,
+                'attr' => [
+                    'maxlength' => 255,
+                    'rows' => 3,
+                ],
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
@@ -95,7 +111,9 @@ class TransactionType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Transaction::class,
             'budget' => null,
+            'allow_force' => false,
         ]);
         $resolver->setAllowedTypes('budget', ['null', Budget::class]);
+        $resolver->setAllowedTypes('allow_force', 'bool');
     }
 }

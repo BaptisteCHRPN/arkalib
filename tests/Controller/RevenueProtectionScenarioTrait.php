@@ -72,17 +72,23 @@ trait RevenueProtectionScenarioTrait
     }
 
     /**
-     * Connecte l'utilisateur et place un jeton CSRF connu dans sa session.
-     *
-     * Vide aussi la mémoire de Doctrine : sinon la requête réutiliserait les
-     * objets créés par le test, dont les collections inverses sont vides
-     * (addBudgetLine() ne remplit pas BudgetLine::$transactions). En
-     * production, chaque requête relit la base.
+     * Connecte l'utilisateur après avoir vidé la mémoire de Doctrine : sinon
+     * la requête réutiliserait les objets créés par le test, dont les
+     * collections inverses sont vides (addBudgetLine() ne remplit pas
+     * BudgetLine::$transactions). En production, chaque requête relit la base.
      */
-    private function loginWithCsrfToken(KernelBrowser $client, User $user, string $tokenId): string
+    private function startRequestsAs(KernelBrowser $client, User $user): void
     {
         static::getContainer()->get(EntityManagerInterface::class)->clear();
         $client->loginUser($user);
+    }
+
+    /**
+     * Comme startRequestsAs(), avec un jeton CSRF connu placé dans la session.
+     */
+    private function loginWithCsrfToken(KernelBrowser $client, User $user, string $tokenId): string
+    {
+        $this->startRequestsAs($client, $user);
 
         $session = $client->getSession();
         $session->set('_csrf/' . $tokenId, self::$csrfToken);

@@ -35,6 +35,12 @@
         <div class="col-12 col-lg-10 col-xl-8">
             <div class="card shadow-sm border-0">
                 <div class="card-body p-4">
+                    {% if blockedMessage|default(null) %}
+                        <div class="alert alert-danger" role="alert">
+                            {{ blockedMessage }}
+                            <div class="small mt-2">Si vous aviez choisi une pièce jointe, sélectionnez-la à nouveau.</div>
+                        </div>
+                    {% endif %}
                     {{ include('member/transaction/_form.html.twig', {hideSubmitButton: true}) }}
                 </div>
                 <div class="card-footer bg-transparent border-top d-flex justify-content-between align-items-center px-4 py-3">
