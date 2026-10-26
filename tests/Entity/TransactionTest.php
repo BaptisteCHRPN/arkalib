@@ -61,6 +61,27 @@ final class TransactionTest extends TestCase
         $this->assertCount(0, $this->validator()->validate(new Transaction()));
     }
 
+    /**
+     * Une ligne supprimée en mémoire, avant le flush, ne compte déjà plus.
+     */
+    public function testTrashedLinesAreIgnoredForDirection(): void
+    {
+        $transaction = $this->transactionLinkedTo(false);
+        $transaction->addBudgetLine((new BudgetLine())->setIsExpense(true)->setDeletedAt(new \DateTimeImmutable()));
+
+        $this->assertSame(TransactionDirection::CASH_IN, $transaction->getDirection());
+        $this->assertCount(0, $this->validator()->validate($transaction));
+    }
+
+    public function testTransactionWhoseLinesAreAllTrashedHasNoDirectionAndIsNotReportedAsMixed(): void
+    {
+        $transaction = new Transaction();
+        $transaction->addBudgetLine((new BudgetLine())->setIsExpense(false)->setDeletedAt(new \DateTimeImmutable()));
+
+        $this->assertNull($transaction->getDirection());
+        $this->assertCount(0, $this->validator()->validate($transaction));
+    }
+
     private function validator(): ValidatorInterface
     {
         return Validation::createValidatorBuilder()

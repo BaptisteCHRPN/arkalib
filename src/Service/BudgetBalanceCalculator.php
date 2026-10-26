@@ -3,6 +3,8 @@
 namespace App\Service;
 
 use App\Entity\Budget;
+use App\Entity\BudgetLine;
+use App\Entity\Transaction;
 use App\Enum\TransactionDirection;
 use App\Model\BudgetBalance;
 use App\Repository\ReallocationLineRepository;
@@ -25,10 +27,46 @@ final class BudgetBalanceCalculator
 
     public function balanceOf(Budget $budget): BudgetBalance
     {
+        // La requête ne renvoie déjà que les transactions de ce budget.
+        $realized = self::sum($this->transactionRepository->findRealizedByBudget($budget));
+
+        return new BudgetBalance(
+            $realized->cashIn,
+            $realized->cashOut,
+            self::toCents($this->reallocationLineRepository->sumReceivedBy($budget)),
+            self::toCents($this->reallocationLineRepository->sumGivenBy($budget)),
+        );
+    }
+
+    /**
+     * Encaissé et décaissé de ces transactions pour ce budget, d'après leur
+     * état en mémoire : une modification pas encore flushée compte déjà.
+     * Sert à comparer un avant et un après ; les réaffectations valent zéro.
+     *
+     * @param iterable<Transaction> $transactions
+     */
+    public function balanceOfTransactions(Budget $budget, iterable $transactions): BudgetBalance
+    {
+        $counted = [];
+
+        foreach ($transactions as $transaction) {
+            if (self::countsFor($transaction, $budget)) {
+                $counted[] = $transaction;
+            }
+        }
+
+        return self::sum($counted);
+    }
+
+    /**
+     * @param iterable<Transaction> $transactions
+     */
+    private static function sum(iterable $transactions): BudgetBalance
+    {
         $cashIn = 0;
         $cashOut = 0;
 
-        foreach ($this->transactionRepository->findRealizedByBudget($budget) as $transaction) {
+        foreach ($transactions as $transaction) {
             $direction = $transaction->getDirection();
 
             if (TransactionDirection::CASH_IN === $direction) {
@@ -40,11 +78,21 @@ final class BudgetBalanceCalculator
             // on ne peut pas savoir dans quelle colonne compter le montant.
         }
 
-        return new BudgetBalance(
-            $cashIn,
-            $cashOut,
-            self::toCents($this->reallocationLineRepository->sumReceivedBy($budget)),
-            self::toCents($this->reallocationLineRepository->sumGivenBy($budget)),
+        return new BudgetBalance($cashIn, $cashOut, 0, 0);
+    }
+
+    /**
+     * Les conditions de findRealizedByBudget(), lues en mémoire : transaction
+     * hors corbeille, rattachée à au moins une ligne de ce budget hors corbeille.
+     */
+    private static function countsFor(Transaction $transaction, Budget $budget): bool
+    {
+        if (null !== $transaction->getDeletedAt()) {
+            return false;
+        }
+
+        return $transaction->getBudgetLine()->exists(
+            fn(int $i, BudgetLine $line) => null === $line->getDeletedAt() && $line->getBudget() === $budget
         );
     }
 

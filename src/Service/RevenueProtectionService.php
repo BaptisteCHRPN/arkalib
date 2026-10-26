@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Budget;
+use App\Model\BudgetBalance;
 use App\Model\RevenueProtectionResult;
 use App\Repository\ReallocationRepository;
 
@@ -24,16 +25,35 @@ final class RevenueProtectionService
     }
 
     /**
+     * Point d'entrée des contrôleurs : compare les transactions touchées avant
+     * et après l'opération (BudgetBalanceCalculator::balanceOfTransactions()).
+     *
+     * Dès qu'une recette est perdue, on mesure l'effet total sur le disponible :
+     * une ligne passée de Recette à Dépense compte deux fois. Une opération qui
+     * ne fait qu'ajouter des dépenses n'est jamais bloquée.
+     */
+    public function checkChange(Budget $budget, BudgetBalance $before, BudgetBalance $after): RevenueProtectionResult
+    {
+        $drop = $before->realizedBalance() - $after->realizedBalance();
+
+        if ($before->cashIn - $after->cashIn <= 0) {
+            return new RevenueProtectionResult($this->calculator->balanceOf($budget)->available() - $drop, []);
+        }
+
+        return $this->check($budget, $drop);
+    }
+
+    /**
      * À appeler avant le flush de l'opération : le disponible lu en base doit
      * encore inclure les encaissements que le budget s'apprête à perdre.
      *
-     * @param int $lostCashIn encaissements perdus par ce budget, en centimes
+     * @param int $drop baisse du disponible causée par l'opération, en centimes
      */
-    public function check(Budget $budget, int $lostCashIn): RevenueProtectionResult
+    public function check(Budget $budget, int $drop): RevenueProtectionResult
     {
-        $availableAfter = $this->calculator->balanceOf($budget)->available() - $lostCashIn;
+        $availableAfter = $this->calculator->balanceOf($budget)->available() - $drop;
 
-        if ($lostCashIn <= 0 || $availableAfter >= 0) {
+        if ($drop <= 0 || $availableAfter >= 0) {
             return new RevenueProtectionResult($availableAfter, []);
         }
 

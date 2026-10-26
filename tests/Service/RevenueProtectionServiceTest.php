@@ -9,6 +9,7 @@ use App\Entity\Reallocation;
 use App\Entity\ReallocationLine;
 use App\Entity\Transaction;
 use App\Enum\ReallocationInstance;
+use App\Model\BudgetBalance;
 use App\Model\RevenueProtectionResult;
 use App\Service\BudgetBalanceCalculator;
 use App\Service\RevenueProtectionService;
@@ -134,6 +135,57 @@ final class RevenueProtectionServiceTest extends KernelTestCase
         $this->transaction($source, 500.0, true);
 
         $this->assertFalse($this->check($source, 0)->isBlocked());
+    }
+
+    /**
+     * Cas limite validé : 1 000 € de dons, 600 € réaffectés, 400 € de
+     * disponible. Une transaction de 300 € passe de Recette à Dépense :
+     * −300 € d'encaissé et +300 € de décaissé, soit −200 € au final.
+     */
+    public function testIncomeTurnedIntoExpenseCountsTwice(): void
+    {
+        $source = $this->budget('Fête');
+        $this->transaction($source, 1000.0, false);
+        $this->reallocation($source, '600.00', '2026-10-12');
+
+        $result = $this->checkChange($source, new BudgetBalance(30000, 0, 0, 0), new BudgetBalance(0, 30000, 0, 0));
+
+        $this->assertTrue($result->isBlocked());
+        $this->assertSame(-20000, $result->availableAfter);
+    }
+
+    /**
+     * Une dépense de plus n'est jamais bloquée, même si tout a été réaffecté.
+     */
+    public function testAddingExpensesIsNeverBlocked(): void
+    {
+        $source = $this->budget('Fête');
+        $this->transaction($source, 1000.0, false);
+        $this->reallocation($source, '1000.00', '2026-10-12');
+
+        $result = $this->checkChange($source, new BudgetBalance(0, 10000, 0, 0), new BudgetBalance(0, 50000, 0, 0));
+
+        $this->assertFalse($result->isBlocked());
+        $this->assertSame(-40000, $result->availableAfter);
+    }
+
+    public function testLowerIncomeWithinAvailableIsAllowed(): void
+    {
+        $source = $this->budget('Fête');
+        $this->transaction($source, 1000.0, false);
+        $this->reallocation($source, '600.00', '2026-10-12');
+
+        $result = $this->checkChange($source, new BudgetBalance(100000, 0, 0, 0), new BudgetBalance(70000, 0, 0, 0));
+
+        $this->assertFalse($result->isBlocked());
+        $this->assertSame(10000, $result->availableAfter);
+    }
+
+    private function checkChange(Budget $budget, BudgetBalance $before, BudgetBalance $after): RevenueProtectionResult
+    {
+        $this->em->flush();
+
+        return $this->service->checkChange($budget, $before, $after);
     }
 
     private function check(Budget $budget, int $lostCashIn): RevenueProtectionResult

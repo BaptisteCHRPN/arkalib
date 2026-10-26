@@ -145,6 +145,53 @@ final class BudgetBalanceCalculatorTest extends KernelTestCase
         $this->assertSame(-50000, $this->balanceOf($source)->available());
     }
 
+    /**
+     * « Photo » avant / après d'une opération : ce qui compte est l'état en
+     * mémoire, pas encore flushé.
+     */
+    public function testInMemoryChangesAreCountedBeforeFlush(): void
+    {
+        $budget = $this->budget('Fête');
+        $income = $this->transaction(1000.0, $this->line($budget, false));
+        $expense = $this->transaction(300.0, $this->line($budget, true));
+        $income->setAmount(400.0);
+
+        $balance = $this->calculator->balanceOfTransactions($budget, [$income, $expense]);
+
+        $this->assertSame(40000, $balance->cashIn);
+        $this->assertSame(30000, $balance->cashOut);
+        $this->assertSame(0, $balance->reallocatedIn);
+        $this->assertSame(0, $balance->reallocatedOut);
+    }
+
+    public function testInMemoryTrashedTransactionOrLineNoLongerCounts(): void
+    {
+        $budget = $this->budget('Fête');
+
+        $trashedTransaction = $this->transaction(1000.0, $this->line($budget, false));
+        $trashedTransaction->setDeletedAt(new \DateTimeImmutable());
+
+        $trashedLine = $this->line($budget, false);
+        $onlyOnTrashedLine = $this->transaction(500.0, $trashedLine);
+
+        // Rattachée aussi à une ligne restante : elle reste comptée.
+        $alsoOnAnotherLine = $this->transaction(200.0, $trashedLine, $this->line($budget, false));
+
+        $trashedLine->setDeletedAt(new \DateTimeImmutable());
+
+        $balance = $this->calculator->balanceOfTransactions($budget, [$trashedTransaction, $onlyOnTrashedLine, $alsoOnAnotherLine]);
+
+        $this->assertSame(20000, $balance->cashIn);
+    }
+
+    public function testTransactionsOfAnotherBudgetAreIgnored(): void
+    {
+        $budget = $this->budget('Fête');
+        $other = $this->transaction(1000.0, $this->line($this->budget('Chauffage'), false));
+
+        $this->assertSame(0, $this->calculator->balanceOfTransactions($budget, [$other])->cashIn);
+    }
+
     private function budget(string $name): Budget
     {
         $budget = new Budget();

@@ -157,10 +157,16 @@ class Transaction
      * dépenses : ce mélange est interdit à la saisie, mais des données
      * antérieures à cette règle peuvent encore le contenir.
      */
+    /**
+     * Les lignes à la corbeille ne comptent pas, comme en base où le filtre
+     * soft_delete les écarte : une ligne tout juste supprimée en mémoire,
+     * avant le flush, doit déjà être ignorée.
+     */
     public function getDirection(): ?TransactionDirection
     {
-        $hasIncome = $this->budget_line->exists(fn(int $i, BudgetLine $line) => !$line->isExpense());
-        $hasExpense = $this->budget_line->exists(fn(int $i, BudgetLine $line) => $line->isExpense());
+        $lines = $this->activeBudgetLines();
+        $hasIncome = $lines->exists(fn(int $i, BudgetLine $line) => !$line->isExpense());
+        $hasExpense = $lines->exists(fn(int $i, BudgetLine $line) => $line->isExpense());
 
         return match (true) {
             $hasIncome && !$hasExpense => TransactionDirection::CASH_IN,
@@ -169,12 +175,20 @@ class Transaction
         };
     }
 
+    /**
+     * @return Collection<int, BudgetLine>
+     */
+    private function activeBudgetLines(): Collection
+    {
+        return $this->budget_line->filter(fn(BudgetLine $line) => null === $line->getDeletedAt());
+    }
+
     #[Assert\Callback]
     public function validateSingleDirection(ExecutionContextInterface $context): void
     {
         // L'absence de ligne est déjà refusée par le formulaire (Count min 1) :
         // on ne signale ici que le mélange recettes / dépenses.
-        if (!$this->budget_line->isEmpty() && null === $this->getDirection()) {
+        if (!$this->activeBudgetLines()->isEmpty() && null === $this->getDirection()) {
             $context->buildViolation('Une transaction est soit un encaissement, soit un décaissement : sélectionne uniquement des recettes, ou uniquement des dépenses.')
                 ->atPath('budget_line')
                 ->addViolation();
