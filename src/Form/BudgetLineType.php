@@ -108,16 +108,33 @@ class BudgetLineType extends AbstractType
                 ]
             ])
         ;
+
+        // Champ affiché seulement quand la protection des recettes bloque la
+        // modification : un admin y indique pourquoi il passe outre.
+        if ($options['allow_force']) {
+            $builder->add('force_reason', TextareaType::class, [
+                'label' => 'Motif pour passer outre <span class="text-danger">*</span>',
+                'label_html' => true,
+                'mapped' => false,
+                'required' => false,
+                'attr' => [
+                    'maxlength' => 255,
+                    'rows' => 3,
+                ],
+            ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => BudgetLine::class,
+            'allow_force' => false,
         ]);
-        
+
         $resolver->setRequired('budget');
-        
+
         $resolver->setAllowedTypes('budget', Budget::class);
+        $resolver->setAllowedTypes('allow_force', 'bool');
     }
 }

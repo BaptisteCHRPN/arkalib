@@ -131,7 +131,9 @@ final class MemberBudgetLineController extends AbstractController
     public function edit(
         Request $request,
         BudgetLine $budgetLine,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        RevenueProtectionService $revenueProtection,
+        ValidatorInterface $validator,
     ): Response {
         $budget = $budgetLine->getBudget();
         $organization = $budget->getOrganization();
@@ -146,12 +148,47 @@ final class MemberBudgetLineController extends AbstractController
             ], Response::HTTP_SEE_OTHER);
         }
 
+        // Photo avant que le formulaire ne recopie la saisie dans la ligne :
+        // passer de Recette à Dépense change le sens de ses transactions.
+        $snapshot = $request->isMethod('POST') ? $revenueProtection->snapshot($budget, $budgetLine->getTransactions()) : null;
+        $wasExpense = $budgetLine->isExpense();
+
         $form = $this->createForm(BudgetLineType::class, $budgetLine, [
             'budget' => $budget,
+            'allow_force' => $this->isGranted(OrganizationVoter::ADMINISTER, $organization),
         ]);
         $form->handleRequest($request);
 
+        $template = $request->headers->has('Turbo-Frame')
+            ? 'member/budget_line/_edit_modal_form.html.twig'
+            : 'member/budget_line/edit.html.twig';
+
         if ($form->isSubmitted() && $form->isValid()) {
+
+            $protection = $revenueProtection->checkChange($snapshot);
+            $blockedMessage = $this->revenueProtectionMessageForForm(
+                $request,
+                $form,
+                $protection,
+                $budget,
+                'modifier cette ligne',
+                $wasExpense === $budgetLine->isExpense()
+                    ? sprintf('Modification de la ligne « %s »', $budgetLine->getName())
+                    : sprintf('Passage de la ligne « %s » de %s à %s', $budgetLine->getName(), $wasExpense ? 'dépense' : 'recette', $budgetLine->isExpense() ? 'dépense' : 'recette'),
+                $validator,
+                $entityManager,
+            );
+
+            // Contrôle avant la pièce jointe : rien ne doit être écrit sur le
+            // disque pour une modification refusée.
+            if (null !== $blockedMessage) {
+                return $this->renderBlockedForm($template, [
+                    'budgetLine' => $budgetLine,
+                    'budget' => $budget,
+                    'organization' => $organization,
+                    'blockedMessage' => $blockedMessage,
+                ], $form, [$budgetLine], $entityManager);
+            }
 
             $attachment = $form->get('attachment')->getData();
             $budgetLineName = strtolower(trim(preg_replace('/[^a-z0-9]+/i', '-', $budgetLine->getName()), '-'));
@@ -173,15 +210,19 @@ final class MemberBudgetLineController extends AbstractController
                 $this->addFlash('success', 'La dépense à été modifiée avec succès !');
             }
 
+            if ($protection->isBlocked()) {
+                $this->addFlash('warning', sprintf(
+                    'Blocage levé : le budget « %s » est maintenant à %s € de disponible. Votre motif a été enregistré.',
+                    $budget->getName(),
+                    number_format($protection->availableAfter / 100, 2, ',', ' '),
+                ));
+            }
+
             return $this->redirectToRoute('app_membre_budget_show', [
                 'organizationSlug' => $organization->getSlug(),
                 'budgetSlug' => $budget->getSlug(),
             ], Response::HTTP_SEE_OTHER);
         }
-
-        $template = $request->headers->has('Turbo-Frame')
-            ? 'member/budget_line/_edit_modal_form.html.twig'
-            : 'member/budget_line/edit.html.twig';
 
         return $this->render($template, [
             'budgetLine' => $budgetLine,

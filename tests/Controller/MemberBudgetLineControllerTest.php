@@ -9,6 +9,7 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DomCrawler\Crawler;
 
 final class MemberBudgetLineControllerTest extends WebTestCase
 {
@@ -142,6 +143,85 @@ final class MemberBudgetLineControllerTest extends WebTestCase
 
         $this->assertResponseStatusCodeSame(422);
         $this->assertNull($this->reloadIncludingTrash(BudgetLine::class, $scenario['incomeLine']->getId())->getDeletedAt());
+    }
+
+    /**
+     * Passer « Dons » en dépense : −1 000 € d'encaissé et +1 000 € de
+     * décaissé, soit 200 − 2 000 = −1 800 €.
+     */
+    public function testTreasurerCannotTurnAFundingIncomeLineIntoAnExpense(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+
+        $this->submitLineEdit($client, $scenario['treasurer'], $scenario['incomeLine'], ['is_expense' => 'Dépense']);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSelectorTextContains('.alert-danger', 'Impossible de modifier cette ligne');
+        $this->assertSelectorTextContains('.alert-danger', 'Seul un administrateur');
+        $this->assertFalse($this->reloadIncludingTrash(BudgetLine::class, $scenario['incomeLine']->getId())->isExpense());
+    }
+
+    /**
+     * Le montant d'une ligne est du prévu : le changer ne touche pas au réel.
+     */
+    public function testRenamingOrRepricingAFundingIncomeLineIsAllowed(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+
+        $this->submitLineEdit($client, $scenario['treasurer'], $scenario['incomeLine'], ['name' => 'Dons 2026', 'amount' => '10']);
+
+        $this->assertResponseRedirects();
+        $this->assertSame('Dons 2026', $this->reloadIncludingTrash(BudgetLine::class, $scenario['incomeLine']->getId())->getName());
+    }
+
+    public function testAdminForcesTurningAFundingIncomeLineIntoAnExpense(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+
+        $crawler = $this->submitLineEdit($client, $scenario['admin'], $scenario['incomeLine'], ['is_expense' => 'Dépense']);
+
+        $this->assertResponseStatusCodeSame(422);
+        $this->assertSelectorTextContains('.alert-danger', '-1 800,00 €');
+
+        $form = $crawler->filter('#budget-line-form')->form();
+        $form['budget_line[force_reason]'] = 'Saisie erronée : il s\'agissait d\'un achat';
+        $client->submit($form);
+
+        $this->assertResponseRedirects();
+        $this->assertTrue($this->reloadIncludingTrash(BudgetLine::class, $scenario['incomeLine']->getId())->isExpense());
+
+        $overrides = $this->overrides();
+        $this->assertCount(1, $overrides);
+        $this->assertSame('Passage de la ligne « Dons » de recette à dépense', $overrides[0]->getOperation());
+        $this->assertSame(-180000, $overrides[0]->getAvailableAfterInCents());
+    }
+
+    /**
+     * Ouvre la page de modification de la ligne, change ces champs et l'envoie.
+     * Pour is_expense, on donne le libellé affiché (« Dépense » / « Recette »).
+     *
+     * @param array<string, string> $values
+     */
+    private function submitLineEdit(KernelBrowser $client, User $user, BudgetLine $line, array $values): Crawler
+    {
+        $this->startRequestsAs($client, $user);
+        $crawler = $client->request('GET', sprintf('/member/budgetline/%d/edit', $line->getId()));
+        $form = $crawler->filter('#budget-line-form')->form();
+
+        foreach ($values as $field => $value) {
+            if ('is_expense' === $field) {
+                $value = $crawler->filter('select[name="budget_line[is_expense]"] option')
+                    ->reduce(fn(Crawler $option) => $option->text() === $value)
+                    ->attr('value');
+            }
+
+            $form[sprintf('budget_line[%s]', $field)] = $value;
+        }
+
+        return $client->submit($form);
     }
 
     private function deleteLine(KernelBrowser $client, User $user, BudgetLine $line, ?string $forceReason = null): void
