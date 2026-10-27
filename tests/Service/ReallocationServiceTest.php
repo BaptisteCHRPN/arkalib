@@ -117,11 +117,12 @@ final class ReallocationServiceTest extends KernelTestCase
         $user = $this->user();
         $this->em->flush();
 
-        $this->service->cancel($reallocation, $user);
+        $this->service->cancel($reallocation, $user, '  Décision du CA du 20/10 revenue sur la répartition  ');
         $this->em->flush();
 
         $this->assertTrue($reallocation->isCancelled());
         $this->assertSame($user, $reallocation->getDeletedBy());
+        $this->assertSame('Décision du CA du 20/10 revenue sur la répartition', $reallocation->getCancellationReason());
         $this->assertSame(-80000, $this->calculator()->balanceOf($target)->available());
         $this->assertSame(100000, $this->calculator()->balanceOf($source)->available());
     }
@@ -132,7 +133,32 @@ final class ReallocationServiceTest extends KernelTestCase
 
         $this->expectException(\LogicException::class);
 
-        $this->service->cancel($reallocation, $this->user());
+        $this->service->cancel($reallocation, $this->user(), 'Motif');
+    }
+
+    public function testCancelWithoutReasonIsRefused(): void
+    {
+        $reallocation = $this->reallocation($this->budget('Dons'), $this->budget('Chauffage'), '10.00', cancelled: false);
+
+        try {
+            $this->service->cancel($reallocation, $this->user(), '   ');
+            $this->fail('Une annulation sans motif doit être refusée.');
+        } catch (\InvalidArgumentException) {
+            $this->assertFalse($reallocation->isCancelled());
+        }
+    }
+
+    public function testRestoreClearsTheCancellationReason(): void
+    {
+        $source = $this->budget('Dons');
+        $this->transaction($source, 1000.0, false);
+        $reallocation = $this->reallocation($source, $this->budget('Chauffage'), '800.00', cancelled: true);
+        $reallocation->setCancellationReason('Erreur de saisie');
+        $this->em->flush();
+
+        $this->service->restore($reallocation);
+
+        $this->assertNull($reallocation->getCancellationReason());
     }
 
     public function testRestoringAnActiveReallocationIsAProgrammingError(): void

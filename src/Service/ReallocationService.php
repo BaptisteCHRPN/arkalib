@@ -107,15 +107,21 @@ final class ReallocationService
 
     /**
      * Jamais bloquée : une cible qui a déjà dépensé l'argent passe en négatif,
-     * et ce négatif est affiché.
+     * et ce négatif est affiché. Le motif est obligatoire : annuler est aussi
+     * une décision d'instance.
      */
-    public function cancel(Reallocation $reallocation, User $user): void
+    public function cancel(Reallocation $reallocation, User $user, string $reason): void
     {
         if ($reallocation->isCancelled()) {
             throw new \LogicException('Cette réaffectation est déjà annulée.');
         }
 
+        if ('' === trim($reason)) {
+            throw new \InvalidArgumentException('Le motif d\'annulation est obligatoire.');
+        }
+
         $this->softDeleteService->softDelete($reallocation, $user);
+        $reallocation->setCancellationReason(trim($reason));
     }
 
     /**
@@ -137,6 +143,7 @@ final class ReallocationService
 
         if (0 === count($violations)) {
             $this->softDeleteService->restore($reallocation);
+            $reallocation->setCancellationReason(null);
         }
 
         return $violations;

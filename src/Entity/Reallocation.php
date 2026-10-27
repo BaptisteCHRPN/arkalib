@@ -70,9 +70,30 @@ class Reallocation
     #[Assert\Valid]
     private Collection $lines;
 
+    /**
+     * Rempli à l'annulation, vidé à la restauration, comme deleted_at et
+     * deleted_by. Obligatoire pour annuler : c'est ReallocationService qui
+     * l'impose, car une réaffectation active n'en a pas.
+     */
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Length(max: 255)]
+    private ?string $cancellationReason = null;
+
     public function __construct()
     {
         $this->lines = new ArrayCollection();
+    }
+
+    public function getCancellationReason(): ?string
+    {
+        return $this->cancellationReason;
+    }
+
+    public function setCancellationReason(?string $cancellationReason): static
+    {
+        $this->cancellationReason = $cancellationReason;
+
+        return $this;
     }
 
     public function getId(): ?int

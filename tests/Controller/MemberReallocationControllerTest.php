@@ -3,6 +3,7 @@
 namespace App\Tests\Controller;
 
 use App\Entity\Organization;
+use App\Entity\Reallocation;
 use App\Entity\User;
 use App\Enum\OrganizationRole;
 use Doctrine\ORM\EntityManagerInterface;
@@ -178,6 +179,119 @@ final class MemberReallocationControllerTest extends WebTestCase
 
         $client->request('GET', $this->showUrl($scenario['reallocation']->getId()));
         $this->assertResponseStatusCodeSame(403);
+    }
+
+    public function testTreasurerCancelsWithAReason(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $id = $scenario['reallocation']->getId();
+        $token = $this->loginWithCsrfToken($client, $scenario['treasurer'], 'cancel-reallocation' . $id);
+
+        $client->request('POST', $this->showUrl($id) . '/annuler', ['_token' => $token, 'cancellation_reason' => 'Décision du CA du 20/10']);
+
+        $this->assertResponseRedirects($this->showUrl($id), 303);
+        $client->followRedirect();
+        $this->assertSelectorTextContains('.alert-success', 'a été annulée');
+        $this->assertSelectorTextContains('[data-cancellation-reason]', 'Décision du CA du 20/10');
+        $this->assertSelectorExists('[data-restore-form]');
+
+        $reallocation = $this->reloadIncludingTrash(Reallocation::class, $id);
+        $this->assertTrue($reallocation->isCancelled());
+        $this->assertSame('Décision du CA du 20/10', $reallocation->getCancellationReason());
+        $this->assertSame('tresorier-protection@example.com', $reallocation->getDeletedBy()->getEmail());
+    }
+
+    public function testCancelWithoutReasonIsRefused(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $id = $scenario['reallocation']->getId();
+        $token = $this->loginWithCsrfToken($client, $scenario['treasurer'], 'cancel-reallocation' . $id);
+
+        $client->request('POST', $this->showUrl($id) . '/annuler', ['_token' => $token, 'cancellation_reason' => '   ']);
+
+        $client->followRedirect();
+        $this->assertSelectorTextContains('.alert-danger', 'Indiquez le motif de l\'annulation.');
+        $this->assertFalse($this->reloadIncludingTrash(Reallocation::class, $id)->isCancelled());
+    }
+
+    public function testCancelWithAnInvalidTokenChangesNothing(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $id = $scenario['reallocation']->getId();
+        $this->loginWithCsrfToken($client, $scenario['treasurer'], 'cancel-reallocation' . $id);
+
+        $client->request('POST', $this->showUrl($id) . '/annuler', ['_token' => 'faux', 'cancellation_reason' => 'Motif']);
+
+        $this->assertFalse($this->reloadIncludingTrash(Reallocation::class, $id)->isCancelled());
+    }
+
+    public function testReaderSeesNoActionAndCannotCancel(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $id = $scenario['reallocation']->getId();
+        $reader = $this->addReader($scenario['organization']);
+
+        $this->startRequestsAs($client, $reader);
+        $client->request('GET', $this->showUrl($id));
+        $this->assertSelectorNotExists('[data-cancel-form]');
+
+        $token = $this->loginWithCsrfToken($client, $reader, 'cancel-reallocation' . $id);
+        $client->request('POST', $this->showUrl($id) . '/annuler', ['_token' => $token, 'cancellation_reason' => 'Motif']);
+
+        $this->assertResponseStatusCodeSame(403);
+        $this->assertFalse($this->reloadIncludingTrash(Reallocation::class, $id)->isCancelled());
+    }
+
+    public function testTreasurerRestoresACancelledReallocation(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $id = $scenario['reallocation']->getId();
+        $this->cancelInDatabase($scenario);
+        $token = $this->loginWithCsrfToken($client, $scenario['treasurer'], 'restore-reallocation' . $id);
+
+        $client->request('POST', $this->showUrl($id) . '/restaurer', ['_token' => $token]);
+
+        $client->followRedirect();
+        $this->assertSelectorTextContains('.alert-success', 'a été restaurée');
+        $this->assertSelectorExists('[data-cancel-form]');
+        $reallocation = $this->reloadIncludingTrash(Reallocation::class, $id);
+        $this->assertFalse($reallocation->isCancelled());
+        $this->assertNull($reallocation->getCancellationReason());
+    }
+
+    /**
+     * Mêmes règles qu'à la saisie : un budget clôturé depuis l'annulation
+     * empêche la restauration, avec le message de la règle.
+     */
+    public function testRestoreRefusedWhenATargetWasClosedSinceCancellation(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $id = $scenario['reallocation']->getId();
+        $this->cancelInDatabase($scenario);
+        $scenario['target']->setIsClosed(true);
+        static::getContainer()->get(EntityManagerInterface::class)->flush();
+        $token = $this->loginWithCsrfToken($client, $scenario['treasurer'], 'restore-reallocation' . $id);
+
+        $client->request('POST', $this->showUrl($id) . '/restaurer', ['_token' => $token]);
+
+        $client->followRedirect();
+        $this->assertSelectorTextContains('.alert-danger', 'Impossible de restaurer cette réaffectation : Le budget « Chauffage » est clôturé');
+        $this->assertTrue($this->reloadIncludingTrash(Reallocation::class, $id)->isCancelled());
+    }
+
+    private function cancelInDatabase(array $scenario): void
+    {
+        $scenario['reallocation']
+            ->setDeletedAt(new \DateTimeImmutable())
+            ->setDeletedBy($scenario['admin'])
+            ->setCancellationReason('Erreur de saisie');
+        static::getContainer()->get(EntityManagerInterface::class)->flush();
     }
 
     private function showUrl(int $id): string

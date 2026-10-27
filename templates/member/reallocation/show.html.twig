@@ -35,7 +35,10 @@
 		<div class="alert alert-secondary" role="alert" data-cancelled-notice>
 			Cette réaffectation a été annulée le {{ reallocation.deletedAt|date('d/m/Y à H:i') }}
 			{%- if reallocation.deletedBy %} par {{ reallocation.deletedBy.displayName }}{% endif %}.
-			Elle ne compte plus dans le disponible des budgets, mais reste consultable comme trace de la décision.
+			{% if reallocation.cancellationReason %}
+				<div class="mt-1" data-cancellation-reason><strong>Motif :</strong> {{ reallocation.cancellationReason }}</div>
+			{% endif %}
+			<div class="small mt-1">Elle ne compte plus dans le disponible des budgets, mais reste consultable comme trace de la décision.</div>
 		</div>
 	{% endif %}
 
@@ -106,5 +109,46 @@
 			</div>
 		</div>
 	</div>
+
+	{# Actions : une réaffectation ne se modifie pas, on l'annule et on en ressaisit une #}
+	{% if not reallocation.isCancelled() and is_granted('REALLOCATION_CANCEL', reallocation) %}
+		<div class="card shadow-sm border-danger mt-4" data-cancel-form>
+			<div class="card-body">
+				<h2 class="h6 fw-bold text-danger">Annuler cette réaffectation</h2>
+				<p class="small text-secondary">
+					L'argent revient au budget qui donne. Si un budget qui reçoit l'a déjà dépensé, son disponible deviendra négatif.
+					Pour corriger une erreur, annulez puis saisissez une nouvelle réaffectation.
+				</p>
+				<form method="post" action="{{ path('app_member_reallocation_cancel', {'organizationSlug': organization.slug, 'id': reallocation.id}) }}">
+					<input type="hidden" name="_token" value="{{ csrf_token('cancel-reallocation' ~ reallocation.id) }}">
+					<div class="mb-3">
+						<label for="cancellation_reason" class="form-label">Motif de l'annulation <span class="text-danger">*</span></label>
+						<textarea id="cancellation_reason" name="cancellation_reason" class="form-control" rows="2" maxlength="255" required
+							placeholder="Ex. : décision du CA du 20/10/2026, erreur de montant…"></textarea>
+					</div>
+					<button type="submit" class="btn btn-outline-danger"
+						onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réaffectation ?')">
+						{{ ux_icon('mdi:close-circle', {'class': 'me-2'}) }}Annuler la réaffectation
+					</button>
+				</form>
+			</div>
+		</div>
+	{% elseif reallocation.isCancelled() and is_granted('REALLOCATION_RESTORE', reallocation) %}
+		<div class="card shadow-sm mt-4" data-restore-form>
+			<div class="card-body">
+				<h2 class="h6 fw-bold">Restaurer cette réaffectation</h2>
+				<p class="small text-secondary">
+					Elle comptera de nouveau dans le disponible des budgets. Les règles de la saisie s'appliquent :
+					le budget qui donne doit encore disposer du montant, et aucun budget ne doit être clôturé ni dans la corbeille.
+				</p>
+				<form method="post" action="{{ path('app_member_reallocation_restore', {'organizationSlug': organization.slug, 'id': reallocation.id}) }}">
+					<input type="hidden" name="_token" value="{{ csrf_token('restore-reallocation' ~ reallocation.id) }}">
+					<button type="submit" class="btn btn-outline-primary">
+						{{ ux_icon('mdi:restore', {'class': 'me-2'}) }}Restaurer la réaffectation
+					</button>
+				</form>
+			</div>
+		</div>
+	{% endif %}
 </div>
 {% endblock %}
