@@ -174,6 +174,26 @@
 							{{ realBalance >= 0 ? '+' : '' }}{{ realBalance|number_format(2, ',', ' ') }} €
 						</span>
 					</div>
+					{% if reallocationRows is not empty %}
+						{# Ni recette ni dépense : les réaffectations s'ajoutent au solde #}
+						<hr class="my-2">
+						<div class="d-flex justify-content-between mb-2">
+							<span class="text-secondary small">Réaffectations (prévu et réel)</span>
+							<span class="fw-bold text-primary">{{ reallocatedNet >= 0 ? '+' : '' }}{{ reallocatedNet|number_format(2, ',', ' ') }} €</span>
+						</div>
+						<div class="d-flex justify-content-between mb-2">
+							<span class="small fw-bold">Disponible prévu</span>
+							<span class="fw-bold {% if plannedAvailable < 0 %}text-danger{% else %}text-success{% endif %}" data-available="planned">
+								{{ plannedAvailable >= 0 ? '+' : '' }}{{ plannedAvailable|number_format(2, ',', ' ') }} €
+							</span>
+						</div>
+						<div class="d-flex justify-content-between mb-3">
+							<span class="small fw-bold">Disponible réel</span>
+							<span class="fw-bold {% if realAvailable < 0 %}text-danger{% else %}text-success{% endif %}" data-available="real">
+								{{ realAvailable >= 0 ? '+' : '' }}{{ realAvailable|number_format(2, ',', ' ') }} €
+							</span>
+						</div>
+					{% endif %}
 					<hr class="my-2">
 					<div class="d-flex justify-content-between align-items-center">
 						<span class="small fw-medium">Écart</span>
@@ -504,6 +524,65 @@
 		</div>
 	</div>
 
+	{# Section Réaffectations : ni recettes ni dépenses #}
+	{% if reallocationRows is not empty %}
+		<div class="card shadow-sm mb-4" data-reallocations>
+			<div class="card-header bg-primary bg-opacity-10 border-primary border-opacity-25">
+				<div class="d-flex justify-content-between align-items-center">
+					<h2 class="h5 mb-0 text-primary">
+						{{ ux_icon('mdi:swap-horizontal', {'class': 'me-2'}) }}Réaffectations
+					</h2>
+					<span class="badge bg-primary">{{ reallocationRows|length }} décision(s)</span>
+				</div>
+			</div>
+			<div class="card-body p-0">
+				<div class="table-responsive">
+					<table class="table table-hover mb-0">
+						<thead class="table-light">
+							<tr>
+								<th>Décision</th>
+								<th>Sens</th>
+								<th>Motif</th>
+								<th class="text-end">Montant (prévu et réel)</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for row in reallocationRows %}
+								<tr data-reallocation-row>
+									<td class="text-nowrap">
+										{{ row.reallocation.decidedAt|date('d/m/Y') }}
+										<span class="badge bg-secondary ms-1" title="{{ row.reallocation.instance.label }}">{{ row.reallocation.instance.shortLabel }}</span>
+										{% if row.reallocation.pvReference %}
+											<div class="small text-secondary">{{ row.reallocation.pvReference }}</div>
+										{% endif %}
+									</td>
+									<td>
+										{% if row.received %}
+											{{ ux_icon('mdi:arrow-down-circle', {'class': 'text-primary me-1'}) }}Reçue de
+										{% else %}
+											{{ ux_icon('mdi:arrow-up-circle', {'class': 'text-primary me-1'}) }}Donnée à
+										{% endif %}
+										{% for counterpart in row.counterparts %}« {{ counterpart.name }} »{{ not loop.last ? ', ' }}{% endfor %}
+									</td>
+									<td>{{ row.reallocation.reason }}</td>
+									<td class="text-end fw-bold text-primary text-nowrap">
+										{{ row.received ? '+' : '-' }} {{ (row.amount / 100)|number_format(2, ',', ' ') }} €
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+						<tfoot class="table-light">
+							<tr>
+								<td colspan="3" class="fw-bold">Total des réaffectations</td>
+								<td class="text-end fw-bold text-primary text-nowrap">{{ reallocatedNet >= 0 ? '+' : '' }}{{ reallocatedNet|number_format(2, ',', ' ') }} €</td>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+	{% endif %}
+
 	{# Solde final #}
 	{% set ecartBalance = realBalance - balanceBudget %}
 	<div class="card shadow-sm border-{% if ecartBalance > 0 %}success{% elseif ecartBalance < 0 %}danger{% else %}secondary{% endif %} mb-4">
@@ -534,6 +613,32 @@
 					</span>
 				</div>
 			</div>
+			{% if reallocationRows is not empty %}
+				<hr>
+				<div class="row align-items-center">
+					<div class="col-md-3">
+						<h2 class="h5 mb-0 fw-bold">Disponible</h2>
+						<div class="small text-secondary">solde + réaffectations</div>
+					</div>
+					<div class="col-md-3 text-center">
+						<div class="small text-secondary">Prévisionnel</div>
+						<div class="h5 mb-0 fw-bold {% if plannedAvailable < 0 %}text-danger{% else %}text-success{% endif %}">
+							{{ plannedAvailable >= 0 ? '+' : '' }}{{ plannedAvailable|number_format(2, ',', ' ') }} €
+						</div>
+					</div>
+					<div class="col-md-3 text-center">
+						<div class="small text-secondary">Réalisé</div>
+						<div class="h5 mb-0 fw-bold {% if realAvailable < 0 %}text-danger{% else %}text-success{% endif %}">
+							{{ realAvailable >= 0 ? '+' : '' }}{{ realAvailable|number_format(2, ',', ' ') }} €
+						</div>
+					</div>
+					{% if realAvailable < 0 %}
+						<div class="col-md-3 text-center">
+							<span class="badge bg-danger" data-negative-available>Disponible négatif</span>
+						</div>
+					{% endif %}
+				</div>
+			{% endif %}
 		</div>
 	</div>
 

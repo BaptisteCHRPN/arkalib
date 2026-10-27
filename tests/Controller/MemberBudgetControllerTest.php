@@ -52,6 +52,83 @@ final class MemberBudgetControllerTest extends WebTestCase
         $this->assertNotNull($this->reloadIncludingTrash(Budget::class, $scenario['source']->getId())->getDeletedAt());
     }
 
+    /**
+     * La Fête a reçu 1 000 € de dons (1 000 € prévus) et en a donné 800.
+     */
+    public function testRealizedPageShowsGivenReallocationAndAvailable(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $this->startRequestsAs($client, $scenario['treasurer']);
+
+        $crawler = $client->request('GET', '/budget-realise/asso-protection-recettes/fete-protection');
+
+        $this->assertResponseIsSuccessful();
+        $rows = $crawler->filter('[data-reallocation-row]');
+        $this->assertCount(1, $rows);
+        $this->assertStringContainsString('Donnée à « Chauffage »', $rows->text());
+        $this->assertStringContainsString('Répartition don chauffage', $rows->text());
+        $this->assertStringContainsString('- 800,00 €', $rows->text());
+        $this->assertSame('+200,00 €', trim($crawler->filter('[data-available="planned"]')->text()));
+        $this->assertSame('+200,00 €', trim($crawler->filter('[data-available="real"]')->text()));
+        // Ni recette ni dépense : la carte Recettes est inchangée.
+        $this->assertSelectorTextContains('.card.border-success', '+ 1 000,00 €');
+    }
+
+    public function testRealizedPageShowsReceivedReallocation(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $this->startRequestsAs($client, $scenario['treasurer']);
+
+        $crawler = $client->request('GET', '/budget-realise/asso-protection-recettes/chauffage-protection');
+
+        $rows = $crawler->filter('[data-reallocation-row]');
+        $this->assertCount(1, $rows);
+        $this->assertStringContainsString('Reçue de « Fête »', $rows->text());
+        $this->assertStringContainsString('+ 800,00 €', $rows->text());
+        $this->assertSame('+800,00 €', trim($crawler->filter('[data-available="planned"]')->text()));
+        $this->assertSame('+800,00 €', trim($crawler->filter('[data-available="real"]')->text()));
+        // Les 800 € reçus ne sont pas des recettes.
+        $this->assertSelectorTextContains('.card.border-success', '+ 0,00 €');
+    }
+
+    public function testCancelledReallocationIsNotShownOnTheRealizedPage(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $scenario['reallocation']->setDeletedAt(new \DateTimeImmutable());
+        static::getContainer()->get(EntityManagerInterface::class)->flush();
+        $this->startRequestsAs($client, $scenario['treasurer']);
+
+        $client->request('GET', '/budget-realise/asso-protection-recettes/fete-protection');
+
+        $this->assertSelectorNotExists('[data-reallocations]');
+        $this->assertSelectorNotExists('[data-available="real"]');
+    }
+
+    /**
+     * Décision 4 : une dépense n'est jamais bloquée, mais le négatif se voit.
+     */
+    public function testNegativeAvailableIsClearlyShown(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $expenseLine = $this->scenarioLine($scenario['source'], 'Location salle', true);
+        $em->persist($expenseLine);
+        $em->persist($this->scenarioTransaction(500.0, $expenseLine));
+        $em->flush();
+        $this->startRequestsAs($client, $scenario['treasurer']);
+
+        $crawler = $client->request('GET', '/budget-realise/asso-protection-recettes/fete-protection');
+
+        $real = $crawler->filter('[data-available="real"]');
+        $this->assertSame('-300,00 €', trim($real->text()));
+        $this->assertStringContainsString('text-danger', $real->attr('class'));
+        $this->assertSelectorExists('[data-negative-available]');
+    }
+
     private function trashBudget(KernelBrowser $client, User $user, Budget $budget): void
     {
         $token = $this->loginWithCsrfToken($client, $user, 'delete' . $budget->getId());

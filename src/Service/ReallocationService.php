@@ -4,7 +4,9 @@ namespace App\Service;
 
 use App\Entity\Budget;
 use App\Entity\Reallocation;
+use App\Entity\ReallocationLine;
 use App\Entity\User;
+use App\Model\BudgetReallocationRow;
 use App\Repository\ReallocationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
@@ -60,6 +62,42 @@ final class ReallocationService
             'Impossible de supprimer définitivement ce budget : il est concerné par %s. Une réaffectation reste dans l\'historique de l\'association, même annulée : ce budget doit donc être conservé. Il reste dans la corbeille.',
             Reallocation::phrase($citing),
         );
+    }
+
+    /**
+     * Réaffectations actives de ce budget, la plus récente d'abord, vues
+     * depuis lui.
+     *
+     * @return BudgetReallocationRow[]
+     */
+    public function rowsFor(Budget $budget): array
+    {
+        $rows = [];
+
+        foreach ($this->reallocationRepository()->findCiting($budget, includeCancelled: false) as $reallocation) {
+            $lines = $reallocation->getLines()->toArray();
+
+            if ($reallocation->getSourceBudget() === $budget) {
+                $rows[] = new BudgetReallocationRow(
+                    $reallocation,
+                    false,
+                    array_sum(array_map(fn(ReallocationLine $line) => BudgetBalanceCalculator::toCents($line->getAmount()), $lines)),
+                    array_map(fn(ReallocationLine $line) => $line->getTargetBudget(), $lines),
+                );
+
+                continue;
+            }
+
+            $received = array_filter($lines, fn(ReallocationLine $line) => $line->getTargetBudget() === $budget);
+            $rows[] = new BudgetReallocationRow(
+                $reallocation,
+                true,
+                array_sum(array_map(fn(ReallocationLine $line) => BudgetBalanceCalculator::toCents($line->getAmount()), $received)),
+                [$reallocation->getSourceBudget()],
+            );
+        }
+
+        return $rows;
     }
 
     private function reallocationRepository(): ReallocationRepository

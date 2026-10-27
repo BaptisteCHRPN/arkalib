@@ -123,6 +123,7 @@ final class MemberBudgetController extends AbstractController
         BudgetLineRepository $budgetLineRepository,
         BudgetCalculatorService $budgetCalculatorService,
         BudgetBalanceCalculator $budgetBalanceCalculator,
+        ReallocationService $reallocationService,
 
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         EntityManagerInterface $entityManager,
@@ -177,8 +178,15 @@ final class MemberBudgetController extends AbstractController
         $sumRealExpenses = $balance->cashOut / 100;
         $realBalance = $balance->realizedBalance() / 100;
 
+        // Réaffectations : ni recettes ni dépenses, elles s'ajoutent au solde
+        // pour donner le disponible, du même montant au prévu et au réel.
+        $planned = $budgetBalanceCalculator->plannedBalanceOf($budget);
 
         return $this->render('member/budget/actual_budget.html.twig', [
+            'reallocationRows' => $reallocationService->rowsFor($budget),
+            'reallocatedNet' => ($balance->reallocatedIn - $balance->reallocatedOut) / 100,
+            'plannedAvailable' => $planned->available() / 100,
+            'realAvailable' => $balance->available() / 100,
             'budget' => $budget,
             'organization' => $organization,
             'expenses' => $expenses,
