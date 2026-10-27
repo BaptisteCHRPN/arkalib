@@ -4,8 +4,10 @@ namespace App\Tests\Controller;
 
 use App\Entity\Budget;
 use App\Entity\Organization;
+use App\Entity\RevenueProtectionOverride;
 use App\Entity\User;
 use App\Enum\OrganizationRole;
+use App\Model\RevenueProtectionResult;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -191,6 +193,46 @@ final class MemberBudgetControllerTest extends WebTestCase
 
         $this->assertSame('+ 1 000,00 €', $this->normalized($crawler->filter('[data-planned-available]')->text()));
         $this->assertSelectorNotExists('[data-planned-reallocations]');
+    }
+
+    public function testRealizedPageShowsRevenueProtectionOverrides(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $em->persist(new RevenueProtectionOverride(
+            $scenario['source'],
+            $scenario['admin'],
+            'Don remboursé au donateur',
+            'Suppression de la transaction du 01/06/2026 de 1 000,00 €',
+            new RevenueProtectionResult(-80000, [$scenario['reallocation']]),
+        ));
+        $em->flush();
+        // Le trésorier, qui n'a pas forcé, voit la trace.
+        $this->startRequestsAs($client, $scenario['treasurer']);
+
+        $crawler = $client->request('GET', '/budget-realise/asso-protection-recettes/fete-protection');
+
+        $rows = $crawler->filter('[data-override-row]');
+        $this->assertCount(1, $rows);
+        $text = $this->normalized($rows->text());
+        $this->assertSame($scenario['admin']->getDisplayName(), trim($rows->filter('td')->eq(1)->text()));
+        $this->assertStringContainsString('Suppression de la transaction du 01/06/2026 de 1 000,00 €', $text);
+        $this->assertStringContainsString('du 12/10/2026 (CA) – Répartition don chauffage', $text);
+        $this->assertStringContainsString('Don remboursé au donateur', $text);
+        $this->assertStringContainsString('-800,00 €', $text);
+    }
+
+    public function testRealizedPageWithoutOverrideHasNoOverrideBlock(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $this->startRequestsAs($client, $scenario['treasurer']);
+
+        $client->request('GET', '/budget-realise/asso-protection-recettes/fete-protection');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSelectorNotExists('[data-revenue-protection-overrides]');
     }
 
     private function normalized(string $text): string

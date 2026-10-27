@@ -6,6 +6,7 @@ use App\Entity\Trait\SoftDeleteTrait;
 use App\Entity\Trait\TraceableTrait;
 use App\Enum\ReallocationInstance;
 use App\Repository\ReallocationRepository;
+use App\Service\BudgetBalanceCalculator;
 use App\Validator\SufficientAvailableBalance;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -251,6 +252,16 @@ class Reallocation
                 ->atPath($path)
                 ->addViolation();
         }
+    }
+
+    /**
+     * Somme des lignes, en centimes.
+     */
+    public function getTotalInCents(): int
+    {
+        return array_sum($this->lines->map(
+            fn(ReallocationLine $line) => BudgetBalanceCalculator::toCents($line->getAmount())
+        )->toArray());
     }
 
     /**

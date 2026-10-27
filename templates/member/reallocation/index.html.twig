@@ -1,0 +1,87 @@
+{% extends 'user_base.html.twig' %}
+
+{% block title %}{{ organization.name|title }} | Réaffectations{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-4 py-4">
+	{# Breadcrumb #}
+	<nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_dashboard') }}">Tableau de bord</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}">{{ organization.name|title }}</a>
+			</li>
+			<li class="breadcrumb-item active text-secondary" aria-current="page">Réaffectations</li>
+		</ol>
+	</nav>
+
+	<h1 class="dashboard-title">
+		{{ ux_icon('mdi:swap-horizontal', {'class': 'me-2'}) }}Réaffectations
+	</h1>
+	<p class="text-secondary mb-4">
+		Les décisions de vos instances qui ont attribué une partie du disponible d'un budget à d'autres budgets.
+		Une réaffectation annulée reste dans cette liste : c'est la trace de la décision.
+	</p>
+
+	<div class="card shadow-sm">
+		<div class="card-body p-0">
+			{% if reallocations is not empty %}
+				<div class="table-responsive">
+					<table class="table table-hover mb-0 align-middle">
+						<thead class="table-light">
+							<tr>
+								<th>Décision</th>
+								<th>Budget qui donne</th>
+								<th>Budget(s) qui reçoivent</th>
+								<th>Motif</th>
+								<th class="text-end">Montant</th>
+								<th>Statut</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for reallocation in reallocations %}
+								<tr data-reallocation-item class="{{ reallocation.isCancelled() ? 'text-secondary' }}">
+									<td class="text-nowrap">
+										{{ reallocation.decidedAt|date('d/m/Y') }}
+										<span class="badge bg-secondary ms-1" title="{{ reallocation.instance.label }}">{{ reallocation.instance.shortLabel }}</span>
+										{% if reallocation.pvReference %}
+											<div class="small text-secondary">{{ reallocation.pvReference }}</div>
+										{% endif %}
+									</td>
+									<td>{% include 'member/reallocation/_budget.html.twig' with {budget: reallocation.sourceBudget, organization: organization} only %}</td>
+									<td>
+										{% for line in reallocation.lines %}
+											<div>{% include 'member/reallocation/_budget.html.twig' with {budget: line.targetBudget, organization: organization} only %}</div>
+										{% endfor %}
+									</td>
+									<td>{{ reallocation.reason }}</td>
+									<td class="text-end fw-bold text-nowrap">{{ (reallocation.totalInCents / 100)|number_format(2, ',', ' ') }} €</td>
+									<td>
+										{% if reallocation.isCancelled() %}
+											<span class="badge bg-secondary" data-status="cancelled">Annulée</span>
+										{% else %}
+											<span class="badge bg-success" data-status="active">Active</span>
+										{% endif %}
+									</td>
+									<td class="text-end">
+										<a href="{{ path('app_member_reallocation_show', {'organizationSlug': organization.slug, 'id': reallocation.id}) }}" class="btn btn-sm btn-outline-primary">Détail</a>
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			{% else %}
+				<div class="text-center py-5">
+					{{ ux_icon('mdi:swap-horizontal', {'class': 'text-secondary', 'style': 'font-size: 3rem;'}) }}
+					<p class="text-secondary mt-3 mb-0">Aucune réaffectation n'a encore été saisie.</p>
+					<p class="small text-secondary mb-0">Pour en saisir une, ouvrez le budget qui donne.</p>
+				</div>
+			{% endif %}
+		</div>
+	</div>
+</div>
+{% endblock %}

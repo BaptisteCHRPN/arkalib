@@ -7,6 +7,7 @@ use App\Entity\BudgetLine;
 use App\Entity\Organization;
 use App\Form\BudgetType;
 use App\Repository\BudgetLineRepository;
+use App\Repository\RevenueProtectionOverrideRepository;
 use App\Security\AssertsOwnershipTrait;
 use App\Security\Voter\OrganizationVoter;
 use App\Service\BudgetCalculatorService;
@@ -130,6 +131,7 @@ final class MemberBudgetController extends AbstractController
         BudgetCalculatorService $budgetCalculatorService,
         BudgetBalanceCalculator $budgetBalanceCalculator,
         ReallocationService $reallocationService,
+        RevenueProtectionOverrideRepository $overrideRepository,
 
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         EntityManagerInterface $entityManager,
@@ -193,6 +195,9 @@ final class MemberBudgetController extends AbstractController
             'reallocatedNet' => ($balance->reallocatedIn - $balance->reallocatedOut) / 100,
             'plannedAvailable' => $planned->available() / 100,
             'realAvailable' => $balance->available() / 100,
+            // Visibles de tous les membres : un passe-droit d'admin doit
+            // rester contrôlable par ceux qui lisent les comptes.
+            'revenueProtectionOverrides' => $overrideRepository->findByBudget($budget),
             'budget' => $budget,
             'organization' => $organization,
             'expenses' => $expenses,

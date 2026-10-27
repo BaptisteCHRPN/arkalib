@@ -1,0 +1,110 @@
+{% extends 'user_base.html.twig' %}
+
+{% block title %}{{ organization.name|title }} | Réaffectation {{ reallocation.describe() }}{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-4 py-4">
+	{# Breadcrumb #}
+	<nav style="--bs-breadcrumb-divider: url(&#34;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='%236c757d'/%3E%3C/svg%3E&#34;);" aria-label="breadcrumb">
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_dashboard') }}">Tableau de bord</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_organization_budgets', {'organizationSlug': organization.slug}) }}">{{ organization.name|title }}</a>
+			</li>
+			<li class="breadcrumb-item">
+				<a href="{{ path('app_member_reallocation_index', {'organizationSlug': organization.slug}) }}">Réaffectations</a>
+			</li>
+			<li class="breadcrumb-item active text-secondary" aria-current="page">Décision du {{ reallocation.decidedAt|date('d/m/Y') }}</li>
+		</ol>
+	</nav>
+
+	<div class="d-flex flex-wrap align-items-center gap-3 mb-4">
+		<h1 class="dashboard-title mb-0">
+			{{ ux_icon('mdi:swap-horizontal', {'class': 'me-2'}) }}Réaffectation du {{ reallocation.decidedAt|date('d/m/Y') }}
+		</h1>
+		{% if reallocation.isCancelled() %}
+			<span class="badge bg-secondary fs-6" data-status="cancelled">Annulée</span>
+		{% else %}
+			<span class="badge bg-success fs-6" data-status="active">Active</span>
+		{% endif %}
+	</div>
+
+	{% if reallocation.isCancelled() %}
+		<div class="alert alert-secondary" role="alert" data-cancelled-notice>
+			Cette réaffectation a été annulée le {{ reallocation.deletedAt|date('d/m/Y à H:i') }}
+			{%- if reallocation.deletedBy %} par {{ reallocation.deletedBy.displayName }}{% endif %}.
+			Elle ne compte plus dans le disponible des budgets, mais reste consultable comme trace de la décision.
+		</div>
+	{% endif %}
+
+	<div class="row g-4">
+		{# La décision #}
+		<div class="col-lg-5">
+			<div class="card shadow-sm h-100">
+				<div class="card-header bg-light">
+					<h2 class="h6 mb-0 fw-bold">La décision</h2>
+				</div>
+				<div class="card-body">
+					<dl class="row mb-0">
+						<dt class="col-sm-5 text-secondary fw-normal">Date</dt>
+						<dd class="col-sm-7">{{ reallocation.decidedAt|date('d/m/Y') }}</dd>
+
+						<dt class="col-sm-5 text-secondary fw-normal">Instance</dt>
+						<dd class="col-sm-7">{{ reallocation.instance.label }}</dd>
+
+						<dt class="col-sm-5 text-secondary fw-normal">Référence du PV</dt>
+						<dd class="col-sm-7">{{ reallocation.pvReference ?: '—' }}</dd>
+
+						<dt class="col-sm-5 text-secondary fw-normal">Motif</dt>
+						<dd class="col-sm-7">{{ reallocation.reason }}</dd>
+
+						<dt class="col-sm-5 text-secondary fw-normal">Saisie</dt>
+						<dd class="col-sm-7 mb-0" data-created>
+							{% if reallocation.createdAt %}le {{ reallocation.createdAt|date('d/m/Y à H:i') }}{% endif %}
+							{% if reallocation.createdBy %} par {{ reallocation.createdBy.displayName }}{% endif %}
+						</dd>
+					</dl>
+				</div>
+			</div>
+		</div>
+
+		{# Les montants #}
+		<div class="col-lg-7">
+			<div class="card shadow-sm h-100">
+				<div class="card-header bg-light">
+					<h2 class="h6 mb-0 fw-bold">
+						Budget qui donne :
+						{% include 'member/reallocation/_budget.html.twig' with {budget: reallocation.sourceBudget, organization: organization} only %}
+					</h2>
+				</div>
+				<div class="card-body p-0">
+					<table class="table mb-0 align-middle">
+						<thead class="table-light">
+							<tr>
+								<th>Budget qui reçoit</th>
+								<th class="text-end">Montant</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for line in reallocation.lines %}
+								<tr data-reallocation-line>
+									<td>{% include 'member/reallocation/_budget.html.twig' with {budget: line.targetBudget, organization: organization} only %}</td>
+									<td class="text-end text-nowrap">{{ line.amount|number_format(2, ',', ' ') }} €</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+						<tfoot class="table-light">
+							<tr>
+								<th>Total réaffecté</th>
+								<th class="text-end text-nowrap" data-total>{{ (reallocation.totalInCents / 100)|number_format(2, ',', ' ') }} €</th>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

@@ -68,6 +68,9 @@
 						<a class="btn btn-outline-primary" href="{{ path('app_member_membership_list', {'organizationSlug': organization.slug}) }}">
 							Membres
 						</a>
+						<a class="btn btn-outline-primary" href="{{ path('app_member_reallocation_index', {'organizationSlug': organization.slug}) }}">
+							Réaffectations
+						</a>
 						{% if is_granted('ORGANIZATION_ADMINISTER', organization) %}
 							<a class="btn btn-outline-primary" href="{{ path('app_invitation_send', {'organizationSlug': organization.slug}) }}">
 								Inviter un membre

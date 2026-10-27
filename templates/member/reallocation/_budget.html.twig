@@ -1,0 +1,11 @@
+{# Nom d'un budget cité par une réaffectation. Une réaffectation annulée peut
+   citer un budget passé depuis à la corbeille : pas de lien, une mention.
+   Params : budget, organization #}
+{% if budget.deletedAt %}
+	« {{ budget.name }} » <span class="badge bg-secondary" title="Ce budget est dans la corbeille de l'association">corbeille</span>
+{% else %}
+	<a href="{{ path('app_membre_budget_show', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}">« {{ budget.name }} »</a>
+{% endif %}
+{% if budget.isClosed() %}
+	<span class="badge bg-light text-secondary border">clôturé</span>
+{% endif %}

@@ -3,8 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\Budget;
+use App\Entity\Organization;
 use App\Entity\Reallocation;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -61,7 +63,68 @@ class ReallocationRepository extends ServiceEntityRepository
             return $qb->andWhere('r.deleted_at IS NULL')->getQuery()->getResult();
         }
 
-        // Le filtre soft_delete cacherait les réaffectations annulées.
+        return $this->withoutSoftDeleteFilter(fn() => $qb->getQuery()->getResult());
+    }
+
+    /**
+     * Toutes les réaffectations de l'organisation, annulées comprises, la plus
+     * récente d'abord, avec leurs budgets et leurs auteurs.
+     *
+     * @return Reallocation[]
+     */
+    public function findForOrganization(Organization $organization): array
+    {
+        return $this->withoutSoftDeleteFilter(fn() => $this->withEverything()
+            ->where('r.organization = :organization')
+            ->setParameter('organization', $organization)
+            ->orderBy('r.decidedAt', 'DESC')
+            ->addOrderBy('r.id', 'DESC')
+            ->getQuery()
+            ->getResult());
+    }
+
+    /**
+     * Une réaffectation, même annulée, si elle appartient à cette organisation.
+     */
+    public function findOneForOrganization(int $id, Organization $organization): ?Reallocation
+    {
+        return $this->withoutSoftDeleteFilter(fn() => $this->withEverything()
+            ->where('r.id = :id')
+            ->andWhere('r.organization = :organization')
+            ->setParameter('id', $id)
+            ->setParameter('organization', $organization)
+            ->getQuery()
+            ->getOneOrNullResult());
+    }
+
+    /**
+     * Budgets et auteurs chargés dans la même requête. Indispensable pour une
+     * réaffectation annulée : un budget passé depuis à la corbeille, chargé
+     * plus tard filtre actif, lèverait une EntityNotFoundException.
+     */
+    private function withEverything(): QueryBuilder
+    {
+        return $this->createQueryBuilder('r')
+            ->addSelect('l', 's', 't', 'cb', 'db')
+            ->join('r.sourceBudget', 's')
+            ->join('r.lines', 'l')
+            ->join('l.targetBudget', 't')
+            ->leftJoin('r.created_by', 'cb')
+            ->leftJoin('r.deleted_by', 'db');
+    }
+
+    /**
+     * Le filtre soft_delete cacherait les réaffectations annulées et les
+     * budgets à la corbeille qu'elles citent.
+     *
+     * @template T
+     *
+     * @param callable(): T $query
+     *
+     * @return T
+     */
+    private function withoutSoftDeleteFilter(callable $query): mixed
+    {
         $filters = $this->getEntityManager()->getFilters();
         $wasEnabled = $filters->isEnabled('soft_delete');
 
@@ -70,7 +133,7 @@ class ReallocationRepository extends ServiceEntityRepository
         }
 
         try {
-            return $qb->getQuery()->getResult();
+            return $query();
         } finally {
             if ($wasEnabled) {
                 $filters->enable('soft_delete');
