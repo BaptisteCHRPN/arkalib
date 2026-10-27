@@ -101,10 +101,30 @@ final class MemberBudgetControllerTest extends WebTestCase
         static::getContainer()->get(EntityManagerInterface::class)->flush();
         $this->startRequestsAs($client, $scenario['treasurer']);
 
-        $client->request('GET', '/budget-realise/asso-protection-recettes/fete-protection');
+        $crawler = $client->request('GET', '/budget-realise/asso-protection-recettes/fete-protection');
 
         $this->assertSelectorNotExists('[data-reallocations]');
-        $this->assertSelectorNotExists('[data-available="real"]');
+        $this->assertSelectorNotExists('[data-synthesis-reallocations]');
+        // Sans réaffectation, la synthèse se termine sur le solde.
+        $this->assertSame('+1 000,00 €', trim($crawler->filter('[data-available="real"]')->text()));
+    }
+
+    /**
+     * La synthèse se lit de haut en bas : la réaffectation pèse autant au prévu
+     * qu'au réel, sans écart, et le badge du haut reprend le disponible réel.
+     */
+    public function testRealizedPageSynthesisLeadsToTheAvailable(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $this->startRequestsAs($client, $scenario['treasurer']);
+
+        $crawler = $client->request('GET', '/budget-realise/asso-protection-recettes/fete-protection');
+
+        $cells = $crawler->filter('[data-synthesis-reallocations] td')->each(fn($td) => $this->normalized($td->text()));
+        $this->assertSame(['Réaffectations détail plus bas', '-800,00 €', '-800,00 €', '—'], $cells);
+        $this->assertSame('+200,00 €', $this->normalized($crawler->filter('[data-header-available]')->text()));
+        $this->assertSelectorTextContains('[data-synthesis] tfoot', 'Disponible');
     }
 
     /**

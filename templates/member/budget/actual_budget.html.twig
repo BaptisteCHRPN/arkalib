@@ -4,7 +4,15 @@
 	{{ organization.name|title }} | {{ budget.name|capitalize }} - Prévu vs Réel
 {% endblock %}
 
+{% macro signed(amount) %}{{ amount >= 0 ? '+' : '' }}{{ amount|number_format(2, ',', ' ') }} €{% endmacro %}
+
 {% block body %}
+{% import _self as money %}
+{% set hasReallocations = reallocationRows is not empty %}
+{% set ecartIncomes = sumRealIncomes - sumIncomes %}
+{% set ecartExpenses = sumExpenses - sumRealExpenses %}
+{# Les réaffectations comptent autant au prévu qu'au réel : l'écart du disponible est celui du solde #}
+{% set ecartBalance = realBalance - balanceBudget %}
 <div class="budget-view">
 
 	{# Breadcrumb #}
@@ -38,11 +46,10 @@
 					</p>
 				</div>
 				<div class="mt-3 mt-md-0 text-center">
-					{% set ecartBalance = realBalance - balanceBudget %}
-					<span class="badge bg-{% if ecartBalance > 0 %}success{% elseif ecartBalance < 0 %}danger{% else %}secondary{% endif %} fs-5 px-3 py-2">
-						{{ ecartBalance >= 0 ? '+' : '' }}{{ ecartBalance|number_format(2, ',', ' ') }} €
+					<span class="badge bg-{% if realAvailable > 0 %}success{% elseif realAvailable < 0 %}danger{% else %}secondary{% endif %} fs-5 px-3 py-2" data-header-available>
+						{{ money.signed(realAvailable) }}
 					</span>
-					<div class="text-center text-secondary small mt-1">Écart global</div>
+					<div class="text-center text-secondary small mt-1">{{ hasReallocations ? 'Disponible réel' : 'Solde réalisé' }}</div>
 				</div>
 			</div>
 
@@ -63,7 +70,7 @@
 	{# Summary cards #}
 	<div class="row mb-4">
 		{# Recettes card #}
-		<div class="col-md-4 mb-3">
+		<div class="col-md-6 mb-3">
 			<div class="card border-success h-100">
 				<div class="card-header bg-success bg-opacity-10 border-success border-opacity-25">
 					<h2 class="h6 mb-0 text-success fw-bold">
@@ -79,7 +86,6 @@
 						<span class="text-secondary small">Réalisé</span>
 						<span class="fw-bold text-success">+ {{ sumRealIncomes|number_format(2, ',', ' ') }} €</span>
 					</div>
-					{% set ecartIncomes = sumRealIncomes - sumIncomes %}
 					<hr class="my-2">
 					<div class="d-flex justify-content-between align-items-center">
 						<span class="small fw-medium">Écart</span>
@@ -108,7 +114,7 @@
 		</div>
 
 		{# Dépenses card #}
-		<div class="col-md-4 mb-3">
+		<div class="col-md-6 mb-3">
 			<div class="card border-danger h-100">
 				<div class="card-header bg-danger bg-opacity-10 border-danger border-opacity-25">
 					<h2 class="h6 mb-0 text-danger fw-bold">
@@ -124,7 +130,6 @@
 						<span class="text-secondary small">Réalisé</span>
 						<span class="fw-bold text-danger">- {{ sumRealExpenses|number_format(2, ',', ' ') }} €</span>
 					</div>
-					{% set ecartExpenses = sumExpenses - sumRealExpenses %}
 					<hr class="my-2">
 					<div class="d-flex justify-content-between align-items-center">
 						<span class="small fw-medium">Écart</span>
@@ -152,56 +157,74 @@
 			</div>
 		</div>
 
-		{# Solde card #}
-		<div class="col-md-4 mb-3">
-			{% set ecartBalance = realBalance - balanceBudget %}
-			<div class="card border-{% if ecartBalance > 0 %}success{% elseif ecartBalance < 0 %}danger{% else %}secondary{% endif %} h-100">
-				<div class="card-header bg-{% if ecartBalance > 0 %}success{% elseif ecartBalance < 0 %}danger{% else %}secondary{% endif %} bg-opacity-10 border-opacity-25">
-					<h2 class="h6 mb-0 fw-bold text-{% if ecartBalance > 0 %}success{% elseif ecartBalance < 0 %}danger{% else %}secondary{% endif %}">
-						{{ ux_icon('mdi:piggy-bank', {'class': 'me-2'}) }}Solde
-					</h2>
-				</div>
-				<div class="card-body">
-					<div class="d-flex justify-content-between mb-2">
-						<span class="text-secondary small">Prévisionnel</span>
-						<span class="fw-bold {% if balanceBudget > 0 %}text-success{% elseif balanceBudget < 0 %}text-danger{% else %}text-secondary{% endif %}">
-							{{ balanceBudget >= 0 ? '+' : '' }}{{ balanceBudget|number_format(2, ',', ' ') }} €
-						</span>
-					</div>
-					<div class="d-flex justify-content-between mb-3">
-						<span class="text-secondary small">Réalisé</span>
-						<span class="fw-bold {% if realBalance > 0 %}text-success{% elseif realBalance < 0 %}text-danger{% else %}text-secondary{% endif %}">
-							{{ realBalance >= 0 ? '+' : '' }}{{ realBalance|number_format(2, ',', ' ') }} €
-						</span>
-					</div>
-					{% if reallocationRows is not empty %}
-						{# Ni recette ni dépense : les réaffectations s'ajoutent au solde #}
-						<hr class="my-2">
-						<div class="d-flex justify-content-between mb-2">
-							<span class="text-secondary small">Réaffectations (prévu et réel)</span>
-							<span class="fw-bold text-primary">{{ reallocatedNet >= 0 ? '+' : '' }}{{ reallocatedNet|number_format(2, ',', ' ') }} €</span>
-						</div>
-						<div class="d-flex justify-content-between mb-2">
-							<span class="small fw-bold">Disponible prévu</span>
-							<span class="fw-bold {% if plannedAvailable < 0 %}text-danger{% else %}text-success{% endif %}" data-available="planned">
-								{{ plannedAvailable >= 0 ? '+' : '' }}{{ plannedAvailable|number_format(2, ',', ' ') }} €
-							</span>
-						</div>
-						<div class="d-flex justify-content-between mb-3">
-							<span class="small fw-bold">Disponible réel</span>
-							<span class="fw-bold {% if realAvailable < 0 %}text-danger{% else %}text-success{% endif %}" data-available="real">
-								{{ realAvailable >= 0 ? '+' : '' }}{{ realAvailable|number_format(2, ',', ' ') }} €
-							</span>
-						</div>
-					{% endif %}
-					<hr class="my-2">
-					<div class="d-flex justify-content-between align-items-center">
-						<span class="small fw-medium">Écart</span>
-						<span class="badge bg-{% if ecartBalance >= 0 %}success{% else %}danger{% endif %} fs-6 px-3 py-2">
-							{{ ecartBalance >= 0 ? '+' : '' }}{{ ecartBalance|number_format(2, ',', ' ') }} €
-						</span>
-					</div>
-				</div>
+	</div>
+
+	{# Synthèse : des opérations au disponible, lue de haut en bas #}
+	<div class="card shadow-sm mb-4" data-synthesis>
+		<div class="card-header bg-light">
+			<h2 class="h5 mb-0 fw-bold">
+				{{ ux_icon('mdi:piggy-bank', {'class': 'me-2 text-secondary'}) }}Synthèse
+			</h2>
+		</div>
+		<div class="card-body p-0">
+			<div class="table-responsive">
+				<table class="table mb-0 align-middle">
+					<thead class="table-light">
+						<tr>
+							<th></th>
+							<th class="text-end">Prévu</th>
+							<th class="text-end">Réel</th>
+							<th class="text-end">Écart</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Recettes</td>
+							<td class="text-end text-success text-nowrap">+ {{ sumIncomes|number_format(2, ',', ' ') }} €</td>
+							<td class="text-end text-success text-nowrap">+ {{ sumRealIncomes|number_format(2, ',', ' ') }} €</td>
+							<td class="text-end text-nowrap text-{{ ecartIncomes >= 0 ? 'success' : 'danger' }}">{{ money.signed(ecartIncomes) }}</td>
+						</tr>
+						<tr>
+							<td>Dépenses</td>
+							<td class="text-end text-danger text-nowrap">- {{ sumExpenses|number_format(2, ',', ' ') }} €</td>
+							<td class="text-end text-danger text-nowrap">- {{ sumRealExpenses|number_format(2, ',', ' ') }} €</td>
+							<td class="text-end text-nowrap text-{{ ecartExpenses >= 0 ? 'success' : 'danger' }}">{{ money.signed(ecartExpenses) }}</td>
+						</tr>
+						{% if hasReallocations %}
+							<tr class="border-top border-2">
+								<td class="fw-medium">Solde des opérations</td>
+								<td class="text-end fw-medium text-nowrap">{{ money.signed(balanceBudget) }}</td>
+								<td class="text-end fw-medium text-nowrap">{{ money.signed(realBalance) }}</td>
+								<td class="text-end fw-medium text-nowrap text-{{ ecartBalance >= 0 ? 'success' : 'danger' }}">{{ money.signed(ecartBalance) }}</td>
+							</tr>
+							{# Ni recette ni dépense : décidée par l'instance, elle est à la fois prévue et réalisée #}
+							<tr data-synthesis-reallocations>
+								<td>
+									{{ ux_icon('mdi:swap-horizontal', {'class': 'text-primary me-1'}) }}Réaffectations
+									<div class="small text-secondary">détail plus bas</div>
+								</td>
+								<td class="text-end text-primary text-nowrap">{{ money.signed(reallocatedNet) }}</td>
+								<td class="text-end text-primary text-nowrap">{{ money.signed(reallocatedNet) }}</td>
+								<td class="text-end text-secondary">—</td>
+							</tr>
+						{% endif %}
+					</tbody>
+					<tfoot>
+						<tr class="table-light border-top border-2">
+							<th>
+								{{ hasReallocations ? 'Disponible' : 'Solde' }}
+								{% if realAvailable < 0 %}
+									<span class="badge bg-danger ms-1" data-negative-available>Disponible négatif</span>
+								{% endif %}
+							</th>
+							<th class="text-end text-nowrap text-{{ plannedAvailable < 0 ? 'danger' : 'success' }}" data-available="planned">{{ money.signed(plannedAvailable) }}</th>
+							<th class="text-end text-nowrap text-{{ realAvailable < 0 ? 'danger' : 'success' }}" data-available="real">{{ money.signed(realAvailable) }}</th>
+							<th class="text-end">
+								<span class="badge bg-{{ ecartBalance >= 0 ? 'success' : 'danger' }} fs-6 px-3 py-2">{{ money.signed(ecartBalance) }}</span>
+							</th>
+						</tr>
+					</tfoot>
+				</table>
 			</div>
 		</div>
 	</div>
@@ -582,65 +605,6 @@
 			</div>
 		</div>
 	{% endif %}
-
-	{# Solde final #}
-	{% set ecartBalance = realBalance - balanceBudget %}
-	<div class="card shadow-sm border-{% if ecartBalance > 0 %}success{% elseif ecartBalance < 0 %}danger{% else %}secondary{% endif %} mb-4">
-		<div class="card-body">
-			<div class="row align-items-center">
-				<div class="col-md-3">
-					<h2 class="h5 mb-0 fw-bold">
-						{{ ux_icon('mdi:piggy-bank', {'class': 'me-2 text-secondary'}) }}
-						Solde final
-					</h2>
-				</div>
-				<div class="col-md-3 text-center">
-					<div class="small text-secondary">Prévisionnel</div>
-					<div class="h5 mb-0 fw-bold {% if balanceBudget > 0 %}text-success{% elseif balanceBudget < 0 %}text-danger{% else %}text-secondary{% endif %}">
-						{{ balanceBudget >= 0 ? '+' : '' }}{{ balanceBudget|number_format(2, ',', ' ') }} €
-					</div>
-				</div>
-				<div class="col-md-3 text-center">
-					<div class="small text-secondary">Réalisé</div>
-					<div class="h5 mb-0 fw-bold {% if realBalance > 0 %}text-success{% elseif realBalance < 0 %}text-danger{% else %}text-secondary{% endif %}">
-						{{ realBalance >= 0 ? '+' : '' }}{{ realBalance|number_format(2, ',', ' ') }} €
-					</div>
-				</div>
-				<div class="col-md-3 text-center">
-					<div class="small text-secondary">Écart</div>
-					<span class="badge bg-{% if ecartBalance >= 0 %}success{% else %}danger{% endif %} fs-6 px-3 py-2">
-						{{ ecartBalance >= 0 ? '+' : '' }}{{ ecartBalance|number_format(2, ',', ' ') }} €
-					</span>
-				</div>
-			</div>
-			{% if reallocationRows is not empty %}
-				<hr>
-				<div class="row align-items-center">
-					<div class="col-md-3">
-						<h2 class="h5 mb-0 fw-bold">Disponible</h2>
-						<div class="small text-secondary">solde + réaffectations</div>
-					</div>
-					<div class="col-md-3 text-center">
-						<div class="small text-secondary">Prévisionnel</div>
-						<div class="h5 mb-0 fw-bold {% if plannedAvailable < 0 %}text-danger{% else %}text-success{% endif %}">
-							{{ plannedAvailable >= 0 ? '+' : '' }}{{ plannedAvailable|number_format(2, ',', ' ') }} €
-						</div>
-					</div>
-					<div class="col-md-3 text-center">
-						<div class="small text-secondary">Réalisé</div>
-						<div class="h5 mb-0 fw-bold {% if realAvailable < 0 %}text-danger{% else %}text-success{% endif %}">
-							{{ realAvailable >= 0 ? '+' : '' }}{{ realAvailable|number_format(2, ',', ' ') }} €
-						</div>
-					</div>
-					{% if realAvailable < 0 %}
-						<div class="col-md-3 text-center">
-							<span class="badge bg-danger" data-negative-available>Disponible négatif</span>
-						</div>
-					{% endif %}
-				</div>
-			{% endif %}
-		</div>
-	</div>
 
 </div>
 {% endblock %}
