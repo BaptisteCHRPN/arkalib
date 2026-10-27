@@ -110,6 +110,13 @@
 					</a>
 				</div>
 			{% endif %}
+			{% if not budget.isClosed() and is_granted('REALLOCATION_CREATE', organization) %}
+				<div class="col-6">
+					<a href="{{ path('app_member_reallocation_new', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-outline-primary btn-sm w-100 py-2">
+						{{ ux_icon('mdi:swap-horizontal', {'class': 'me-1'}) }}Réaffectation
+					</a>
+				</div>
+			{% endif %}
 			<div class="col-6">
 				<a href="{{ path('app_member_transaction_index', {'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-outline-primary btn-sm w-100 py-2">
 					{{ ux_icon('hugeicons:transaction', {'class': 'me-1'}) }}Transactions

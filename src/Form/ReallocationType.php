@@ -66,6 +66,9 @@ class ReallocationType extends AbstractType
                 'allow_delete' => true,
                 // addLine() / removeLine() : la ligne connaît sa réaffectation.
                 'by_reference' => false,
+                // Une collection fait remonter ses erreurs au formulaire par
+                // défaut : celle du disponible doit rester près des lignes.
+                'error_bubbling' => false,
             ])
         ;
     }

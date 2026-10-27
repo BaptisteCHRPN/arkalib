@@ -120,6 +120,12 @@
 						Créer une catégorie
 					</button>
 				{% endif %}
+				{% if not budget.isClosed() and is_granted('REALLOCATION_CREATE', organization) %}
+					<a href="{{ path('app_member_reallocation_new', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-outline-primary">
+						{{ ux_icon('mdi:swap-horizontal', {'class': 'me-2'}) }}
+						Saisir une réaffectation
+					</a>
+				{% endif %}
 				<a href="{{ path('app_member_transaction_index', { 'organizationSlug': budget.organization.slug, 'budgetSlug': budget.slug }) }}" class="btn btn-outline-primary">
 					{{ ux_icon('hugeicons:transaction', {'class': 'me-2'}) }}
 					Voir les transactions

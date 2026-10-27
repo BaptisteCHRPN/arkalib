@@ -1,0 +1,75 @@
+<div{{ attributes }}>
+	{{ form_start(form, {attr: {
+		id: 'reallocation-form',
+		novalidate: 'novalidate',
+		'data-action': 'live#action:prevent',
+		'data-live-action-param': 'save',
+	}}) }}
+		{{ form_errors(form) }}
+		<div class="row g-3">
+			<div class="col-md-6">{{ form_row(form.decidedAt) }}</div>
+			<div class="col-md-6">{{ form_row(form.instance) }}</div>
+			<div class="col-md-6">{{ form_row(form.pvReference) }}</div>
+			<div class="col-md-6">{{ form_row(form.sourceBudget) }}</div>
+			<div class="col-12">{{ form_row(form.reason) }}</div>
+		</div>
+
+		<h2 class="h6 fw-bold mt-4 mb-3">Budgets qui reçoivent</h2>
+		{{ form_errors(form.lines) }}
+
+		{% for line in form.lines %}
+			<div class="row g-2 align-items-start mb-2" data-reallocation-line>
+				<div class="col-md-6">{{ form_row(line.targetBudget) }}</div>
+				<div class="col-md-4">{{ form_row(line.amount) }}</div>
+				<div class="col-md-2 d-flex align-items-end">
+					{{ form_widget(line.vars.button_delete, {
+						label: 'Retirer',
+						attr: {class: 'btn btn-outline-danger w-100 mt-md-4'},
+					}) }}
+				</div>
+			</div>
+		{% endfor %}
+		{% do form.lines.setRendered %}
+
+		{{ form_widget(form.lines.vars.button_add, {
+			label: 'Ajouter un budget',
+			attr: {class: 'btn btn-outline-primary'},
+		}) }}
+
+		{# Récapitulatif mis à jour à chaque changement de champ #}
+		{% set available = this.sourceAvailable %}
+		<div class="card bg-light border-0 mt-4" data-reallocation-summary>
+			<div class="card-body">
+				{% if available is null %}
+					<p class="text-secondary mb-0">Choisissez le budget qui donne pour voir son disponible.</p>
+				{% else %}
+					{% set remaining = available - this.total %}
+					<div class="d-flex flex-wrap gap-4">
+						<div>
+							Disponible de « {{ this.selectedSource.name }} »<br>
+							<strong data-summary="available" class="{{ available < 0 ? 'text-danger' }}">{{ (available / 100)|number_format(2, ',', ' ') }} €</strong>
+						</div>
+						<div>
+							Total réaffecté<br>
+							<strong data-summary="total">{{ (this.total / 100)|number_format(2, ',', ' ') }} €</strong>
+						</div>
+						<div>
+							Reste après la réaffectation<br>
+							<strong data-summary="remaining" class="{{ remaining < 0 ? 'text-danger' : 'text-success' }}">{{ (remaining / 100)|number_format(2, ',', ' ') }} €</strong>
+						</div>
+					</div>
+					{% if remaining < 0 %}
+						<p class="text-danger small mb-0 mt-2">Le total dépasse le disponible : la réaffectation ne pourra pas être enregistrée.</p>
+					{% endif %}
+				{% endif %}
+			</div>
+		</div>
+
+		<div class="d-flex justify-content-end gap-2 mt-4">
+			<a href="{{ path('app_membre_budget_show', {organizationSlug: organization.slug, budgetSlug: returnBudget.slug}) }}" class="btn btn-outline-secondary">Annuler</a>
+			<button type="submit" class="btn btn-primary">
+				{{ ux_icon('mdi:content-save', {'class': 'me-1'}) }}Enregistrer la réaffectation
+			</button>
+		</div>
+	{{ form_end(form) }}
+</div>
