@@ -31,6 +31,7 @@ final class BudgetBalanceCalculatorTest extends KernelTestCase
         $this->calculator = new BudgetBalanceCalculator(
             $this->em->getRepository(Transaction::class),
             $this->em->getRepository(ReallocationLine::class),
+            $this->em->getRepository(BudgetLine::class),
         );
 
         $this->organization = new Organization();
@@ -143,6 +144,48 @@ final class BudgetBalanceCalculatorTest extends KernelTestCase
         $this->transaction(500.0, $this->line($source, true));
 
         $this->assertSame(-50000, $this->balanceOf($source)->available());
+    }
+
+    /**
+     * Le prévu vient des lignes actives, pas des transactions ; les
+     * réaffectations y comptent comme dans le réel.
+     */
+    public function testPlannedBalanceComesFromActiveLinesPlusReallocations(): void
+    {
+        $source = $this->budget('Dons');
+        $heating = $this->budget('Chauffage');
+        $this->line($source, false)->setAmount(2000.0);
+        $this->line($source, true)->setAmount(300.0);
+        $this->line($source, false)->setAmount(999.0)->setIsActive(false);
+        $this->line($heating, true)->setAmount(1200.0);
+        // Une transaction ne change pas le prévu.
+        $this->transaction(5000.0, $this->line($source, false));
+        $this->reallocate($source, [[$heating, '1200.00']]);
+        $this->em->flush();
+        $this->em->clear();
+
+        $source = $this->calculator->plannedBalanceOf($source);
+        $heating = $this->calculator->plannedBalanceOf($heating);
+
+        $this->assertSame(200000, $source->cashIn);
+        $this->assertSame(30000, $source->cashOut);
+        $this->assertSame(170000, $source->realizedBalance());
+        // 2 000 − 300 − 1 200 réaffectés
+        $this->assertSame(50000, $source->available());
+        // Le Chauffage, financé par réaffectation, a un prévu équilibré.
+        $this->assertSame(0, $heating->available());
+    }
+
+    public function testCancelledReallocationIsIgnoredInThePlannedBalance(): void
+    {
+        $source = $this->budget('Dons');
+        $heating = $this->budget('Chauffage');
+        $this->line($source, false)->setAmount(2000.0);
+        $this->reallocate($source, [[$heating, '1200.00']], cancelled: true);
+        $this->em->flush();
+        $this->em->clear();
+
+        $this->assertSame(200000, $this->calculator->plannedBalanceOf($source)->available());
     }
 
     /**

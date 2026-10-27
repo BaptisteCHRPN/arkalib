@@ -7,11 +7,12 @@ use App\Entity\BudgetLine;
 use App\Entity\Transaction;
 use App\Enum\TransactionDirection;
 use App\Model\BudgetBalance;
+use App\Repository\BudgetLineRepository;
 use App\Repository\ReallocationLineRepository;
 use App\Repository\TransactionRepository;
 
 /**
- * Seul endroit où se calculent le réel et le disponible d'un budget.
+ * Seul endroit où se calculent le réel, le prévu et le disponible d'un budget.
  *
  * Toutes les transactions comptent comme réalisées : le projet n'a pas de
  * statut prévu / réalisé. S'il en apparaît un, c'est ici seulement qu'il
@@ -22,6 +23,7 @@ final class BudgetBalanceCalculator
     public function __construct(
         private TransactionRepository $transactionRepository,
         private ReallocationLineRepository $reallocationLineRepository,
+        private BudgetLineRepository $budgetLineRepository,
     ) {
     }
 
@@ -33,9 +35,33 @@ final class BudgetBalanceCalculator
         return new BudgetBalance(
             $realized->cashIn,
             $realized->cashOut,
+            ...$this->reallocationsOf($budget),
+        );
+    }
+
+    /**
+     * Le prévu : cashIn et cashOut y sont les lignes de recette et de dépense
+     * actives. Une réaffectation y compte pour le même montant que dans le
+     * réel : décidée par l'instance, elle est à la fois prévue et réalisée.
+     */
+    public function plannedBalanceOf(Budget $budget): BudgetBalance
+    {
+        return new BudgetBalance(
+            self::toCents($this->budgetLineRepository->sumIncomesBudget($budget)),
+            self::toCents($this->budgetLineRepository->sumExpensesBudget($budget)),
+            ...$this->reallocationsOf($budget),
+        );
+    }
+
+    /**
+     * @return array{int, int} réaffectations reçues, puis données, en centimes
+     */
+    private function reallocationsOf(Budget $budget): array
+    {
+        return [
             self::toCents($this->reallocationLineRepository->sumReceivedBy($budget)),
             self::toCents($this->reallocationLineRepository->sumGivenBy($budget)),
-        );
+        ];
     }
 
     /**
