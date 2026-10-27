@@ -76,6 +76,7 @@ final class MemberBudgetController extends AbstractController
     #[Route('/budget/{organizationSlug}/{budgetSlug}', name: 'app_membre_budget_show', methods: ['GET'])]
     public function show(
         BudgetCalculatorService $budgetCalculatorService,
+        BudgetBalanceCalculator $budgetBalanceCalculator,
         CategoryGroupService $categoryGroupService,
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         EntityManagerInterface $entityManager,
@@ -102,7 +103,10 @@ final class MemberBudgetController extends AbstractController
 
         $sumExpenses = $budgetCalculatorService->sumTotalExpenses($budget);
         $sumIncomes = $budgetCalculatorService->sumTotalIncomes($budget);
-        $balanceBudget = $budgetCalculatorService->balanceBudget($budget);
+
+        // Le prévu affiché inclut les réaffectations : c'est le disponible
+        // prévu, le même que sur la page Prévu vs Réel.
+        $planned = $budgetBalanceCalculator->plannedBalanceOf($budget);
 
         return $this->render('member/budget/index.html.twig', [
             'budget' => $budget,
@@ -113,7 +117,9 @@ final class MemberBudgetController extends AbstractController
             'uncategorizedIncomeTotal' => $categoryGroupService->sumByType($uncategorizedLines, false),
             'sumExpenses' => $sumExpenses,
             'sumIncomes' => $sumIncomes,
-            'balanceBudget' => $balanceBudget,
+            'plannedAvailable' => $planned->available() / 100,
+            'reallocatedNet' => ($planned->reallocatedIn - $planned->reallocatedOut) / 100,
+            'hasReallocations' => $planned->reallocatedIn > 0 || $planned->reallocatedOut > 0,
         ]);
     }
 

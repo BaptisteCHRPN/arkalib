@@ -88,10 +88,13 @@
 			<div class="text-secondary" style="font-size: 0.7rem">Dépenses</div>
 		</div>
 		<div class="col-4 text-center p-2">
-			<div class="fw-bold {% if balanceBudget > 0 %}text-success{% elseif balanceBudget < 0 %}text-danger{% else %}text-secondary{% endif %} small">
-				{% if balanceBudget > 0 %}+{% endif %}{{ balanceBudget|number_format(0, ',', ' ') }} €
+			<div class="fw-bold {% if plannedAvailable > 0 %}text-success{% elseif plannedAvailable < 0 %}text-danger{% else %}text-secondary{% endif %} small">
+				{% if plannedAvailable > 0 %}+{% endif %}{{ plannedAvailable|number_format(0, ',', ' ') }} €
 			</div>
-			<div class="text-secondary" style="font-size: 0.7rem">Solde</div>
+			<div class="text-secondary" style="font-size: 0.7rem">{{ hasReallocations ? 'Disponible prévu' : 'Solde' }}</div>
+			{% if hasReallocations %}
+				<div class="text-primary" style="font-size: 0.65rem">dont {{ reallocatedNet >= 0 ? '+' : '' }}{{ reallocatedNet|number_format(0, ',', ' ') }} € réaff.</div>
+			{% endif %}
 		</div>
 	</div>
 

@@ -129,6 +129,55 @@ final class MemberBudgetControllerTest extends WebTestCase
         $this->assertSelectorExists('[data-negative-available]');
     }
 
+    /**
+     * La vue prévisionnelle : 1 000 € de dons prévus, 800 € donnés.
+     */
+    public function testBudgetPageShowsPlannedAvailableWithGivenReallocation(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $this->startRequestsAs($client, $scenario['treasurer']);
+
+        $crawler = $client->request('GET', '/budget/asso-protection-recettes/fete-protection');
+
+        $this->assertResponseIsSuccessful();
+        $this->assertSame('+ 200,00 €', $this->normalized($crawler->filter('[data-planned-available]')->text()));
+        $this->assertSame('dont -800,00 € de réaffectations', $this->normalized($crawler->filter('[data-planned-reallocations]')->text()));
+        // Ni recette ni dépense : le total des recettes prévues est inchangé.
+        $this->assertSelectorTextContains('.card.border-success', '1 000,00');
+    }
+
+    public function testBudgetPageShowsPlannedAvailableWithReceivedReallocation(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $this->startRequestsAs($client, $scenario['treasurer']);
+
+        $crawler = $client->request('GET', '/budget/asso-protection-recettes/chauffage-protection');
+
+        $this->assertSame('+ 800,00 €', $this->normalized($crawler->filter('[data-planned-available]')->text()));
+        $this->assertSame('dont +800,00 € de réaffectations', $this->normalized($crawler->filter('[data-planned-reallocations]')->text()));
+    }
+
+    public function testBudgetPageWithoutReallocationKeepsItsBalance(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $scenario['reallocation']->setDeletedAt(new \DateTimeImmutable());
+        static::getContainer()->get(EntityManagerInterface::class)->flush();
+        $this->startRequestsAs($client, $scenario['treasurer']);
+
+        $crawler = $client->request('GET', '/budget/asso-protection-recettes/fete-protection');
+
+        $this->assertSame('+ 1 000,00 €', $this->normalized($crawler->filter('[data-planned-available]')->text()));
+        $this->assertSelectorNotExists('[data-planned-reallocations]');
+    }
+
+    private function normalized(string $text): string
+    {
+        return trim(preg_replace('/\s+/u', ' ', $text));
+    }
+
     private function trashBudget(KernelBrowser $client, User $user, Budget $budget): void
     {
         $token = $this->loginWithCsrfToken($client, $user, 'delete' . $budget->getId());
