@@ -2,14 +2,22 @@
 
 namespace App\Tests\Controller;
 
+use App\Entity\Budget;
 use App\Entity\Organization;
+use App\Entity\Reallocation;
+use App\Entity\ReallocationLine;
+use App\Entity\RevenueProtectionOverride;
 use App\Entity\User;
 use App\Enum\OrganizationRole;
+use App\Enum\ReallocationInstance;
+use App\Model\RevenueProtectionResult;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class MemberOrganizationControllerTest extends WebTestCase
 {
+    use RevenueProtectionScenarioTrait;
+
     public function testNonMemberCannotDeleteOrganization(): void
     {
         $client = static::createClient();
@@ -34,6 +42,52 @@ final class MemberOrganizationControllerTest extends WebTestCase
         $client->request('POST', '/organization/' . $organization->getId());
 
         $this->assertResponseStatusCodeSame(403);
+    }
+
+    /**
+     * Suppression d'une organisation qui a une réaffectation active, une
+     * annulée et une trace de forçage. Les budgets sont protégés par des clés
+     * étrangères RESTRICT : tout doit partir dans le bon ordre.
+     */
+    public function testOrganizationWithReallocationsCanBeDeleted(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $scenario = $this->reallocatedIncomeScenario();
+        $organization = $scenario['organization'];
+
+        $cancelled = (new Reallocation())
+            ->setOrganization($organization)
+            ->setDecidedAt(new \DateTime('2026-09-01'))
+            ->setInstance(ReallocationInstance::GENERAL_ASSEMBLY)
+            ->setReason('Ancienne répartition')
+            ->setSourceBudget($scenario['source'])
+            ->addLine((new ReallocationLine())->setTargetBudget($this->scenarioBudget($organization, 'Sorties', 'sorties-protection'))->setAmount('50.00'));
+        $cancelled->setDeletedAt(new \DateTimeImmutable());
+        $em->persist($cancelled->getLines()->first()->getTargetBudget());
+        $em->persist($cancelled);
+        $em->persist(new RevenueProtectionOverride(
+            $scenario['source'],
+            $scenario['admin'],
+            'Don remboursé',
+            'Suppression de la transaction',
+            new RevenueProtectionResult(-80000, [$cancelled]),
+        ));
+        $em->flush();
+        $organizationId = $organization->getId();
+
+        $token = $this->loginWithCsrfToken($client, $scenario['admin'], 'delete' . $organizationId);
+        $client->request('POST', '/organization/' . $organizationId, ['_token' => $token]);
+
+        $this->assertResponseRedirects('/dashboard');
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $em->getFilters()->disable('soft_delete');
+        $this->assertNull($em->find(Organization::class, $organizationId));
+        $this->assertCount(0, $em->getRepository(Reallocation::class)->findAll());
+        $this->assertCount(0, $em->getRepository(ReallocationLine::class)->findAll());
+        $this->assertCount(0, $em->getRepository(RevenueProtectionOverride::class)->findAll());
+        $this->assertCount(0, $em->getRepository(Budget::class)->findAll());
+        $em->getFilters()->enable('soft_delete');
     }
 
     public function testMemberCanDeleteOrganization(): void

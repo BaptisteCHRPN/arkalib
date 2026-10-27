@@ -7,10 +7,62 @@ use App\Entity\Organization;
 use App\Entity\User;
 use App\Enum\OrganizationRole;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class MemberBudgetControllerTest extends WebTestCase
 {
+    use RevenueProtectionScenarioTrait;
+
+    public function testSourceOfAnActiveReallocationCannotBeTrashed(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+
+        $this->trashBudget($client, $scenario['treasurer'], $scenario['source']);
+
+        $this->assertResponseRedirects();
+        $client->followRedirect();
+        $this->assertSelectorTextContains('.alert-danger', 'Impossible de mettre ce budget à la corbeille');
+        $this->assertSelectorTextContains('.alert-danger', 'du 12/10/2026 (CA) – Répartition don chauffage');
+        $this->assertNull($this->reloadIncludingTrash(Budget::class, $scenario['source']->getId())->getDeletedAt());
+    }
+
+    public function testTargetOfAnActiveReallocationCannotBeTrashed(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+
+        $this->trashBudget($client, $scenario['treasurer'], $scenario['target']);
+
+        $this->assertResponseRedirects();
+        $this->assertNull($this->reloadIncludingTrash(Budget::class, $scenario['target']->getId())->getDeletedAt());
+    }
+
+    public function testBudgetCitedOnlyByCancelledReallocationsCanBeTrashed(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $scenario['reallocation']->setDeletedAt(new \DateTimeImmutable());
+        static::getContainer()->get(EntityManagerInterface::class)->flush();
+
+        $this->trashBudget($client, $scenario['treasurer'], $scenario['source']);
+
+        $this->assertResponseRedirects();
+        $this->assertNotNull($this->reloadIncludingTrash(Budget::class, $scenario['source']->getId())->getDeletedAt());
+    }
+
+    private function trashBudget(KernelBrowser $client, User $user, Budget $budget): void
+    {
+        $token = $this->loginWithCsrfToken($client, $user, 'delete' . $budget->getId());
+
+        $client->request('POST', sprintf(
+            '/budget/%s/%s/delete',
+            $budget->getOrganization()->getSlug(),
+            $budget->getSlug(),
+        ), ['_token' => $token]);
+    }
+
     private function makeOrganization(string $name, string $slug): Organization
     {
         $organization = new Organization();

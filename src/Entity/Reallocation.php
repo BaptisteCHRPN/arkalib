@@ -254,6 +254,38 @@ class Reallocation
     }
 
     /**
+     * Pour les messages, ex. « du 12/10/2026 (CA) – Répartition don ».
+     */
+    public function describe(): string
+    {
+        return sprintf(
+            'du %s (%s) – %s%s',
+            $this->decidedAt?->format('d/m/Y'),
+            $this->instance?->shortLabel(),
+            $this->reason,
+            $this->isCancelled() ? ' (annulée)' : '',
+        );
+    }
+
+    /**
+     * « la réaffectation du … » ou « les réaffectations du …, du … et du … ».
+     *
+     * @param Reallocation[] $reallocations au moins une
+     */
+    public static function phrase(array $reallocations): string
+    {
+        $descriptions = array_map(fn(self $reallocation) => $reallocation->describe(), array_values($reallocations));
+
+        if (1 === count($descriptions)) {
+            return 'la réaffectation ' . $descriptions[0];
+        }
+
+        $last = array_pop($descriptions);
+
+        return sprintf('les réaffectations %s et %s', implode(', ', $descriptions), $last);
+    }
+
+    /**
      * Annuler une réaffectation = la mettre en soft delete : elle sort de tous
      * les calculs mais reste consultable comme trace de la décision.
      */

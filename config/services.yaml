@@ -27,3 +27,12 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+when@test:
+    services:
+        # SQLite n'applique pas les clés étrangères par défaut, contrairement
+        # à MySQL : sans cela, les RESTRICT et CASCADE ne sont jamais testés.
+        # Priorité au-dessus de DAMA (100) : SQLite ignore ce réglage dans une
+        # transaction, il doit donc passer avant celle que DAMA ouvre.
+        Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\EnableForeignKeys:
+            tags: [{ name: doctrine.middleware, priority: 200 }]

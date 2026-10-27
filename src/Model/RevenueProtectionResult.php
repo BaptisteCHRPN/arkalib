@@ -36,23 +36,11 @@ final readonly class RevenueProtectionResult
             throw new \LogicException('Aucun message : l\'opération est autorisée.');
         }
 
-        $descriptions = $this->describeReallocations();
-
-        if (1 === count($descriptions)) {
-            return sprintf(
-                'Impossible de %s : cette recette finance la réaffectation %s. Annulez d\'abord cette réaffectation.',
-                $action,
-                $descriptions[0],
-            );
-        }
-
-        $last = array_pop($descriptions);
-
         return sprintf(
-            'Impossible de %s : cette recette finance les réaffectations %s et %s. Annulez d\'abord ces réaffectations.',
+            'Impossible de %s : cette recette finance %s. Annulez d\'abord %s.',
             $action,
-            implode(', ', $descriptions),
-            $last,
+            Reallocation::phrase($this->reallocationsToCancel),
+            1 === count($this->reallocationsToCancel) ? 'cette réaffectation' : 'ces réaffectations',
         );
     }
 
@@ -64,14 +52,6 @@ final readonly class RevenueProtectionResult
      */
     public function describeReallocations(): array
     {
-        return array_map(
-            fn(Reallocation $reallocation) => sprintf(
-                'du %s (%s) – %s',
-                $reallocation->getDecidedAt()?->format('d/m/Y'),
-                $reallocation->getInstance()?->shortLabel(),
-                $reallocation->getReason(),
-            ),
-            $this->reallocationsToCancel,
-        );
+        return array_map(fn(Reallocation $reallocation) => $reallocation->describe(), $this->reallocationsToCancel);
     }
 }

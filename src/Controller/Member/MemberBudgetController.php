@@ -11,6 +11,7 @@ use App\Security\AssertsOwnershipTrait;
 use App\Security\Voter\OrganizationVoter;
 use App\Service\BudgetCalculatorService;
 use App\Service\CategoryGroupService;
+use App\Service\ReallocationService;
 use App\Service\SoftDeleteService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -263,6 +264,7 @@ final class MemberBudgetController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         SoftDeleteService $softDeleteService,
+        ReallocationService $reallocationService,
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])] Organization $organization,
         #[MapEntity(mapping: ['budgetSlug' => 'slug'])] Budget $budget,
     ): Response {
@@ -270,6 +272,14 @@ final class MemberBudgetController extends AbstractController
         $this->assertBudgetBelongsToOrganization($budget, $organization);
 
         if ($this->isCsrfTokenValid('delete' . $budget->getId(), $request->getPayload()->getString('_token'))) {
+            if (null !== $blocked = $reallocationService->trashBlockedMessage($budget)) {
+                $this->addFlash('error', $blocked);
+
+                return $this->redirectToRoute('app_organization_budgets', [
+                    'organizationSlug' => $organization->getSlug(),
+                ], Response::HTTP_SEE_OTHER);
+            }
+
             $softDeleteService->softDelete($budget, $this->getUser());
             $entityManager->flush();
             $this->addFlash('success', 'Le budget a été déplacé dans la corbeille.');

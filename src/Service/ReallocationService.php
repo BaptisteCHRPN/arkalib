@@ -2,15 +2,18 @@
 
 namespace App\Service;
 
+use App\Entity\Budget;
 use App\Entity\Reallocation;
 use App\Entity\User;
+use App\Repository\ReallocationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * Annulation et restauration d'une réaffectation. Comme pour SoftDeleteService,
- * le flush reste à la charge de l'appelant.
+ * Annulation et restauration d'une réaffectation, et ce qu'elle interdit sur
+ * les budgets qu'elle cite. Comme pour SoftDeleteService, le flush reste à la
+ * charge de l'appelant.
  */
 final class ReallocationService
 {
@@ -19,6 +22,49 @@ final class ReallocationService
         private ValidatorInterface $validator,
         private SoftDeleteService $softDeleteService,
     ) {
+    }
+
+    /**
+     * Pourquoi ce budget ne peut pas aller à la corbeille, ou null s'il le
+     * peut : il est source ou cible d'une réaffectation active.
+     */
+    public function trashBlockedMessage(Budget $budget): ?string
+    {
+        $citing = $this->reallocationRepository()->findCiting($budget, includeCancelled: false);
+
+        if ([] === $citing) {
+            return null;
+        }
+
+        return sprintf(
+            'Impossible de mettre ce budget à la corbeille : il est concerné par %s. Annulez d\'abord %s.',
+            Reallocation::phrase($citing),
+            1 === count($citing) ? 'cette réaffectation' : 'ces réaffectations',
+        );
+    }
+
+    /**
+     * Pourquoi ce budget ne peut pas être supprimé définitivement, ou null
+     * s'il le peut : une réaffectation, même annulée, reste dans l'historique
+     * et le cite toujours.
+     */
+    public function purgeBlockedMessage(Budget $budget): ?string
+    {
+        $citing = $this->reallocationRepository()->findCiting($budget, includeCancelled: true);
+
+        if ([] === $citing) {
+            return null;
+        }
+
+        return sprintf(
+            'Impossible de supprimer définitivement ce budget : il est concerné par %s. Une réaffectation reste dans l\'historique de l\'association, même annulée : ce budget doit donc être conservé. Il reste dans la corbeille.',
+            Reallocation::phrase($citing),
+        );
+    }
+
+    private function reallocationRepository(): ReallocationRepository
+    {
+        return $this->entityManager->getRepository(Reallocation::class);
     }
 
     /**

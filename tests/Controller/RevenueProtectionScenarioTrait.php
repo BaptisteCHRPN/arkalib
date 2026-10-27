@@ -24,7 +24,7 @@ trait RevenueProtectionScenarioTrait
     private static string $csrfToken = 'jeton-csrf-de-test';
 
     /**
-     * @return array{organization: Organization, admin: User, treasurer: User, source: Budget, incomeLine: BudgetLine, donation: Transaction}
+     * @return array{organization: Organization, admin: User, treasurer: User, source: Budget, target: Budget, incomeLine: BudgetLine, donation: Transaction, reallocation: Reallocation}
      */
     private function reallocatedIncomeScenario(): array
     {
@@ -66,8 +66,10 @@ trait RevenueProtectionScenarioTrait
             'admin' => $admin,
             'treasurer' => $treasurer,
             'source' => $source,
+            'target' => $target,
             'incomeLine' => $incomeLine,
             'donation' => $donation,
+            'reallocation' => $reallocation,
         ];
     }
 

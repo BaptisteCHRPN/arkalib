@@ -11,6 +11,7 @@ use App\Repository\BudgetLineRepository;
 use App\Repository\BudgetRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\TransactionRepository;
+use App\Service\ReallocationService;
 use App\Service\SoftDeleteService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -116,11 +117,20 @@ final class MemberTrashController extends AbstractController
         string $type,
         int $id,
         EntityManagerInterface $entityManager,
+        ReallocationService $reallocationService,
     ): Response {
         $this->denyAccessUnlessGranted(OrganizationVoter::ADMINISTER, $organization);
 
         if ($this->isCsrfTokenValid('hard-delete' . $id, $request->getPayload()->getString('_token'))) {
             $entity = $this->findEntityInTrash($entityManager, $type, $id, $organization);
+
+            // Un budget cité par une réaffectation, même annulée, reste en
+            // corbeille : la clé étrangère RESTRICT refuserait de toute façon
+            // la suppression, avec une erreur 500.
+            if ($entity instanceof Budget && null !== $blocked = $reallocationService->purgeBlockedMessage($entity)) {
+                $this->addFlash('error', $blocked);
+                $entity = null;
+            }
 
             if ($entity) {
                 $entityManager->remove($entity);

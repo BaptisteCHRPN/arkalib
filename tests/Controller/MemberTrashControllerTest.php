@@ -12,7 +12,58 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class MemberTrashControllerTest extends WebTestCase
 {
+    use RevenueProtectionScenarioTrait;
+
     private const CSRF_TOKEN = 'jeton-csrf-de-test';
+
+    /**
+     * Décision 9 : même annulée, une réaffectation reste dans l'historique et
+     * cite le budget. Sans ce blocage, la clé étrangère RESTRICT ferait
+     * échouer la requête (erreur 500).
+     */
+    public function testBudgetCitedByACancelledReallocationCannotBePurged(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $scenario['reallocation']->setDeletedAt(new \DateTimeImmutable());
+        $scenario['source']->setDeletedAt(new \DateTimeImmutable());
+        static::getContainer()->get(EntityManagerInterface::class)->flush();
+
+        $this->purgeBudget($client, $scenario['admin'], $scenario['source']);
+
+        $this->assertResponseRedirects();
+        $client->followRedirect();
+        $this->assertSelectorTextContains('.alert-danger', 'Impossible de supprimer définitivement ce budget');
+        $this->assertSelectorTextContains('.alert-danger', 'Répartition don chauffage (annulée)');
+        $this->assertNotNull($this->reloadTrashedBudget($scenario['source']->getId()));
+    }
+
+    public function testBudgetCitedByNoReallocationCanBePurged(): void
+    {
+        $client = static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $unrelated = $this->scenarioBudget($scenario['organization'], 'Ancien budget', 'ancien-budget-protection');
+        $unrelated->setDeletedAt(new \DateTimeImmutable());
+        $em->persist($unrelated);
+        $em->flush();
+
+        $this->purgeBudget($client, $scenario['admin'], $unrelated);
+
+        $this->assertResponseRedirects();
+        $this->assertNull($this->reloadTrashedBudget($unrelated->getId()));
+    }
+
+    private function purgeBudget(KernelBrowser $client, User $user, Budget $budget): void
+    {
+        $token = $this->loginWithCsrfToken($client, $user, 'hard-delete' . $budget->getId());
+
+        $client->request('POST', sprintf(
+            '/organisation/%s/corbeille/budgets/%d/delete',
+            $budget->getOrganization()->getSlug(),
+            $budget->getId(),
+        ), ['_token' => $token]);
+    }
 
     private function makeOrganization(string $name, string $slug): Organization
     {
