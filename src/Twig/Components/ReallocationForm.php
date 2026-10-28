@@ -81,6 +81,15 @@ final class ReallocationForm extends AbstractController
         return $total;
     }
 
+    /**
+     * Récapitulatif mis à jour 300 ms après la dernière frappe, et non
+     * seulement quand le champ perd le focus (défaut : on(change)).
+     */
+    private function getDataModelValue(): ?string
+    {
+        return 'debounce(300)|*';
+    }
+
     protected function instantiateForm(): FormInterface
     {
         $reallocation = (new Reallocation())

@@ -31,6 +31,10 @@ class ReallocationLineType extends AbstractType
                 'input' => 'string',
                 'attr' => [
                     'data-controller' => 'money-input',
+                    // Le LiveComponent reformate déjà le montant : on ne garde
+                    // que le collage (voir money_input_controller.js).
+                    'data-money-input-format-value' => 'false',
+                    'inputmode' => 'decimal',
                 ],
             ])
         ;

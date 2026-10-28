@@ -2,18 +2,27 @@ import { Controller } from '@hotwired/stimulus';
 import AutoNumeric from 'autonumeric';
 
 export default class extends Controller {
-    connect() {
-        this.autoNumeric = new AutoNumeric(this.element, {
-            decimalCharacter: ',',
-            digitGroupSeparator: '',
-            decimalPlaces: 2,
-        });
+    // format: false dans un LiveComponent, qui reformate déjà le montant à
+    // chaque affichage : AutoNumeric et le remplacement du HTML par le
+    // LiveComponent se désynchronisent, et les montants saisis disparaissent.
+    static values = { format: { type: Boolean, default: true } };
 
-        this.element.addEventListener('paste', this.onPaste.bind(this));
+    connect() {
+        if (this.formatValue) {
+            this.autoNumeric = new AutoNumeric(this.element, {
+                decimalCharacter: ',',
+                digitGroupSeparator: '',
+                decimalPlaces: 2,
+            });
+        }
+
+        this.onPasteHandler = this.onPaste.bind(this);
+        this.element.addEventListener('paste', this.onPasteHandler);
     }
 
     disconnect() {
-        this.autoNumeric.remove();
+        this.element.removeEventListener('paste', this.onPasteHandler);
+        this.autoNumeric?.remove();
     }
 
     onPaste(event) {
@@ -25,7 +34,17 @@ export default class extends Controller {
         }
 
         event.preventDefault();
-        this.autoNumeric.set(value);
+
+        if (this.autoNumeric) {
+            this.autoNumeric.set(value);
+
+            return;
+        }
+
+        // Sans AutoNumeric, on prévient nous-mêmes le LiveComponent du changement.
+        this.element.value = value.toFixed(2).replace('.', ',');
+        this.element.dispatchEvent(new Event('input', { bubbles: true }));
+        this.element.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
     parseAmount(text) {

@@ -112,6 +112,25 @@ final class ReallocationFormTest extends WebTestCase
         $this->assertCount(1, $component->render()->crawler()->filter('[data-reallocation-line]'));
     }
 
+    /**
+     * Non-régression : avec AutoNumeric, les montants saisis disparaissaient
+     * quand le composant se réaffichait, et le récapitulatif n'était mis à
+     * jour qu'en quittant le champ. Le comportement du navigateur se vérifie
+     * à la main ; on vérifie ici ce que le serveur rend pour l'obtenir.
+     */
+    public function testAmountsAreSentWhileTypingWithoutAutoNumeric(): void
+    {
+        static::createClient();
+        $scenario = $this->reallocatedIncomeScenario();
+        $crawler = $this->component($scenario, $scenario['treasurer'])->render()->crawler();
+
+        $this->assertSame('debounce(300)|*', $crawler->filter('form')->attr('data-model'));
+
+        $amount = $crawler->filter('input[name="reallocation[lines][0][amount]"]');
+        $this->assertSame('money-input', $amount->attr('data-controller'));
+        $this->assertSame('false', $amount->attr('data-money-input-format-value'));
+    }
+
     public function testTheBudgetWeCameFromIsTheProposedSource(): void
     {
         static::createClient();
