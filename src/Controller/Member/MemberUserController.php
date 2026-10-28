@@ -5,9 +5,11 @@ namespace App\Controller\Member;
 use App\Entity\User;
 use App\Form\ChangeEmailFormType;
 use App\Form\UserType;
+use App\Service\AccountAnonymizer;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -152,28 +154,38 @@ final class MemberUserController extends AbstractController
 
 
     #[Route('/{id}', name: 'app_user_delete', methods: ['POST'])]
-    public function delete(Request $request, User $user, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, User $user, AccountAnonymizer $anonymizer, Security $security): Response
     {
         if ($this->getUser() !== $user) {
             throw $this->createAccessDeniedException();
         }
-        
-        if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->getPayload()->getString('_token'))) {
 
-            if ($user->getPicture()) {
-                // Le nom du fichier manquait : l'appel portait sur le dossier.
-                $avatarPath = $this->getParameter('user_avatar') . '/' . $user->getPicture();
-                if (file_exists($avatarPath)) {
-                    unlink($avatarPath);
-                }
-            }
-
-            $entityManager->remove($user);
-            $entityManager->flush();
+        if (!$this->isCsrfTokenValid('delete' . $user->getId(), $request->getPayload()->getString('_token'))) {
+            throw $this->createAccessDeniedException();
         }
 
-        // Le compte vient de disparaître : renvoyer vers la liste des comptes
-        // du back-office donnait un 403 juste après la suppression.
+        // Le message de l'anonymiseur s'adresse à l'opérateur du back-office :
+        // ici c'est la personne elle-même qui doit agir.
+        $blocking = $anonymizer->blockingOrganizations($user);
+        if ([] !== $blocking) {
+            $this->addFlash('error', sprintf(
+                'Vous êtes le seul administrateur de %s. Désignez un autre administrateur ou supprimez l\'organisation avant de supprimer votre compte.',
+                implode(', ', array_map(static fn (string $name) => '« ' . $name . ' »', $blocking)),
+            ));
+
+            return $this->redirectToRoute('app_member_user_edit', ['id' => $user->getId()], Response::HTTP_SEE_OTHER);
+        }
+
+        // Supprimer la ligne est impossible : les clés étrangères created_by /
+        // updated_by / deleted_by pointent vers user sans ON DELETE. On efface
+        // les données personnelles, les écritures gardent leur auteur.
+        $anonymizer->anonymize($user);
+
+        // Sans déconnexion, la session resterait ouverte sur le compte anonymisé.
+        $security->logout(false);
+
+        $this->addFlash('success', 'Votre compte a été supprimé.');
+
         return $this->redirectToRoute('app_home', [], Response::HTTP_SEE_OTHER);
     }
 }
