@@ -32,3 +32,6 @@ yarn-error.log
 ###< upload files ###
 
 /.idea/
+
+# Cache de graphify (outil Claude Code, régénérable)
+/graphify-out/
