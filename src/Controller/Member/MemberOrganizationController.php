@@ -8,6 +8,7 @@ use App\Enum\OrganizationRole;
 use App\Form\OrganizationType;
 use App\Repository\OrganizationRepository;
 use App\Security\Voter\OrganizationVoter;
+use App\Service\BudgetBalanceCalculator;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -78,6 +79,7 @@ final class MemberOrganizationController extends AbstractController
     #[IsGranted('ROLE_USER')]
     #[Route('/{organizationSlug}/budgets', name: 'app_organization_budgets')]
     public function showBudgets(
+        BudgetBalanceCalculator $budgetBalanceCalculator,
         #[MapEntity(mapping: ['organizationSlug' => 'slug'])]
         Organization $organization
     ): Response {
@@ -86,9 +88,27 @@ final class MemberOrganizationController extends AbstractController
         $budgets = $organization->getBudgets();
         $users = $organization->getUsers();
 
+        $keyFigures = [];
+        foreach ($budgets as $budget) {
+            $planned = $budgetBalanceCalculator->plannedBalanceOf($budget);
+            $realized = $budgetBalanceCalculator->balanceOf($budget);
+
+            $keyFigures[$budget->getId()] = [
+                'incomes' => $realized->cashIn / 100,
+                'plannedIncomes' => $planned->cashIn / 100,
+                'expenses' => $realized->cashOut / 100,
+                'plannedExpenses' => $planned->cashOut / 100,
+                // Le disponible réel, réaffectations comprises : celui de la
+                // page Prévu vs Réel.
+                'balance' => $realized->available() / 100,
+                'reallocated' => ($realized->reallocatedIn - $realized->reallocatedOut) / 100,
+            ];
+        }
+
         return $this->render('member/dashboard/show_budgets.html.twig', [
             'organization' => $organization,
             'budgets' => $budgets,
+            'keyFigures' => $keyFigures,
             'users' => $users
         ]);
     }

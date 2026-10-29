@@ -1,5 +1,25 @@
 {% import 'macros/avatar.html.twig' as avatarMacros %}
 {% extends 'user_base.html.twig' %}
+
+{# Réalisé / prévu, avec une barre quand un montant est prévu. Seules les
+   dépenses passent en rouge au-delà du prévu : encaisser plus est une
+   bonne nouvelle. #}
+{% macro realizedVsPlanned(realized, planned, label, overIsBad) %}
+	{% if realized == 0 and planned == 0 %}
+		<span class="text-secondary">—</span>
+	{% else %}
+		<div class="fw-semibold">
+			{{ realized|number_format(0, ',', ' ') }} €
+			<span class="fw-normal text-secondary">/ {{ planned|number_format(0, ',', ' ') }} €</span>
+		</div>
+		{% if planned > 0 %}
+			{% set ratio = (realized * 100 / planned)|round %}
+			<div class="progress mt-1" style="height: .4rem;" role="progressbar" aria-label="{{ label }}" aria-valuenow="{{ ratio }}" aria-valuemin="0" aria-valuemax="100" title="{{ ratio }} %">
+				<div class="progress-bar {{ overIsBad and ratio > 100 ? 'bg-danger' : 'bg-primary' }}" style="width: {{ min(ratio, 100) }}%"></div>
+			</div>
+		{% endif %}
+	{% endif %}
+{% endmacro %}
 {% block title %}
 	{{ organization.name|title }}
 {% endblock %}
@@ -98,38 +118,57 @@
 							<thead class="table-light">
 								<tr>
 									<th scope="col" class="ps-4">Budgets</th>
-									<th scope="col" class="text-center">Statut</th>
+									<th scope="col">Recettes</th>
+									<th scope="col">Dépenses</th>
+									<th scope="col" class="text-end">Solde</th>
 									<th scope="col" class="text-end pe-4">Actions</th>
 								</tr>
 							</thead>
 							<tbody>
 								{% for budget in budgets %}
+									{% set figures = keyFigures[budget.id] %}
 									<tr>
 										<td class="ps-4">
-											<div class="d-flex align-items-center">
-												<div>
-													<twig:BudgetNameEditor :budget="budget"/>
-												</div>
+											<div class="d-flex align-items-center gap-2">
+												<twig:BudgetNameEditor :budget="budget"/>
+												{% if budget.isClosed %}
+													<span class="badge rounded-pill bg-secondary">Clôturé</span>
+												{% endif %}
 											</div>
 										</td>
-										<td class="text-center">
-											{% if budget.isClosed %}
-												<span class="badge rounded-pill bg-secondary">Clôturé</span>
-											{% else %}
-												<span class="badge rounded-pill bg-success">Actif</span>
-											{% endif %}
-
+										<td class="text-nowrap" style="min-width: 9rem;">
+											{{ _self.realizedVsPlanned(figures.incomes, figures.plannedIncomes, 'Part des recettes prévues encaissée', false) }}
 										</td>
-										<td class="text-end pe-4">
+										<td class="text-nowrap" style="min-width: 9rem;">
+											{{ _self.realizedVsPlanned(figures.expenses, figures.plannedExpenses, 'Part des dépenses prévues réalisée', true) }}
+										</td>
+										<td class="text-end text-nowrap">
+											<div class="fw-bold {{ figures.balance > 0 ? 'text-success' : (figures.balance < 0 ? 'text-danger' : 'text-secondary') }}">
+												{{ figures.balance > 0 ? '+' : '' }}{{ figures.balance|number_format(0, ',', ' ') }} €
+											</div>
+											{% if figures.reallocated != 0 %}
+												<small class="text-secondary">dont {{ figures.reallocated > 0 ? '+' : '' }}{{ figures.reallocated|number_format(0, ',', ' ') }} € réaffectés</small>
+											{% endif %}
+										</td>
+										<td class="text-end text-nowrap pe-4">
 											<a href="{{ path('app_membre_budget_show', {'budgetSlug': budget.slug, 'organizationId': organization.id, 'organizationSlug': organization.slug}) }}" class="btn btn-sm btn-primary px-3">
 												Ouvrir
 											</a>
-										{% if is_granted('ORGANIZATION_CONTRIBUTE', organization) %}
-											<a href="{{ path('app_membre_duplicate_budget', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" class="btn btn-sm btn-outline-secondary px-3">
-												Dupliquer
-											</a>
-											{{ include('member/budget/_delete_form.html.twig', {'organization': organization, 'budget': budget}) }}
-										{% endif %}
+											{% if is_granted('ORGANIZATION_CONTRIBUTE', organization) %}
+												<div class="dropdown d-inline-block">
+													<button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false" aria-label="Autres actions">
+														{{ ux_icon('mdi:dots-vertical') }}
+													</button>
+													<ul class="dropdown-menu dropdown-menu-end shadow">
+														<li>
+															<a class="dropdown-item" href="{{ path('app_membre_duplicate_budget', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}">
+																{{ ux_icon('mdi:content-copy', {'class': 'me-2'}) }}Dupliquer
+															</a>
+														</li>
+														<li>{{ include('member/budget/_delete_form.html.twig', {'organization': organization, 'budget': budget}) }}</li>
+													</ul>
+												</div>
+											{% endif %}
 										</td>
 									</tr>
 								{% endfor %}

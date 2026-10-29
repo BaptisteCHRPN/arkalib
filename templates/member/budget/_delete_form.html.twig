@@ -1,6 +1,8 @@
 {% if is_granted('ORGANIZATION_CONTRIBUTE', budget.organization) %}
     <form method="post" class="d-inline" action="{{ path('app_member_budget_delete', {'organizationSlug': organization.slug, 'budgetSlug': budget.slug}) }}" onsubmit="return confirm('Voulez-vous vraiment déplacer ce budget dans la corbeille ?');">
         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ budget.id) }}">
-        <button class="btn btn-sm btn-outline-danger px-3">Supprimer</button>
+        <button type="submit" class="dropdown-item text-danger">
+            {{ ux_icon('mdi:trash-can', {'class': 'me-2'}) }}Supprimer
+        </button>
     </form>
 {% endif %}

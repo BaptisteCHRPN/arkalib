@@ -220,6 +220,38 @@ final class MemberOrganizationControllerTest extends WebTestCase
         $this->assertSelectorNotExists('a[href="/' . $organization->getSlug() . '/edit"]');
     }
 
+    /**
+     * Fête encaisse 1 000 € de dons et en donne 800 € à Chauffage, qui
+     * dépense 450 € sur 1 000 € prévus. Les réaffectations ne comptent que
+     * dans le solde.
+     */
+    public function testTheOrganizationPageShowsTheKeyFiguresOfEachBudget(): void
+    {
+        $client = static::createClient();
+        $em = static::getContainer()->get(EntityManagerInterface::class);
+        $scenario = $this->reallocatedIncomeScenario();
+
+        $heatingLine = $this->scenarioLine($scenario['target'], 'Fioul', true);
+        $em->persist($heatingLine);
+        $em->persist($this->scenarioTransaction(450.0, $heatingLine));
+        $em->flush();
+
+        $this->startRequestsAs($client, $scenario['treasurer']);
+        $crawler = $client->request('GET', '/' . $scenario['organization']->getSlug() . '/budgets');
+
+        $this->assertResponseIsSuccessful();
+        $rowOf = fn(string $name) => $crawler->filter('tbody tr')->reduce(fn($tr) => str_contains($tr->text(), $name))->text();
+
+        $party = $rowOf('Fête');
+        $this->assertStringContainsString('1 000 € / 1 000 €', $party);
+        $this->assertStringContainsString('+200 € dont -800 € réaffectés', $party);
+
+        $heating = $rowOf('Chauffage');
+        $this->assertStringContainsString('450 € / 1 000 €', $heating);
+        $this->assertStringContainsString('+350 € dont +800 € réaffectés', $heating);
+        $this->assertSelectorExists('[aria-valuenow="45"]');
+    }
+
     public function testAnAdminSeesEveryButton(): void
     {
         $client = static::createClient();
