@@ -6,6 +6,7 @@ use App\Entity\Budget;
 use App\Entity\BudgetLine;
 use App\Entity\Organization;
 use App\Repository\Trait\SearchesTextFieldsTrait;
+use App\Service\BudgetBalanceCalculator;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -83,56 +84,78 @@ class BudgetLineRepository extends ServiceEntityRepository
 
     public function sumExpensesByCategory(Budget $budget): array
     {
-        return $this->createQueryBuilder('bl')
-            ->select(
-                'c.id',
-                'c.name',
-                'parent.id as parent_id',
-                'parent.name as parent_name',
-                'SUM(bl.amount) as total',
-                'SUM(t.amount) as real_total'  // Somme des transactions
-            )
-            ->innerJoin('bl.category', 'c')
-            ->leftJoin('c.parentCategory', 'parent')
-            ->leftJoin('bl.transactions', 't')  // Jointure avec les transactions
-            ->where('bl.budget = :budget')
-            ->andWhere('bl.is_expense = :isExpense')
-            ->andWhere('bl.is_active = :isActive')
-            ->setParameter('budget', $budget)
-            ->setParameter('isExpense', true)
-            ->setParameter('isActive', true)
-            ->groupBy('c.id, parent.id')
-            ->addOrderBy('parent.name', 'ASC')
-            ->addOrderBy('c.name', 'ASC')
-            ->getQuery()
-            ->getResult();
+        return $this->sumByCategory($budget, true);
     }
 
     public function sumIncomesByCategory(Budget $budget): array
     {
-        return $this->createQueryBuilder('bl')
+        return $this->sumByCategory($budget, false);
+    }
+
+    /**
+     * Prévu et réalisé par catégorie, en euros.
+     *
+     * Deux requêtes, car le prévu se compte par ligne et le réalisé par
+     * transaction : joindre les deux dans un même SUM compterait chaque ligne
+     * autant de fois qu'elle a de transactions, et inversement.
+     *
+     * Une transaction rattachée à plusieurs lignes d'une même catégorie y
+     * compte une fois ; rattachée à des lignes de catégories différentes, elle
+     * compte dans chacune.
+     *
+     * @return array<array{id: int, name: string, parent_id: ?int, parent_name: ?string, total: float, real_total: float}>
+     */
+    private function sumByCategory(Budget $budget, bool $isExpense): array
+    {
+        $rows = $this->createQueryBuilder('bl')
             ->select(
                 'c.id',
                 'c.name',
                 'parent.id as parent_id',
                 'parent.name as parent_name',
                 'SUM(bl.amount) as total',
-                'SUM(t.amount) as real_total'  // Somme des transactions
             )
             ->innerJoin('bl.category', 'c')
             ->leftJoin('c.parentCategory', 'parent')
-            ->leftJoin('bl.transactions', 't')  // Jointure avec les transactions
             ->where('bl.budget = :budget')
             ->andWhere('bl.is_expense = :isExpense')
             ->andWhere('bl.is_active = :isActive')
             ->setParameter('budget', $budget)
-            ->setParameter('isExpense', false)
+            ->setParameter('isExpense', $isExpense)
             ->setParameter('isActive', true)
             ->groupBy('c.id, parent.id')
             ->addOrderBy('parent.name', 'ASC')
             ->addOrderBy('c.name', 'ASC')
             ->getQuery()
             ->getResult();
+
+        // DISTINCT et non GROUP BY : MariaDB refuserait t.amount non agrégé
+        // en mode ONLY_FULL_GROUP_BY.
+        $transactions = $this->createQueryBuilder('bl')
+            ->select('DISTINCT c.id as category_id', 't.id as transaction_id', 't.amount')
+            ->innerJoin('bl.category', 'c')
+            ->innerJoin('bl.transactions', 't')
+            ->where('bl.budget = :budget')
+            ->andWhere('bl.is_expense = :isExpense')
+            ->andWhere('bl.is_active = :isActive')
+            ->setParameter('budget', $budget)
+            ->setParameter('isExpense', $isExpense)
+            ->setParameter('isActive', true)
+            ->getQuery()
+            ->getResult();
+
+        $realizedInCents = [];
+        foreach ($transactions as $transaction) {
+            $categoryId = $transaction['category_id'];
+            $realizedInCents[$categoryId] = ($realizedInCents[$categoryId] ?? 0)
+                + BudgetBalanceCalculator::toCents($transaction['amount']);
+        }
+
+        return array_map(fn(array $row) => [
+            ...$row,
+            'total' => BudgetBalanceCalculator::toCents($row['total']) / 100,
+            'real_total' => ($realizedInCents[$row['id']] ?? 0) / 100,
+        ], $rows);
     }
 
     public function findDeletedByOrganization(Organization $organization, bool $isExpense): array
